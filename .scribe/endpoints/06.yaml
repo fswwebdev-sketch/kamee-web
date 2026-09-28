@@ -1,0 +1,974 @@
+name: 'Pesanan & Pembayaran'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/orders/quote
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Simulasi harga keranjang.'
+      description: 'Menghitung total (subtotal, ongkir, promo, poin) tanpa menyimpan pesanan.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer:
+        custom: []
+        name: customer
+        description: ''
+        required: true
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.name:
+        custom: []
+        name: customer.name
+        description: ':Attribute maksimal 100 karakter.'
+        required: true
+        example: Dinda
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.phone:
+        custom: []
+        name: customer.phone
+        description: ''
+        required: true
+        example: '6281234567890'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      fulfillment:
+        custom: []
+        name: fulfillment
+        description: 'pickup | delivery | dine_in.'
+        required: true
+        example: delivery
+        type: string
+        enumValues:
+          - pickup
+          - delivery
+          - dine_in
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      address:
+        custom: []
+        name: address
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.text:
+        custom: []
+        name: address.text
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Jl. Merdeka 10'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lat:
+        custom: []
+        name: address.lat
+        description: ':Attribute harus bernilai antara -90 dan 90.'
+        required: false
+        example: -6.178
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lng:
+        custom: []
+        name: address.lng
+        description: ':Attribute harus bernilai antara -180 dan 180.'
+        required: false
+        example: 106.631
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.note:
+        custom: []
+        name: address.note
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'Pagar hitam'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      scheduled_at:
+        custom: []
+        name: scheduled_at
+        description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      items:
+        custom: []
+        name: items
+        description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+        required: true
+        example:
+          - []
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      promo_code:
+        custom: []
+        name: promo_code
+        description: ':Attribute maksimal 50 karakter.'
+        required: false
+        example: KAMEEHEMAT
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      redeem_points:
+        custom: []
+        name: redeem_points
+        description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+        required: false
+        example: 0
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      note:
+        custom: []
+        name: note
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Tolong sedotan kertas'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'items[].product_id':
+        custom: []
+        name: 'items[].product_id'
+        description: ''
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].qty':
+        custom: []
+        name: 'items[].qty'
+        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].option_ids':
+        custom: []
+        name: 'items[].option_ids'
+        description: ''
+        required: false
+        example:
+          - 16
+        type: 'integer[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].note':
+        custom: []
+        name: 'items[].note'
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'less ice'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      outlet_id: 1
+      customer:
+        name: Dinda
+        phone: '6281234567890'
+      fulfillment: delivery
+      address:
+        text: 'Jl. Merdeka 10'
+        lat: -6.178
+        lng: 106.631
+        note: 'Pagar hitam'
+      items:
+        -
+          product_id: 1
+          qty: 2
+          option_ids:
+            - 16
+          note: 'less ice'
+      promo_code: KAMEEHEMAT
+      redeem_points: 0
+      note: 'Tolong sedotan kertas'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/orders/whatsapp
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Pesan via WhatsApp.'
+      description: 'Menyimpan pesanan berstatus pending (kanal whatsapp) dan mengembalikan tautan wa.me berisi ringkasan pesanan.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Idempotency-Key: 5f0c9f5e-1a2b-4c3d-8e9f-001122334456
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer:
+        custom: []
+        name: customer
+        description: ''
+        required: true
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.name:
+        custom: []
+        name: customer.name
+        description: ':Attribute maksimal 100 karakter.'
+        required: true
+        example: Dinda
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.phone:
+        custom: []
+        name: customer.phone
+        description: ''
+        required: true
+        example: '6281234567890'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      fulfillment:
+        custom: []
+        name: fulfillment
+        description: 'pickup | delivery | dine_in.'
+        required: true
+        example: delivery
+        type: string
+        enumValues:
+          - pickup
+          - delivery
+          - dine_in
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      address:
+        custom: []
+        name: address
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.text:
+        custom: []
+        name: address.text
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Jl. Merdeka 10'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lat:
+        custom: []
+        name: address.lat
+        description: ':Attribute harus bernilai antara -90 dan 90.'
+        required: false
+        example: -6.178
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lng:
+        custom: []
+        name: address.lng
+        description: ':Attribute harus bernilai antara -180 dan 180.'
+        required: false
+        example: 106.631
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.note:
+        custom: []
+        name: address.note
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'Pagar hitam'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      scheduled_at:
+        custom: []
+        name: scheduled_at
+        description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      items:
+        custom: []
+        name: items
+        description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+        required: true
+        example:
+          - []
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      promo_code:
+        custom: []
+        name: promo_code
+        description: ':Attribute maksimal 50 karakter.'
+        required: false
+        example: KAMEEHEMAT
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      redeem_points:
+        custom: []
+        name: redeem_points
+        description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+        required: false
+        example: 0
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      note:
+        custom: []
+        name: note
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Tolong sedotan kertas'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'items[].product_id':
+        custom: []
+        name: 'items[].product_id'
+        description: ''
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].qty':
+        custom: []
+        name: 'items[].qty'
+        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].option_ids':
+        custom: []
+        name: 'items[].option_ids'
+        description: ''
+        required: false
+        example:
+          - 16
+        type: 'integer[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].note':
+        custom: []
+        name: 'items[].note'
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'less ice'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      outlet_id: 1
+      customer:
+        name: Dinda
+        phone: '6281234567890'
+      fulfillment: delivery
+      address:
+        text: 'Jl. Merdeka 10'
+        lat: -6.178
+        lng: 106.631
+        note: 'Pagar hitam'
+      items:
+        -
+          product_id: 1
+          qty: 2
+          option_ids:
+            - 16
+          note: 'less ice'
+      promo_code: KAMEEHEMAT
+      redeem_points: 0
+      note: 'Tolong sedotan kertas'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/orders
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Buat pesanan.'
+      description: |-
+        Tamu maupun member (kirim Bearer token pelanggan untuk menukar poin). Server menghitung ulang
+        seluruh harga, opsi, ongkir, promo, dan poin. Header `Idempotency-Key` wajib.
+      authenticated: false
+      deprecated: false
+    headers:
+      Idempotency-Key: 5f0c9f5e-1a2b-4c3d-8e9f-001122334455
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer:
+        custom: []
+        name: customer
+        description: ''
+        required: true
+        example: []
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.name:
+        custom: []
+        name: customer.name
+        description: ':Attribute maksimal 100 karakter.'
+        required: true
+        example: Dinda
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      customer.phone:
+        custom: []
+        name: customer.phone
+        description: ''
+        required: true
+        example: '6281234567890'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      fulfillment:
+        custom: []
+        name: fulfillment
+        description: 'pickup | delivery | dine_in.'
+        required: true
+        example: delivery
+        type: string
+        enumValues:
+          - pickup
+          - delivery
+          - dine_in
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      address:
+        custom: []
+        name: address
+        description: ''
+        required: false
+        example: null
+        type: object
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.text:
+        custom: []
+        name: address.text
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Jl. Merdeka 10'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lat:
+        custom: []
+        name: address.lat
+        description: ':Attribute harus bernilai antara -90 dan 90.'
+        required: false
+        example: -6.178
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.lng:
+        custom: []
+        name: address.lng
+        description: ':Attribute harus bernilai antara -180 dan 180.'
+        required: false
+        example: 106.631
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address.note:
+        custom: []
+        name: address.note
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'Pagar hitam'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      scheduled_at:
+        custom: []
+        name: scheduled_at
+        description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      items:
+        custom: []
+        name: items
+        description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+        required: true
+        example:
+          - []
+        type: 'object[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      promo_code:
+        custom: []
+        name: promo_code
+        description: ':Attribute maksimal 50 karakter.'
+        required: false
+        example: KAMEEHEMAT
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      redeem_points:
+        custom: []
+        name: redeem_points
+        description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+        required: false
+        example: 0
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      note:
+        custom: []
+        name: note
+        description: ':Attribute maksimal 500 karakter.'
+        required: false
+        example: 'Tolong sedotan kertas'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      'items[].product_id':
+        custom: []
+        name: 'items[].product_id'
+        description: ''
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].qty':
+        custom: []
+        name: 'items[].qty'
+        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].option_ids':
+        custom: []
+        name: 'items[].option_ids'
+        description: ''
+        required: false
+        example:
+          - 16
+        type: 'integer[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'items[].note':
+        custom: []
+        name: 'items[].note'
+        description: ':Attribute maksimal 200 karakter.'
+        required: false
+        example: 'less ice'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      outlet_id: 1
+      customer:
+        name: Dinda
+        phone: '6281234567890'
+      fulfillment: delivery
+      address:
+        text: 'Jl. Merdeka 10'
+        lat: -6.178
+        lng: 106.631
+        note: 'Pagar hitam'
+      items:
+        -
+          product_id: 1
+          qty: 2
+          option_ids:
+            - 16
+          note: 'less ice'
+      promo_code: KAMEEHEMAT
+      redeem_points: 0
+      note: 'Tolong sedotan kertas'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/orders/{code}'
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Lacak pesanan.'
+      description: 'Wajib menyertakan 4 digit terakhir nomor WhatsApp pemesan.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Kode pesanan.'
+        required: false
+        example: KM260928ABCDE
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      code: KM260928ABCDE
+    queryParameters:
+      phone:
+        custom: []
+        name: phone
+        description: '4 digit terakhir (atau nomor lengkap) WhatsApp pemesan. Must match the regex /\d{4,}/.'
+        required: true
+        example: '7890'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      phone: '7890'
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/orders/{code}/pay'
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Bayar pesanan.'
+      description: |-
+        Membuat transaksi QRIS / e-wallet / VA di Midtrans dan mengembalikan qr_string, va_number, deeplink,
+        dan expires_at. Metode `cash` langsung memproses pesanan (bayar di kasir). Header `Idempotency-Key` wajib.
+      authenticated: false
+      deprecated: false
+    headers:
+      Idempotency-Key: 9a1b2c3d-0000-4000-8000-000000000001
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Kode pesanan.'
+        required: false
+        example: KM260928ABCDE
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      code: KM260928ABCDE
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      method:
+        custom: []
+        name: method
+        description: 'qris | ewallet | bank_transfer | cash.'
+        required: true
+        example: qris
+        type: string
+        enumValues:
+          - qris
+          - ewallet
+          - bank_transfer
+          - cash
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      channel:
+        custom: []
+        name: channel
+        description: 'E-wallet: gopay|shopeepay. VA: bca|bni|bri|cimb|permata.'
+        required: false
+        example: null
+        type: string
+        enumValues:
+          - null
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      method: qris
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/orders/{code}/payment-status'
+    metadata:
+      custom: []
+      groupName: 'Pesanan & Pembayaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Status pembayaran (polling).'
+      description: 'Disarankan dipanggil tiap 3 detik, maksimal 15 menit.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Kode pesanan.'
+        required: false
+        example: KM260928ABCDE
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      code: KM260928ABCDE
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

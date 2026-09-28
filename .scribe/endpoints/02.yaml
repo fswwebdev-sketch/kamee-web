@@ -1,0 +1,198 @@
+name: Konten
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/banners
+    metadata:
+      custom: []
+      groupName: Konten
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Banner aktif.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      placement:
+        custom: []
+        name: placement
+        description: 'Posisi banner.'
+        required: false
+        example: home
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      placement: home
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 500
+        content: '{"message":"Terjadi kesalahan pada server. Silakan coba lagi."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/contacts
+    metadata:
+      custom: []
+      groupName: Konten
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Kirim form kontak (dilindungi captcha Turnstile).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: ':Attribute maksimal 100 karakter.'
+        required: true
+        example: Dinda
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+        required: true
+        example: dinda@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: ''
+        required: false
+        example: '081234567890'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      subject:
+        custom: []
+        name: subject
+        description: ':Attribute maksimal 150 karakter.'
+        required: true
+        example: 'Kerja sama event'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      message:
+        custom: []
+        name: message
+        description: ':Attribute maksimal 3000 karakter.'
+        required: true
+        example: 'Halo Kamee, kami ingin memesan 100 cup untuk acara kantor.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      turnstile_token:
+        custom: []
+        name: turnstile_token
+        description: 'Token Cloudflare Turnstile (wajib di produksi).'
+        required: false
+        example: XXXX.DUMMY.TOKEN
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: Dinda
+      email: dinda@example.com
+      phone: '081234567890'
+      subject: 'Kerja sama event'
+      message: 'Halo Kamee, kami ingin memesan 100 cup untuk acara kantor.'
+      turnstile_token: XXXX.DUMMY.TOKEN
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/testimonials
+    metadata:
+      custom: []
+      groupName: Konten
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Ulasan unggulan untuk homepage (rating ≥ 4 dengan komentar).'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 500
+        content: '{"message":"Terjadi kesalahan pada server. Silakan coba lagi."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

@@ -1,0 +1,101 @@
+name: 'Pelanggan: Profil'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/me
+    metadata:
+      custom: []
+      groupName: 'Pelanggan: Profil'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Profil saya.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/me
+    metadata:
+      custom: []
+      groupName: 'Pelanggan: Profil'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Ubah profil.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: ':Attribute maksimal 100 karakter.'
+        required: false
+        example: 'Dinda Putri'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+        required: false
+        example: dinda@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      birth_date:
+        custom: []
+        name: birth_date
+        description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal sebelum <code>today</code>.'
+        required: false
+        example: '1998-05-17'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Dinda Putri'
+      email: dinda@example.com
+      birth_date: '1998-05-17'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

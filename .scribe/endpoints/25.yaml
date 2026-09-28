@@ -1,0 +1,221 @@
+name: 'Admin: Pengaturan'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/admin/settings
+    metadata:
+      custom: []
+      groupName: 'Admin: Pengaturan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Pengaturan ongkir, biaya, rasio poin, nomor WA.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/admin/settings
+    metadata:
+      custom: []
+      groupName: 'Admin: Pengaturan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      payment_timeout_minutes:
+        custom: []
+        name: payment_timeout_minutes
+        description: ':Attribute harus bernilai antara 5 dan 120.'
+        required: false
+        example: 6
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      service_fee:
+        custom: []
+        name: service_fee
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 39
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_base_fee:
+        custom: []
+        name: delivery_base_fee
+        description: 'Ongkir dasar (rupiah). :Attribute minimal bernilai 0.'
+        required: false
+        example: 8000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_base_km:
+        custom: []
+        name: delivery_base_km
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 84
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_per_km_fee:
+        custom: []
+        name: delivery_per_km_fee
+        description: 'Tarif per km di atas jarak dasar. :Attribute minimal bernilai 0.'
+        required: false
+        example: 2500
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      points_earn_per_amount:
+        custom: []
+        name: points_earn_per_amount
+        description: 'Belanja per 1 poin (rasio poin). :Attribute minimal bernilai 1000.'
+        required: false
+        example: 10000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      point_value:
+        custom: []
+        name: point_value
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 66
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      points_max_redeem_percent:
+        custom: []
+        name: points_max_redeem_percent
+        description: ':Attribute harus bernilai antara 0 dan 100.'
+        required: false
+        example: 0
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      points_min_redeem:
+        custom: []
+        name: points_min_redeem
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 35
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      points_expiry_months:
+        custom: []
+        name: points_expiry_months
+        description: ':Attribute harus bernilai antara 1 dan 60.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      whatsapp_number:
+        custom: []
+        name: whatsapp_number
+        description: ''
+        required: false
+        example: '6281200000000'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      default_open_time:
+        custom: []
+        name: default_open_time
+        description: 'Must be a valid date in the format <code>H:i</code>.'
+        required: false
+        example: '16:25'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      default_close_time:
+        custom: []
+        name: default_close_time
+        description: 'Must be a valid date in the format <code>H:i</code>.'
+        required: false
+        example: '16:25'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      payment_timeout_minutes: 6
+      service_fee: 39
+      delivery_base_fee: 8000
+      delivery_base_km: 84
+      delivery_per_km_fee: 2500
+      points_earn_per_amount: 10000
+      point_value: 66
+      points_max_redeem_percent: 0
+      points_min_redeem: 35
+      points_expiry_months: 1
+      whatsapp_number: '6281200000000'
+      default_open_time: '16:25'
+      default_close_time: '16:25'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

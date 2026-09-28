@@ -1,0 +1,180 @@
+name: 'Admin: Pelanggan'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/admin/customers
+    metadata:
+      custom: []
+      groupName: 'Admin: Pelanggan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Daftar pelanggan.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      'filter[search]':
+        custom: []
+        name: 'filter[search]'
+        description: 'Nama / nomor WA / email.'
+        required: false
+        example: dinda
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      'filter[tier_id]':
+        custom: []
+        name: 'filter[tier_id]'
+        description: ''
+        required: false
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      sort:
+        custom: []
+        name: sort
+        description: 'lifetime_spend, points_balance, created_at.'
+        required: false
+        example: '-lifetime_spend'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      'filter[search]': dinda
+      'filter[tier_id]': 2
+      sort: '-lifetime_spend'
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/admin/customers/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Pelanggan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Detail pelanggan: statistik, pesanan terbaru, riwayat poin.'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the customer.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/v1/admin/customers/{customer_id}/points-adjust'
+    metadata:
+      custom: []
+      groupName: 'Admin: Pelanggan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Koreksi poin (khusus Super Admin, tercatat di riwayat poin).'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      customer_id:
+        custom: []
+        name: customer_id
+        description: 'The ID of the customer.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      customer_id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      points:
+        custom: []
+        name: points
+        description: 'Positif untuk menambah, negatif untuk mengurangi. Must not be one of <code>0</code> :Attribute harus bernilai antara -100000 dan 100000.'
+        required: true
+        example: 25
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      note:
+        custom: []
+        name: note
+        description: ':Attribute maksimal 255 karakter.'
+        required: true
+        example: 'Kompensasi pesanan terlambat'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      points: 25
+      note: 'Kompensasi pesanan terlambat'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
