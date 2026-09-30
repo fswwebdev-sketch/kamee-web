@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkProductRequest;
 use App\Http\Requests\Admin\ProductImagesRequest;
 use App\Http\Requests\Admin\ProductRequest;
+use App\Http\Requests\Admin\ReorderProductImagesRequest;
+use App\Http\Resources\Admin\AdminProductResource;
 use App\Http\Resources\ProductImageResource;
-use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ProductService;
@@ -37,7 +39,7 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        $products = QueryBuilder::for(Product::query()->with('category'))
+        $products = QueryBuilder::for(Product::query()->with('category', 'outlets:id'))
             ->allowedFilters([
                 AllowedFilter::exact('category_id'),
                 AllowedFilter::exact('is_active'),
@@ -49,7 +51,7 @@ class ProductController extends Controller
             ->paginate($this->perPage($request, 20))
             ->withQueryString();
 
-        return ProductResource::collection($products);
+        return AdminProductResource::collection($products);
     }
 
     /** Tambah produk (multipart bila ada gambar). */
@@ -59,24 +61,24 @@ class ProductController extends Controller
 
         $product = $this->products->create($request->safe()->except('image'), $request->file('image'));
 
-        return (new ProductResource($product))->additional(['message' => 'Produk berhasil ditambahkan.'])->response()->setStatusCode(201);
+        return (new AdminProductResource($product->load('category', 'images', 'optionGroups.options', 'outlets:id')))->additional(['message' => 'Produk berhasil ditambahkan.'])->response()->setStatusCode(201);
     }
 
-    public function show(Product $product): ProductResource
+    public function show(Product $product): AdminProductResource
     {
         $this->authorize('view', $product);
 
-        return new ProductResource($product->load('category', 'images', 'optionGroups.options'));
+        return new AdminProductResource($product->load('category', 'images', 'optionGroups.options', 'outlets:id'));
     }
 
     /** Ubah produk. Untuk upload gambar gunakan POST dengan _method=PATCH. */
-    public function update(ProductRequest $request, Product $product): ProductResource
+    public function update(ProductRequest $request, Product $product): AdminProductResource
     {
         $this->authorize('update', $product);
 
         $product = $this->products->update($product, $request->safe()->except('image'), $request->file('image'));
 
-        return (new ProductResource($product))->additional(['message' => 'Produk berhasil diperbarui.']);
+        return (new AdminProductResource($product->load('category', 'images', 'optionGroups.options', 'outlets:id')))->additional(['message' => 'Produk berhasil diperbarui.']);
     }
 
     /** Hapus produk (soft delete). */
@@ -111,5 +113,48 @@ class ProductController extends Controller
         $this->products->deleteImage($image);
 
         return response()->json(['message' => 'Gambar berhasil dihapus.']);
+    }
+
+    /**
+     * Aksi massal produk.
+     *
+     * Aktif/nonaktif, unggulan, best seller, atau hapus (soft delete) sekaligus. Khusus Super Admin.
+     */
+    public function bulk(BulkProductRequest $request): JsonResponse
+    {
+        $products = Product::query()->whereIn('id', $request->input('ids'))->get();
+        $action = $request->string('action')->toString();
+
+        foreach ($products as $product) {
+            $this->authorize($action === 'delete' ? 'delete' : 'update', $product);
+        }
+
+        $count = $this->products->bulk($products, $action);
+
+        return response()->json([
+            'message' => "{$count} produk berhasil diperbarui.",
+            'data' => ['action' => $action, 'affected' => $count],
+        ]);
+    }
+
+    /**
+     * Urutkan ulang galeri produk.
+     *
+     * Kirim seluruh ID gambar galeri produk dalam urutan baru (drag & drop).
+     */
+    public function reorderImages(ReorderProductImagesRequest $request, Product $product): JsonResponse
+    {
+        $this->authorize('update', $product);
+
+        $ids = array_map('intval', $request->input('ids'));
+        $existing = $product->images()->pluck('id')->all();
+        abort_unless(count($ids) === count($existing) && array_diff($existing, $ids) === [], 422, 'Daftar gambar tidak sesuai dengan galeri produk.');
+
+        $this->products->reorderImages($product, $ids);
+
+        return response()->json([
+            'message' => 'Urutan gambar diperbarui.',
+            'data' => ProductImageResource::collection($product->images()->orderBy('sort_order')->get()),
+        ]);
     }
 }

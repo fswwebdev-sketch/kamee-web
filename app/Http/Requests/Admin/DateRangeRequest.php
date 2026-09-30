@@ -15,6 +15,7 @@ class DateRangeRequest extends FormRequest
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
             'interval' => ['nullable', 'in:day,month'],
+            'group_by' => ['nullable', 'in:day,month,product,outlet,payment_method'],
             'limit' => ['nullable', 'integer', 'between:1,50'],
         ];
     }
@@ -45,6 +46,7 @@ class DateRangeRequest extends FormRequest
             'to' => ['description' => 'Tanggal akhir (Y-m-d).', 'example' => '2026-09-28'],
             'interval' => ['description' => 'day | month (khusus revenue).', 'example' => 'day'],
             'limit' => ['description' => 'Jumlah produk (khusus top-products).', 'example' => 10],
+            'group_by' => ['description' => 'day | month | product | outlet | payment_method (khusus laporan JSON).', 'example' => 'product'],
         ];
     }
 }

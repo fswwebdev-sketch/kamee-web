@@ -85,6 +85,9 @@ class AppServiceProvider extends ServiceProvider
             ->by('voucher:'.($request->user('sanctum')?->getKey() ?? $request->ip()))
             ->response($tooMany('Terlalu banyak percobaan kode voucher.')));
 
+        RateLimiter::for('admin', fn (Request $request) => Limit::perMinute((int) config('kamee.admin_rate_limit', 300))
+            ->by($request->user('sanctum')?->getKey() ? 'admin:'.$request->user('sanctum')->getKey() : 'admin-ip:'.$request->ip())
+            ->response($tooMany('Terlalu banyak permintaan.')));
         RateLimiter::for('admin-login', fn (Request $request) => Limit::perMinute(5)
             ->by('admin-login:'.strtolower((string) $request->input('email')).'|'.$request->ip())
             ->response($tooMany('Terlalu banyak percobaan login.')));

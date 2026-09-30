@@ -106,7 +106,7 @@ class CustomerService
             'orders_count' => (clone $orders)->count(),
             'completed_orders' => (clone $orders)->where('status', OrderStatus::Completed)->count(),
             'total_spend' => (int) (clone $orders)->whereIn('status', OrderStatus::revenueStatuses())->sum('total'),
-            'last_order_at' => (clone $orders)->max('created_at'),
+            'last_order_at' => ($last = (clone $orders)->max('created_at')) ? \Illuminate\Support\Carbon::parse($last)->toIso8601String() : null,
         ];
     }
 

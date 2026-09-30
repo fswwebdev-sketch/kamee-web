@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -60,6 +61,38 @@ class ProductService
     {
         Storage::disk('public')->delete($image->path);
         $image->delete();
+    }
+
+    /** @param list<int> $ids urutan baru seluruh gambar galeri */
+    public function reorderImages(Product $product, array $ids): void
+    {
+        DB::transaction(function () use ($product, $ids) {
+            foreach ($ids as $i => $id) {
+                $product->images()->whereKey($id)->update(['sort_order' => $i]);
+            }
+        });
+    }
+
+    /**
+     * @param  Collection<int, Product>  $products
+     */
+    public function bulk(Collection $products, string $action): int
+    {
+        return DB::transaction(function () use ($products, $action) {
+            foreach ($products as $product) {
+                match ($action) {
+                    'activate' => $product->update(['is_active' => true]),
+                    'deactivate' => $product->update(['is_active' => false]),
+                    'feature' => $product->update(['is_featured' => true]),
+                    'unfeature' => $product->update(['is_featured' => false]),
+                    'best_seller' => $product->update(['is_best_seller' => true]),
+                    'unbest_seller' => $product->update(['is_best_seller' => false]),
+                    'delete' => $product->delete(),
+                };
+            }
+
+            return $products->count();
+        });
     }
 
     /** Tandai produk tersedia / habis di outlet tertentu. */

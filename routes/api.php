@@ -76,7 +76,8 @@ Route::middleware('throttle:public')->group(function () {
     });
 
     // ------------------------------------------------------------------ Admin
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Panel admin memakai limiter sendiri (lebih longgar per akun) karena Kanban & realtime memicu banyak refetch.
+    Route::prefix('admin')->name('admin.')->withoutMiddleware('throttle:public')->middleware('throttle:admin')->group(function () {
         Route::post('auth/login', [Admin\AuthController::class, 'login'])->middleware('throttle:admin-login')->name('auth.login');
 
         Route::middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -92,7 +93,9 @@ Route::middleware('throttle:public')->group(function () {
             Route::patch('orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
             Route::post('orders/{order}/refund', [Admin\OrderController::class, 'refund'])->name('orders.refund');
 
+            Route::post('products/bulk', [Admin\ProductController::class, 'bulk'])->name('products.bulk');
             Route::apiResource('products', Admin\ProductController::class);
+            Route::put('products/{product}/images/order', [Admin\ProductController::class, 'reorderImages'])->name('products.images.order');
             Route::post('products/{product}/images', [Admin\ProductController::class, 'storeImages'])->name('products.images.store');
             Route::delete('products/{product}/images/{image}', [Admin\ProductController::class, 'destroyImage'])->name('products.images.destroy');
             Route::apiResource('categories', Admin\CategoryController::class);
@@ -116,6 +119,7 @@ Route::middleware('throttle:public')->group(function () {
             Route::apiResource('outlets', Admin\OutletController::class);
             Route::apiResource('users', Admin\UserController::class);
 
+            Route::get('reports/sales', [Admin\ReportController::class, 'summary'])->name('reports.summary');
             Route::get('reports/sales.xlsx', [Admin\ReportController::class, 'sales'])->name('reports.sales');
 
             Route::get('settings', [Admin\SettingController::class, 'show'])->name('settings.show');

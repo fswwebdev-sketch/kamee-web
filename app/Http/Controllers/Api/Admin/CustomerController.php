@@ -56,7 +56,7 @@ class CustomerController extends Controller
         $customer->load('tier', 'addresses');
 
         return (new AdminCustomerResource($customer))->withStats($customers->stats($customer))->additional([
-            'recent_orders' => OrderResource::collection($customer->orders()->withoutGlobalScopes()->latest()->limit(10)->get()),
+            'recent_orders' => OrderResource::collection($customer->orders()->withoutGlobalScopes()->with('outlet:id,name,phone_wa')->latest()->limit(10)->get()),
             'points_history' => LoyaltyTransactionResource::collection($customer->loyaltyTransactions()->with('order:id,code')->latest('id')->limit(20)->get()),
         ])->response();
     }

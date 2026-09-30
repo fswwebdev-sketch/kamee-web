@@ -256,7 +256,7 @@ Tes berjalan di SQLite in-memory (lihat `phpunit.xml`) dan juga lulus di MySQL 8
 DB_CONNECTION=mysql DB_DATABASE=kamee_test DB_USERNAME=... DB_PASSWORD=... php artisan test
 ```
 
-**Hasil saat ini: 184 tes, 772 assertion, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
+**Hasil saat ini: 190 tes, 904 assertion, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
 
 Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, Midtrans (charge QRIS/e-wallet/VA, refund, status), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
 
@@ -281,5 +281,12 @@ Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas
 - **Kode pesanan:** `KM` + `yymmdd` + 5 karakter acak tanpa huruf/angka ambigu, contoh `KM260928AB3CD`.
 - **Pelacakan tamu:** `GET /orders/{code}?phone=` memerlukan 4 digit terakhir nomor WA. Channel `order.{code}` privat sehingga butuh token pelanggan; tamu memakai polling `payment-status`.
 - **Upload file** (gambar produk, banner, cover blog, foto ulasan) memakai disk `public`. Untuk `PATCH` dengan file gunakan `POST` + `_method=PATCH` (multipart).
-- **Laporan** `GET /admin/reports/sales.xlsx` di-stream dengan OpenSpout (hemat memori).
+- **Laporan:**
+  - `GET /admin/reports/sales` → ringkasan teragregasi `group_by=day|month|product|outlet|payment_method`.
+  - `GET /admin/reports/sales.xlsx` → ekspor XLSX di-stream dengan OpenSpout (hemat memori). Tanpa `group_by` = semua transaksi; dengan `group_by` = ringkasan.
+- **Tambahan untuk dashboard admin kamee-web:**
+  - **Produk.** `POST /admin/products/bulk` (`activate|deactivate|feature|unfeature|best_seller|unbest_seller|delete`) dan `PUT /admin/products/{id}/images/order` (urutan galeri). Respons produk admin memakai `AdminProductResource`, yang berisi `option_group_ids` dan `unavailable_outlet_ids`.
+  - **Rate limit.** Rute `/admin/*` memakai limiter `admin` sendiri: 300 req/menit per akun, bisa diatur lewat `KAMEE_ADMIN_RATE_LIMIT`. Tidak lagi memakai limiter publik 60/menit.
+  - **Detail pelanggan.** `recent_orders` menyertakan outlet, dan `stats.last_order_at` dikirim dalam format ISO 8601.
+  - **Batas unggah.** `docker/php/php.ini` memakai `post_max_size=32M`, supaya galeri 8 × 3 MB muat dalam satu unggahan.
 - **Belum diimplementasikan:** 2FA admin (disebut opsional di spesifikasi, perlu kolom tambahan di `users`) dan driver Xendit (arsitektur `PaymentGateway` sudah siap; cukup tambah kelas driver dan daftarkan di `PaymentGatewayManager`).

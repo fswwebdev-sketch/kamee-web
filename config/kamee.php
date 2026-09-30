@@ -9,6 +9,9 @@
 */
 
 return [
+    // Batas request panel admin per akun per menit
+    'admin_rate_limit' => (int) env('KAMEE_ADMIN_RATE_LIMIT', 300),
+
     'settings' => [
         // Pesanan & pembayaran
         'payment_timeout_minutes' => (int) env('KAMEE_PAYMENT_TIMEOUT', 15),
