@@ -135,7 +135,7 @@ export const Checkbox = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInp
   },
 );
 
-export function Switch({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
+export function Switch({ checked, onChange, label, disabled, hideLabel = false }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean; hideLabel?: boolean }) {
   return (
     <button
       type="button"
@@ -145,10 +145,10 @@ export function Switch({ checked, onChange, label, disabled }: { checked: boolea
       onClick={() => onChange(!checked)}
       className="inline-flex items-center gap-3 text-sm font-medium text-ink disabled:opacity-50"
     >
-      <span className={cn("relative h-6 w-11 rounded-full transition", checked ? "bg-primary" : "bg-line")}>
-        <span className={cn("absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform", checked ? "translate-x-5.5" : "translate-x-0.5")} />
+      <span className={cn("relative block h-6 w-11 shrink-0 rounded-full transition", checked ? "bg-primary" : "bg-line")}>
+        <span className={cn("absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow transition-transform motion-reduce:transition-none", checked ? "translate-x-5" : "translate-x-0")} />
       </span>
-      {label}
+      {hideLabel ? <span className="sr-only">{label}</span> : label}
     </button>
   );
 }

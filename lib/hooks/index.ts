@@ -100,3 +100,16 @@ export function useFocusTrap<T extends HTMLElement>(open: boolean, onClose: () =
   }, [open]);
   return ref;
 }
+
+/** true bila media query cocok (false saat SSR / render pertama). */
+export function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const update = () => setMatches(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, [query]);
+  return matches;
+}

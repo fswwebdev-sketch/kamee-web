@@ -28,7 +28,7 @@ export function Dialog({
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
   const mounted = useMounted();
   const ref = useFocusTrap<HTMLDivElement>(open, onClose);
@@ -66,6 +66,7 @@ export function Dialog({
               size === "sm" && "md:max-w-md",
               size === "md" && "md:max-w-lg",
               size === "lg" && "md:max-w-2xl",
+              size === "xl" && "md:max-w-4xl",
               className,
             )}
           >

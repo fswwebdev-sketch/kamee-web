@@ -1,7 +1,7 @@
 # kamee-web
 
 Situs pemesanan **Kamee Coffee**, dibangun dengan Next.js 15 (App Router, RSC), TypeScript strict, dan Tailwind CSS v4.
-Situs ini mencakup landing, menu, detail produk, keranjang, checkout (QRIS/e-wallet/transfer/cash), lacak pesanan, blog, kontak, dan akun pelanggan (login OTP WhatsApp).
+Situs ini mencakup landing, menu, detail produk, keranjang, checkout (QRIS/e-wallet/transfer/cash), lacak pesanan, blog, kontak, dan akun pelanggan (login OTP WhatsApp), plus **dashboard admin** di `/admin` (lihat [Dashboard admin](#dashboard-admin)).
 Semua data diambil dari `kamee-api` (`/api/v1`). Mock MSW bawaan membuat UI bisa jalan penuh **tanpa backend**.
 
 | Kebutuhan | Pustaka |
@@ -31,7 +31,7 @@ npm run dev                       # http://localhost:3000
 | `npm run dev:offline` / `npm run build:offline` | Sama, tetapi font Google diganti file lokal `@fontsource`. Pakai skrip ini untuk CI/sandbox tanpa akses `fonts.googleapis.com`. |
 | `npm run lint` / `npm run typecheck` | ESLint (next/core-web-vitals) / `tsc --noEmit` |
 | `npm test` | Vitest: logika keranjang |
-| `npm run test:e2e` | Playwright: alur menu → checkout (build produksi + mock, port 3100) |
+| `npm run test:e2e` | Playwright: alur menu → checkout & panel admin (build produksi + mock, port 3100) |
 | `npm run images` | Membuat ulang gambar placeholder (`scripts/generate-placeholder-images.py`, butuh Pillow) |
 
 ### Mode mock (MSW)
@@ -77,20 +77,88 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 app/
   (public)/           landing, menu, menu/[slug], keranjang, checkout, pesanan/[code](/bayar),
                       promo, outlet, tentang, blog(/[slug]), kontak, masuk, akun/*
+  (admin)/admin/      login, (panel)/* halaman dashboard, struk/[id] (cetak 58 mm)
+  api/admin/[...path] BFF proxy admin → kamee-api /api/v1/admin (cookie httpOnly)
   api/revalidate/     webhook on-demand ISR
   sitemap.ts robots.ts manifest.ts opengraph-image.tsx
 components/
   ui/                 design system (button, field, choice-card, badge, chip, dialog/bottom-sheet, tabs, toast, skeleton…)
   layout/ home/ menu/ product/ cart/ checkout/ orders/ account/ blog/ content/
-features/             cart (pricing murni + store), auth, favorites, orders
+  admin/              ui/ (DataTable, confirm, filter, StatCard…), layout/, dashboard/, orders/, catalog/,
+                      marketing/, blog/, customers/, contacts/, system/, reports/
+features/             cart (pricing murni + store), auth, favorites, orders, admin (suara, status realtime)
 lib/                  api client, format (Rupiah, WIB), seo (JSON-LD), whatsapp, hooks, queries/*, schemas/*
-mocks/                data, handler MSW, db
+lib/admin/            api client admin, queries, permissions (role & transisi status), nav, form helpers
+mocks/                data, handler MSW, db; mocks/admin/ (seluruh endpoint admin)
+middleware.ts         penjaga rute /admin (tanpa cookie sesi → login)
 tests/unit            Vitest
 tests/e2e             Playwright
 ```
 
 **Catatan desain.** Token warna, tipografi, radius, dan bayangan dari bagian 5 ada di `app/globals.css` (`@theme`), dengan override `.dark`.
 Komponen hanya memakai token (`bg-surface`, `text-ink`, `text-muted`, `bg-primary`, …), jadi mode gelap tidak memerlukan kelas `dark:` di komponen.
+
+---
+
+## Dashboard admin
+
+Panel untuk pemilik & staf outlet di `/admin`, memakai endpoint `/api/v1/admin` kamee-api.
+
+| Halaman | Isi |
+|---|---|
+| Ringkasan | Filter outlet & periode; StatCard penjualan, pesanan, AOV, pelanggan baru (+ % vs periode sebelumnya); grafik pendapatan harian/bulanan (Recharts); top 5 produk; pesanan terbaru |
+| Pesanan | Kanban (Pending → Diproses → Dikirim → Selesai / Dibatalkan, drag & drop mouse/sentuh/keyboard) + tabel dengan filter & paginasi server; detail (item, opsi, pembayaran, log status); ubah status; refund (Super Admin); cetak struk 58 mm |
+| Produk, Kategori, Opsi Varian | CRUD; galeri multi-gambar dengan drag reorder; toggle aktif; stok tersedia/habis per outlet; aksi massal |
+| Promo & Voucher, Banner | CRUD dengan jadwal tayang (Terjadwal/Berjalan/Berakhir) dan pratinjau langsung |
+| Blog | Daftar, editor dengan pratinjau & penjadwalan, kategori blog |
+| Pelanggan | Daftar, riwayat pembelian, total transaksi, tier, saldo & riwayat poin, koreksi poin |
+| Pesan Masuk, Outlet, Pengguna, Pengaturan | Inbox kontak; outlet & jam buka; akun admin & role; ongkir, jam buka default, rasio poin, nomor WA |
+| Laporan | Per hari/bulan/produk/outlet/metode bayar; ekspor Excel (ringkasan tab atau semua transaksi) |
+
+**Akun.** Seeder kamee-api dan mock memakai akun yang sama (sandi `password`):
+- `superadmin@kamee.id` (Super Admin)
+- `admin.cikokol@kamee.id` (Admin Outlet)
+
+### Keamanan & role
+
+- **Sesi.** Login email + sandi lewat proxy `app/api/admin/[...path]`. Token Sanctum disimpan di cookie **httpOnly** (`SameSite=Lax`, `Secure` di HTTPS; 12 jam, atau 30 hari bila "Ingat saya"), jadi JavaScript di browser tidak pernah melihat token.
+- **CSRF.** Request yang mengubah data wajib membawa header `X-Requested-With` dan berasal dari origin yang sama.
+- **Penjaga rute.** `middleware.ts` mengarahkan ke login bila tidak ada sesi.
+- **Role di UI.** Menu dan tombol disembunyikan sesuai role (`lib/admin/permissions.ts`):
+  - Admin Outlet hanya melihat Ringkasan, Pesanan, Laporan, Produk (baca + stok outletnya), Pelanggan (tanpa koreksi poin), Pesan Masuk, dan Outlet (baca).
+  - Halaman Super Admin yang dibuka langsung menampilkan "Akses terbatas".
+- **Otorisasi tetap di backend.** Policy + OutletScope kamee-api tetap menjadi penentu: sudah diuji bahwa Admin Outlet mendapat 403/404 untuk ubah produk, pengaturan, pengguna, promo, pesanan outlet lain, stok outlet lain, dan koreksi poin.
+
+### Realtime (Laravel Echo + Reverb)
+
+- **Channel.** Panel berlangganan channel privat `outlet.{id}`. Super Admin berlangganan semua outlet, Admin Outlet hanya outletnya.
+- **Event.** Mendengarkan `.order.created` & `.order.status_updated`. Otorisasi channel lewat proxy (`/api/admin/broadcasting/auth`), jadi token tetap tidak keluar dari cookie.
+- **Pesanan baru.** Muncul toast + nada notifikasi (Web Audio, tanpa file). Suara bisa dimatikan di topbar, dan aktif setelah interaksi pertama sesuai aturan autoplay browser. Kanban dan ringkasan diperbarui otomatis.
+- **Fallback.** Tanpa `NEXT_PUBLIC_REVERB_APP_KEY` atau saat koneksi WebSocket putus, panel otomatis polling setiap 20 detik. Status koneksi tampil di topbar (Live / Polling / Menyambung).
+- **Mode mock.** Pesanan baru disimulasikan setiap ±1 menit.
+- **Menjalankan lokal.** Di kamee-api set `BROADCAST_CONNECTION=reverb` lalu `php artisan reverb:start`. Di kamee-web isi variabel `NEXT_PUBLIC_REVERB_*` (lihat `.env.example`).
+- **Sudah diuji ujung ke ujung.** Pesanan dibuat lewat API publik, lalu toast muncul < 50 ms setelah event, nada berbunyi, dan kartu masuk ke Kanban.
+
+### Struk 58 mm
+
+Tombol **Cetak struk** membuka `/admin/struk/{id}?print=1` di jendela kecil, lalu dialog cetak terbuka otomatis. Struk memakai `@page { size: 58mm auto; margin: 0 }` dengan area isi ±48 mm, monospace, dan selalu hitam-putih. Pilih printer thermal dan atur margin **None** di dialog cetak.
+
+### Catatan untuk backend (kamee-api)
+
+Perubahan kecil di kamee-api yang dibutuhkan dashboard (sudah termasuk di paket kamee-api, 190 tes lulus):
+
+- **Rate limit admin.** Rute admin kini memakai limiter `admin` sendiri: 300 req/menit per akun, bisa diatur lewat `KAMEE_ADMIN_RATE_LIMIT`. Sebelumnya rute admin ikut limiter publik 60/menit, yang mudah tersentuh oleh Kanban + realtime.
+- **Detail pelanggan.** `recent_orders` kini memuat outlet, dan `stats.last_order_at` dikirim dalam format ISO 8601.
+- **Batas unggah.** `docker/php/php.ini`: `post_max_size` dinaikkan ke 32M, karena galeri bisa mengunggah 8 × 3 MB sekaligus. Untuk `php artisan serve` lokal, naikkan juga `upload_max_filesize` ≥ 3M dan `post_max_size` ≥ 32M di php.ini sistem.
+
+Keterbatasan API yang ditangani di UI:
+
+- **Format gambar.** Aturan `image` Laravel tidak menerima AVIF. Unggahan dibatasi JPG/PNG/WebP/GIF.
+- **Endpoint yang belum ada:**
+  - restore produk terhapus (hanya bisa dilihat lewat filter "Terhapus");
+  - daftar tier loyalitas (filter tier diturunkan dari data pelanggan).
+- **Hapus promo.** Promo yang sudah pernah dipakai hanya dinonaktifkan oleh backend; UI menyebutnya "Nonaktifkan".
+- **Kanban.** Menampilkan maksimal 50 pesanan aktif terbaru (batas `per_page` API). Lebih dari itu, muncul pemberitahuan untuk memakai pencarian atau tampilan Tabel.
 
 ---
 
@@ -145,7 +213,7 @@ Catatan pengukuran:
 
 ```bash
 npm test                         # 21 tes unit: harga, opsi varian, merge baris, store (undo, catatan, persist)
-E2E_OFFLINE=1 npm run test:e2e   # 8 tes (Pixel 7 + Desktop Chrome)
+E2E_OFFLINE=1 npm run test:e2e   # 20 tes (Pixel 7 + Desktop Chrome): 4 alur toko + 6 alur admin
 ```
 
 Alur e2e:
@@ -161,6 +229,15 @@ Tes e2e lainnya:
 - "Pesan via WhatsApp" (memastikan `POST /orders/whatsapp` terkirim dan tab `wa.me` terbuka);
 - keranjang kosong.
 
+Tes e2e admin (terhadap mock admin):
+
+- redirect tanpa sesi & sandi salah;
+- ringkasan + cookie httpOnly (token tidak ada di storage);
+- Kanban ubah status & tampilan tabel;
+- buat lalu hapus produk dengan konfirmasi;
+- menu terbatas Admin Outlet;
+- struk 58 mm.
+
 Untuk menguji server yang sudah berjalan: `E2E_BASE_URL=http://localhost:3000 npm run test:e2e`.
 
 ---
@@ -169,6 +246,5 @@ Untuk menguji server yang sudah berjalan: `E2E_BASE_URL=http://localhost:3000 np
 
 - **Gambar placeholder.** Semua gambar di `public/hero`, `public/images/**`, `public/icons` dibuat oleh skrip (ilustrasi datar). Ganti dengan foto asli dengan nama file yang sama. Gambar produk dari API mengikuti `image_url` di database.
 - **Data kontak.** Nomor WhatsApp, akun sosial, dan email ada di `.env`. Koordinat outlet diambil dari API.
-- **Panel admin.** Route group `(admin)` di struktur folder bagian 9 **tidak dibangun**, karena tidak termasuk daftar halaman permintaan ini. Semua endpoint admin sudah tersedia di kamee-api.
-- **Realtime.** Status pesanan & pembayaran memakai polling: 3 dtk di halaman bayar, 15 dtk di lacak pesanan. Laravel Reverb/Echo belum diintegrasikan; titik sambungnya ada di `lib/queries/orders.ts` (ganti `refetchInterval` dengan listener channel `orders.{code}`).
+- **Realtime sisi pelanggan.** Dashboard admin sudah memakai Reverb, tetapi halaman bayar & lacak pesanan pelanggan masih polling (3 dtk / 15 dtk). Channel `order.{code}` sudah tersedia di backend bila ingin disambungkan.
 - **Turnstile.** Form kontak menampilkan Cloudflare Turnstile hanya jika `NEXT_PUBLIC_TURNSTILE_SITE_KEY` diisi.

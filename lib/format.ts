@@ -54,3 +54,13 @@ export function formatPhone(phone: string): string {
 export function pluralize(count: number, noun: string) {
   return `${formatNumber(count)} ${noun}`;
 }
+
+/** Rupiah ringkas untuk sumbu grafik: Rp950rb, Rp1,2jt, Rp3,4M */
+export function formatRupiahCompact(value: number): string {
+  const abs = Math.abs(value);
+  const fmt = (n: number) => n.toLocaleString("id-ID", { maximumFractionDigits: n < 10 ? 1 : 0 });
+  if (abs >= 1e9) return `Rp${fmt(value / 1e9)}M`;
+  if (abs >= 1e6) return `Rp${fmt(value / 1e6)}jt`;
+  if (abs >= 1e3) return `Rp${fmt(value / 1e3)}rb`;
+  return `Rp${value}`;
+}

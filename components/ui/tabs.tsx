@@ -41,6 +41,7 @@ export function Tabs({
         const active = t.id === value;
         return (
           <button
+            type="button"
             key={t.id}
             ref={(el) => {
               refs.current[i] = el;

@@ -9,4 +9,11 @@ export const env = {
   email: process.env.NEXT_PUBLIC_EMAIL ?? "halo@kamee.id",
   mapTileUrl: process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
+  /** Laravel Reverb (realtime dashboard admin). Kosongkan key → fallback polling. */
+  reverb: {
+    key: process.env.NEXT_PUBLIC_REVERB_APP_KEY ?? "",
+    host: process.env.NEXT_PUBLIC_REVERB_HOST ?? "localhost",
+    port: Number(process.env.NEXT_PUBLIC_REVERB_PORT ?? 8080),
+    scheme: (process.env.NEXT_PUBLIC_REVERB_SCHEME ?? "http") as "http" | "https",
+  },
 } as const;
