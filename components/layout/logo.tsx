@@ -15,7 +15,7 @@ export function LogoMark({ className }: { className?: string }) {
 
 export function Logo({ className, inverted = false }: { className?: string; inverted?: boolean }) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2.5 rounded-xl", className)}>
+    <Link href="/" className={cn("flex min-h-11 items-center gap-2.5 rounded-xl", className)}>
       <LogoMark />
       <span className={cn("font-heading text-lg font-bold tracking-tight", inverted ? "text-white" : "text-ink")}>
         Kamee<span className={inverted ? "text-cream" : "text-primary"}> Coffee</span>

@@ -9,6 +9,19 @@ import "./globals.css";
 const poppins = Poppins({ subsets: ["latin"], weight: ["600", "700"], display: "swap", variable: "--font-poppins" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", variable: "--font-inter" });
 
+// [lebar, tinggi, device-width, device-height, rasio] — sama dengan scripts/generate-pwa-assets.py
+const SPLASH: [number, number, number, number, number][] = [
+  [1290, 2796, 430, 932, 3],
+  [1179, 2556, 393, 852, 3],
+  [1284, 2778, 428, 926, 3],
+  [1170, 2532, 390, 844, 3],
+  [1125, 2436, 375, 812, 3],
+  [1242, 2688, 414, 896, 3],
+  [828, 1792, 414, 896, 2],
+  [1242, 2208, 414, 736, 3],
+  [750, 1334, 375, 667, 2],
+];
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   applicationName: site.name,
@@ -19,6 +32,18 @@ export const metadata: Metadata = {
     apple: "/icons/apple-touch-icon.png",
   },
   formatDetection: { telephone: false },
+  // iOS: mode layar penuh saat dibuka dari layar utama + splash screen per ukuran iPhone
+  appleWebApp: {
+    capable: true,
+    title: "Kamee",
+    statusBarStyle: "default",
+    startupImage: SPLASH.map(([w, h, dw, dh, r]) => ({
+      url: `/splash/splash-${w}x${h}.png`,
+      media: `(device-width: ${dw}px) and (device-height: ${dh}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: portrait)`,
+    })),
+  },
+  // Next 15 hanya menulis "mobile-web-app-capable"; iOS lama butuh tag Apple untuk mode standalone + splash
+  other: { "apple-mobile-web-app-capable": "yes" },
 };
 
 export const viewport: Viewport = {

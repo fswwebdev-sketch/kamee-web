@@ -25,8 +25,8 @@ export function TrackForm() {
         onSubmit={handleSubmit((v) => router.push(`/pesanan/${v.code}?phone=${v.phone.replace(/\D/g, "").slice(-4)}`))}
         className="flex flex-col gap-4 rounded-3xl border border-line bg-surface p-5 md:p-6"
       >
-        <Input label="Kode pesanan" placeholder="KM260930ABCDE" autoCapitalize="characters" required error={errors.code?.message} {...register("code")} />
-        <Input label="4 digit terakhir nomor WhatsApp" inputMode="numeric" placeholder="7890" maxLength={15} required error={errors.phone?.message} {...register("phone")} />
+        <Input label="Kode pesanan" placeholder="KM260930ABCDE" autoCapitalize="characters" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="next" required error={errors.code?.message} {...register("code")} />
+        <Input label="4 digit terakhir nomor WhatsApp" inputMode="numeric" pattern="[0-9]*" autoComplete="off" enterKeyHint="search" placeholder="7890" maxLength={15} required error={errors.phone?.message} {...register("phone")} />
         <Button type="submit" size="lg"><Search className="size-5" aria-hidden="true" /> Lacak</Button>
       </form>
 

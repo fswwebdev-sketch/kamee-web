@@ -69,11 +69,11 @@ export function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 rounded-3xl border border-line bg-surface p-5 md:p-7">
       {env.turnstileSiteKey && <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="lazyOnload" onLoad={renderWidget} />}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="Nama" autoComplete="name" required error={errors.name?.message} {...register("name")} />
-        <Input label="Email" type="email" autoComplete="email" required error={errors.email?.message} {...register("email")} />
+        <Input label="Nama" autoComplete="name" autoCapitalize="words" enterKeyHint="next" required error={errors.name?.message} {...register("name")} />
+        <Input label="Email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" enterKeyHint="next" required error={errors.email?.message} {...register("email")} />
       </div>
-      <Input label="Nomor WhatsApp (opsional)" type="tel" inputMode="tel" autoComplete="tel" error={errors.phone?.message} {...register("phone")} />
-      <Input label="Subjek" required placeholder="Kerja sama, event, masukan…" error={errors.subject?.message} {...register("subject")} />
+      <Input label="Nomor WhatsApp (opsional)" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" error={errors.phone?.message} {...register("phone")} />
+      <Input label="Subjek" autoComplete="off" enterKeyHint="next" required placeholder="Kerja sama, event, masukan…" error={errors.subject?.message} {...register("subject")} />
       <Textarea label="Pesan" required rows={5} error={errors.message?.message} {...register("message")} />
       {env.turnstileSiteKey && <div ref={widget} className="min-h-16" aria-label="Verifikasi captcha" />}
       <Button type="submit" size="lg" loading={submit.isPending} className="sm:w-fit">

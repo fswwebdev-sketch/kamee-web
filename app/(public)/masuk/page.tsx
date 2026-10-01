@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { Coins, Heart, Receipt } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, Coins, Heart, PackageSearch, Receipt } from "lucide-react";
 import { OtpLogin } from "@/components/account/otp-login";
 import { LogoMark } from "@/components/layout/logo";
 import { buildMetadata } from "@/lib/seo";
@@ -9,7 +9,7 @@ export const metadata: Metadata = buildMetadata({ title: "Masuk", description: "
 
 export default function LoginPage() {
   return (
-    <div className="container-page grid max-w-5xl items-center gap-10 pt-24 pb-16 md:pt-32 lg:grid-cols-2">
+    <div className="container-page grid min-h-svh max-w-5xl items-start gap-10 pt-24 pb-16 md:pt-32 lg:grid-cols-2 lg:items-center">
       <div className="hidden lg:block">
         <LogoMark className="size-14" />
         <h1 className="mt-6 text-h1">Masuk & kumpulkan poin di setiap cangkir</h1>
@@ -23,9 +23,15 @@ export default function LoginPage() {
         <h1 className="text-h2 lg:hidden">Masuk ke Kamee</h1>
         <h2 className="hidden text-h2 lg:block">Masuk ke Kamee</h2>
         <p className="mt-2 mb-6 text-muted">Tanpa kata sandi — cukup nomor WhatsApp.</p>
-        <Suspense>
-          <OtpLogin />
-        </Suspense>
+        <OtpLogin />
+        <Link href="/pesanan" className="mt-6 flex min-h-14 items-center gap-3 rounded-2xl border border-line bg-bg px-4 py-3 transition hover:border-primary active:scale-[.99]">
+          <PackageSearch className="size-5 shrink-0 text-primary" aria-hidden="true" />
+          <span className="flex-1">
+            <span className="block text-sm font-semibold text-ink">Lacak pesanan tanpa masuk</span>
+            <span className="block text-caption text-muted">Pakai kode pesanan & 4 digit nomor WA</span>
+          </span>
+          <ChevronRight className="size-4 text-muted" aria-hidden="true" />
+        </Link>
       </div>
     </div>
   );

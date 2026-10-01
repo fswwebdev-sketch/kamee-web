@@ -18,6 +18,7 @@ import { estimateTotals } from "@/features/cart/pricing";
 import { useCartStore } from "@/features/cart/store";
 import { api } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks";
+import { formatRupiah } from "@/lib/format";
 
 export default function CartPage() {
   const { hydrated, lines, count, subtotal } = useCartSummary();
@@ -46,20 +47,22 @@ export default function CartPage() {
   const totals = estimateTotals({ subtotal, discount: promo?.discount ?? 0, pointsValue });
 
   if (!hydrated) {
+    // Kerangka sama persis dengan versi terhidrasi (breadcrumb + judul) agar tidak ada layout shift
     return (
-      <div className="container-page pt-24 pb-16 md:pt-28">
-        <Skeleton className="h-10 w-48" />
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]"><Skeleton className="h-80" /><Skeleton className="h-80" /></div>
+      <div className="container-page min-h-svh pt-24 pb-32 md:pt-28 md:pb-16" aria-busy="true">
+        <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Keranjang" }]} />
+        <div className="mt-3 flex items-end justify-between gap-4"><h1 className="text-h1">Keranjang</h1></div>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]"><Skeleton className="h-64 rounded-3xl" /><Skeleton className="hidden h-80 rounded-3xl lg:block" /></div>
       </div>
     );
   }
 
   return (
-    <div className="container-page pt-24 pb-32 md:pt-28 md:pb-16">
+    <div className="container-page min-h-svh pt-24 pb-32 md:pt-28 md:pb-16">
       <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Keranjang" }]} />
       <div className="mt-3 flex items-end justify-between gap-4">
         <h1 className="text-h1">Keranjang</h1>
-        {count > 0 && <button type="button" onClick={clear} className="rounded text-sm font-medium text-muted hover:text-danger">Kosongkan</button>}
+        {count > 0 && <button type="button" onClick={clear} className="-my-2 -mr-2 min-h-11 rounded px-2 text-sm font-medium text-muted hover:text-danger">Kosongkan</button>}
       </div>
 
       {count === 0 ? (
@@ -77,7 +80,7 @@ export default function CartPage() {
             <ul className="divide-y divide-line">
               {lines.map((line, i) => <CartItem key={line.lineId} line={line} index={i} />)}
             </ul>
-            <Link href="/menu" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">+ Tambah menu lain</Link>
+            <Link href="/menu" className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary">+ Tambah menu lain</Link>
           </section>
 
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
@@ -87,13 +90,27 @@ export default function CartPage() {
               <PointsRedeem subtotal={subtotal - (promo?.discount ?? 0)} onPreview={setPointsValue} />
             </div>
             <CartSummary totals={totals} deliveryLabel="Dihitung saat checkout" estimate>
-              <Link href="/checkout" className={buttonClasses("primary", "lg", "w-full")}>
+              <Link href="/checkout" className={buttonClasses("primary", "lg", "hidden w-full lg:inline-flex")}>
                 Lanjut ke Checkout <ArrowRight className="size-5" aria-hidden="true" />
               </Link>
               <Button variant="whatsapp" size="lg" className="w-full" onClick={() => setWaOpen(true)}>
                 <WhatsAppIcon className="size-5" /> Pesan via WhatsApp
               </Button>
             </CartSummary>
+          </div>
+        </div>
+      )}
+      {count > 0 && (
+        // Bar aksi sticky di ponsel (tab bar disembunyikan di alur transaksi)
+        <div className="hide-on-keyboard fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
+          <div className="mx-auto flex max-w-md items-center gap-3">
+            <div className="flex flex-col">
+              <span className="whitespace-nowrap text-caption text-muted">Estimasi · {count} item</span>
+              <span className="font-heading text-lg leading-tight font-bold text-ink" aria-live="polite">{formatRupiah(totals.total)}</span>
+            </div>
+            <Link href="/checkout" className={buttonClasses("primary", "lg", "flex-1")}>
+              Lanjut ke Checkout <ArrowRight className="size-5" aria-hidden="true" />
+            </Link>
           </div>
         </div>
       )}

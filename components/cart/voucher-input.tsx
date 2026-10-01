@@ -47,7 +47,7 @@ export function VoucherInput({ subtotal, preview, onPreview }: { subtotal: numbe
           <p className="font-heading text-sm font-semibold tracking-wide text-ink">{preview.code}</p>
           <p className="text-caption text-muted">{preview.discount > 0 ? `Hemat ${formatRupiah(preview.discount)}` : preview.message}</p>
         </div>
-        <button type="button" onClick={() => { setPromoCode(null); onPreview(null); }} aria-label={`Lepas voucher ${preview.code}`} className="grid size-8 place-items-center rounded-full text-muted hover:bg-cream"><X className="size-4" /></button>
+        <button type="button" onClick={() => { setPromoCode(null); onPreview(null); }} aria-label={`Lepas voucher ${preview.code}`} className="grid size-11 place-items-center rounded-full text-muted hover:bg-cream"><X className="size-4" /></button>
       </div>
     );
   }

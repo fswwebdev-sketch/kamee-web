@@ -157,7 +157,7 @@ export function OrdersView() {
       <Dialog
         open={openId !== null}
         onClose={() => setOpenId(null)}
-        size="xl"
+        size="2xl"
         title="Detail pesanan"
         description={
           openId ? (
@@ -166,7 +166,6 @@ export function OrdersView() {
             </Link>
           ) : undefined
         }
-        className="md:max-w-5xl"
       >
         {openId !== null && <OrderDetail id={openId} />}
       </Dialog>

@@ -90,15 +90,15 @@ export default function PromoCarousel({ banners, promotions }: { banners: Banner
               onClick={() => embla?.scrollTo(i)}
               aria-label={`Tampilkan promo ${i + 1}`}
               aria-current={i === index}
-              className="grid size-6 place-items-center"
+              className="-mx-2.5 grid size-11 place-items-center"
             >
               <span className={cn("block h-2 rounded-full transition-all", i === index ? "w-7 bg-primary" : "w-2 bg-line")} />
             </button>
           ))}
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => embla?.scrollPrev()} aria-label="Promo sebelumnya" className="grid size-10 place-items-center rounded-full border border-line hover:bg-cream"><ChevronLeft className="size-5" /></button>
-          <button type="button" onClick={() => embla?.scrollNext()} aria-label="Promo berikutnya" className="grid size-10 place-items-center rounded-full border border-line hover:bg-cream"><ChevronRight className="size-5" /></button>
+          <button type="button" onClick={() => embla?.scrollPrev()} aria-label="Promo sebelumnya" className="grid size-11 place-items-center rounded-full border border-line hover:bg-cream"><ChevronLeft className="size-5" /></button>
+          <button type="button" onClick={() => embla?.scrollNext()} aria-label="Promo berikutnya" className="grid size-11 place-items-center rounded-full border border-line hover:bg-cream"><ChevronRight className="size-5" /></button>
         </div>
       </div>
     </div>

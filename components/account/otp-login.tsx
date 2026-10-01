@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, MessageCircle } from "lucide-react";
@@ -18,10 +18,14 @@ import { otpRequestSchema } from "@/lib/schemas/forms";
 const LENGTH = 6;
 
 /** Login pelanggan tanpa kata sandi: OTP 6 digit via WhatsApp. */
+/** Tujuan setelah login dari ?next= — dibaca saat dibutuhkan saja (bukan useSearchParams) agar halaman tetap statis & form ikut di HTML awal. Hanya path internal (cegah open redirect "//domain-lain"). */
+function nextPath(): string {
+  const v = new URLSearchParams(window.location.search).get("next");
+  return v && v.startsWith("/") && !v.startsWith("//") ? v : "/akun";
+}
+
 export function OtpLogin() {
   const router = useRouter();
-  const params = useSearchParams();
-  const next = params.get("next") && params.get("next")!.startsWith("/") ? params.get("next")! : "/akun";
   const [phone, setPhone] = useState<string | null>(null);
   const [masked, setMasked] = useState("");
   const [resendAt, setResendAt] = useState<number | null>(null);
@@ -63,7 +67,7 @@ export function OtpLogin() {
       {
         onSuccess: (res) => {
           toast.success(res.message, { description: res.data.is_new ? "Akunmu sudah dibuat. Mulai kumpulkan poin!" : undefined });
-          router.replace(next);
+          router.replace(nextPath());
         },
         onError: (e) => {
           setCodeError(isApiError(e) ? e.field("code") ?? e.message : "Verifikasi gagal.");
@@ -96,7 +100,7 @@ export function OtpLogin() {
   if (!phone) {
     return (
       <form onSubmit={form.handleSubmit((v) => send(v.phone))} noValidate className="flex flex-col gap-4">
-        <Input label="Nomor WhatsApp" type="tel" inputMode="tel" autoComplete="tel" placeholder="0812-3456-7890" required hint="Kode OTP akan dikirim lewat WhatsApp." error={form.formState.errors.phone?.message} {...form.register("phone")} />
+        <Input label="Nomor WhatsApp" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="send" placeholder="0812-3456-7890" required hint="Kode OTP akan dikirim lewat WhatsApp." error={form.formState.errors.phone?.message} {...form.register("phone")} />
         <Button type="submit" size="lg" loading={requestOtp.isPending}>
           {!requestOtp.isPending && <MessageCircle className="size-5" aria-hidden="true" />} Kirim Kode OTP
         </Button>
@@ -142,7 +146,7 @@ export function OtpLogin() {
         </div>
         {codeError && <p id="otp-error" role="alert" className="mt-2 text-caption text-danger">{codeError}</p>}
       </fieldset>
-      <Input label="Nama (untuk pengguna baru)" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama panggilanmu" />
+      <Input label="Nama (untuk pengguna baru)" autoComplete="name" autoCapitalize="words" enterKeyHint="done" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama panggilanmu" />
       <Button type="submit" size="lg" loading={verifyOtp.isPending}>Masuk</Button>
       <p className="text-center text-sm text-muted">
         Tidak menerima kode?{" "}

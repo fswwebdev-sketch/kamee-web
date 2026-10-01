@@ -4,10 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AlertCircle, CalendarClock, Clock, Lock } from "lucide-react";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { MobileOrderSummary, MobilePayBar } from "@/components/checkout/mobile-order-summary";
 import { OutletPicker } from "@/components/cart/outlet-picker";
 import { WhatsAppIcon } from "@/components/layout/whatsapp-float";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ function Section({ step, title, children }: { step: number; title: string; child
 export function CheckoutForm() {
   const router = useRouter();
   const { hydrated, lines, count, subtotal } = useCartSummary();
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const { outletId, promoCode, redeemPoints, setPromoCode, setRedeemPoints, clear } = useCartStore();
   const customer = useAuthStore((s) => s.customer);
   const { data: outlets = [] } = useOutlets();
@@ -230,7 +232,13 @@ export function CheckoutForm() {
     );
   });
 
-  if (!hydrated) return <div className="grid gap-6 lg:grid-cols-[1fr_400px]"><Skeleton className="h-96" /><Skeleton className="h-96" /></div>;
+  if (!hydrated)
+    return (
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_400px]" aria-busy="true">
+        <div className="flex flex-col gap-5"><Skeleton className="h-16 rounded-3xl lg:hidden" /><Skeleton className="h-80 rounded-3xl" /></div>
+        <Skeleton className="hidden h-96 rounded-3xl lg:block" />
+      </div>
+    );
 
   if (count === 0 && !createOrder.isSuccess) {
     return (
@@ -244,14 +252,25 @@ export function CheckoutForm() {
 
   const minSchedule = toLocalInput(new Date(Date.now() + 30 * 60_000));
   const busy = isSubmitting || createOrder.isPending || payOrder.isPending;
+  const deliveryLabel = v.fulfillment === "delivery" ? (q ? formatRupiah(q.delivery_fee) : "Tandai lokasi di peta") : "Gratis";
+  const payLabel = v.paymentMethod === "cash" ? "Buat Pesanan" : `Bayar ${formatRupiah(totals.total)}`;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid grid-cols-1 items-start gap-6 pb-28 lg:grid-cols-[minmax(0,1fr)_400px] lg:pb-0">
       <div className="flex flex-col gap-5">
+        <MobileOrderSummary
+          lines={lines}
+          count={count}
+          totals={totals}
+          deliveryLabel={deliveryLabel}
+          open={summaryOpen}
+          onOpenChange={setSummaryOpen}
+          extra={q?.promotion ? <p className="text-caption text-success">Voucher {q.promotion.code} diterapkan</p> : undefined}
+        />
         <Section step={1} title="Data pemesan">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Nama" autoComplete="name" required error={errors.name?.message} {...register("name")} />
-            <Input label="Nomor WhatsApp" type="tel" inputMode="tel" autoComplete="tel" placeholder="0812-3456-7890" required hint="Untuk konfirmasi & lacak pesanan" error={errors.phone?.message} {...register("phone")} />
+            <Input label="Nama" autoComplete="name" autoCapitalize="words" enterKeyHint="next" required error={errors.name?.message} {...register("name")} />
+            <Input label="Nomor WhatsApp" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" placeholder="0812-3456-7890" required hint="Untuk konfirmasi & lacak pesanan" error={errors.phone?.message} {...register("phone")} />
           </div>
           {!customer && (
             <p className="mt-3 text-caption text-muted">
@@ -345,9 +364,33 @@ export function CheckoutForm() {
           />
           <Textarea className="mt-4" label="Catatan pesanan (opsional)" rows={2} maxLength={500} placeholder="Contoh: tolong sedotan kertas" error={errors.note?.message} {...register("note")} />
         </Section>
+        <div className="flex flex-col gap-3 lg:hidden">
+          {quoteError && isApiError(quoteError) && !quoteError.field("promo_code") && !quoteError.field("redeem_points") && (
+            <p role="alert" className="flex gap-2 rounded-xl bg-danger/8 p-3 text-caption text-danger"><AlertCircle className="size-4 shrink-0" aria-hidden="true" />{quoteError.message}</p>
+          )}
+          <Button type="button" variant="whatsapp" size="lg" className="w-full" onClick={onWhatsApp} loading={waOrder.isPending}>
+            <WhatsAppIcon className="size-5" /> Pesan via WhatsApp
+          </Button>
+          <p className="text-center text-caption text-muted">Total final dihitung ulang oleh sistem Kamee. Pesanan non-tunai otomatis batal bila tidak dibayar dalam 15 menit.</p>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4 lg:sticky lg:top-24">
+      <MobilePayBar
+        total={totals.total}
+        label={payLabel}
+        busy={busy}
+        onShowSummary={() => {
+          setSummaryOpen(true);
+          document.getElementById("ringkasan-pesanan")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }}
+      >
+        <Button type="submit" size="lg" className="w-full" loading={busy} data-testid="submit-order">
+          {!busy && <Lock className="size-4" aria-hidden="true" />}
+          {v.paymentMethod === "cash" ? "Buat Pesanan" : "Bayar Sekarang"}
+        </Button>
+      </MobilePayBar>
+
+      <div className="hidden flex-col gap-4 lg:sticky lg:top-24 lg:flex">
         <section aria-label="Item pesanan" className="rounded-3xl border border-line bg-surface p-5">
           <h2 className="font-heading text-lg font-semibold text-ink">Pesananmu ({count})</h2>
           <ul className="mt-3 flex max-h-64 flex-col gap-3 overflow-y-auto">
@@ -366,7 +409,7 @@ export function CheckoutForm() {
 
         <CartSummary
           totals={totals}
-          deliveryLabel={v.fulfillment === "delivery" ? (q ? formatRupiah(q.delivery_fee) : "Tandai lokasi di peta") : "Gratis"}
+          deliveryLabel={deliveryLabel}
         >
           {q?.promotion && <p className="text-caption text-success">Voucher {q.promotion.code} diterapkan</p>}
           {quoteError && isApiError(quoteError) && !quoteError.field("promo_code") && !quoteError.field("redeem_points") && (
@@ -374,7 +417,7 @@ export function CheckoutForm() {
           )}
           <Button type="submit" size="lg" className="w-full" loading={busy} data-testid="submit-order">
             {!busy && <Lock className="size-4" aria-hidden="true" />}
-            {v.paymentMethod === "cash" ? "Buat Pesanan" : `Bayar ${formatRupiah(totals.total)}`}
+            {payLabel}
           </Button>
           <Button type="button" variant="whatsapp" size="lg" className="w-full" onClick={onWhatsApp} loading={waOrder.isPending}>
             <WhatsAppIcon className="size-5" /> Pesan via WhatsApp

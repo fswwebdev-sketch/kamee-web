@@ -31,7 +31,7 @@ npm run dev                       # http://localhost:3000
 | `npm run dev:offline` / `npm run build:offline` | Sama, tetapi font Google diganti file lokal `@fontsource`. Pakai skrip ini untuk CI/sandbox tanpa akses `fonts.googleapis.com`. |
 | `npm run lint` / `npm run typecheck` | ESLint (next/core-web-vitals) / `tsc --noEmit` |
 | `npm test` | Vitest: logika keranjang |
-| `npm run test:e2e` | Playwright: alur menu → checkout & panel admin (build produksi + mock, port 3100) |
+| `npm run test:e2e` | Playwright: alur menu → checkout, panel admin, dan audit UX ponsel di iPhone 14 / Pixel 7 / Galaxy A (build produksi + mock, port 3100) |
 | `npm run images` | Membuat ulang gambar placeholder (`scripts/generate-placeholder-images.py`, butuh Pillow) |
 
 ### Mode mock (MSW)
@@ -162,6 +162,48 @@ Keterbatasan API yang ditangani di UI:
 
 ---
 
+## Pengalaman ponsel & PWA
+
+Target 360–430 px, diuji di profil Playwright **iPhone 14** (390 px), **Pixel 7** (412 px), dan **Galaxy A** (360 px). Catatan: hanya Chromium yang terpasang di lingkungan CI ini, jadi profil iPhone memakai viewport/UA/DPR iPhone 14 di Chromium, bukan WebKit asli.
+
+| Area | Implementasi |
+|---|---|
+| Navigasi | Tab bar 4 item (Beranda, Menu, Promo, Akun) + sticky cart bar di atasnya. Keduanya disembunyikan saat keyboard virtual terbuka (`features/ui/keyboard.tsx`: visualViewport + fokus input pada perangkat sentuh → `html[data-keyboard="open"]`, kelas `.hide-on-keyboard`). Di alur transaksi (keranjang, checkout, bayar) tab bar diganti bar aksi sticky. Lacak pesanan ada di Akun (juga untuk tamu). |
+| Bottom sheet | `Dialog` = bottom sheet di ponsel dengan **swipe-to-close**: seret pegangan/kepala, atau konten saat sudah di posisi atas (`features/ui/use-sheet-drag.ts`, tanpa fitur drag Framer Motion agar bundle tetap kecil). Dipakai untuk pilihan varian, **Filter & urutkan** menu (draf diterapkan dengan tombol Terapkan), pesan via WhatsApp, alamat, dan panduan pasang iOS. |
+| Target sentuh | Semua elemen interaktif ≥ 44 × 44 px di ponsel (ukuran ringkas dikembalikan mulai `md:` untuk desktop/admin). Kartu produk & blog memakai *stretched link* (seluruh kartu dapat diketuk). |
+| Input | 16 px di ponsel (iOS tidak zoom saat fokus); `type="tel"` + `inputmode`, `autocomplete="name" / "tel" / "email" / "one-time-code" / "street-address"`, `enterkeyhint`, `autocapitalize` sesuai isian. |
+| Safe area | `viewport-fit=cover`; header `pt-safe`, tab bar & bar aksi `pb-safe`, kontainer menghormati notch kiri/kanan saat landscape. |
+| Galeri & daftar | Galeri produk swipe (scroll-snap, edge-to-edge, penghitung 1/3, `overscroll-x-contain` agar tidak memicu "back"). **Tarik untuk memuat ulang** di riwayat pesanan (`components/ui/pull-to-refresh.tsx`, plus tombol muat ulang untuk keyboard/pembaca layar). Skeleton di semua daftar & rute (`loading.tsx` promo, outlet, pesanan). |
+| Checkout | Satu kolom di ponsel: ringkasan pesanan yang bisa dilipat di atas, tombol **Bayar** sticky di bawah (total selalu terlihat). QRIS: **Simpan QR** memakai Web Share API (lembar "Simpan Gambar" ke galeri) dengan fallback unduh; e-wallet: tombol deeplink "Buka aplikasi GoPay/ShopeePay…". |
+
+### PWA
+
+- **Manifest** (`app/manifest.ts`): `id`, `scope`, `display: standalone`, ikon *any* + *maskable* (192/512), shortcut **Menu** & **Lacak Pesanan** berikut ikonnya, dan screenshot untuk dialog pasang yang lebih kaya di Android.
+- **Splash & ikon:**
+  - iOS memakai `apple-touch-startup-image` untuk 9 ukuran iPhone + `apple-touch-icon`.
+  - Android memakai `background_color` + ikon 512 dari manifest.
+  - Buat ulang dengan `python3 scripts/generate-pwa-assets.py`.
+- **Service worker** (`public/sw.js`):
+  - **Navigasi halaman:** network-first (4 dtk), lalu fallback ke cache, lalu ke `/offline.html`.
+  - **Payload RSC Next:** network-first, lalu fallback ke cache.
+  - **`/_next/static`:** cache-first.
+  - **Gambar & font:** stale-while-revalidate, maksimal 150 entri.
+  - **API katalog publik** (produk, kategori, outlet, promo, banner, blog): network-first, lalu fallback ke cache. Jadi **menu yang pernah dibuka tetap tampil saat offline**.
+  - **Tidak pernah dicache:** request non-GET, `/admin`, `/api/*`, request ber-`Authorization` (data akun), pesanan, dan pembayaran.
+  - **Waktu registrasi:** saat browser senggang setelah `load`, agar tidak mengganggu LCP.
+  - **Pembaruan:** bila ada versi baru, muncul toast "Muat ulang".
+- **Halaman offline** (`public/offline.html`): HTML statis + CSS inline (tetap tampil tanpa jaringan), terang/gelap, tombol coba lagi, dan otomatis kembali saat koneksi pulih.
+- **Tambahkan ke layar utama:**
+  - Banner di beranda (ponsel) muncul setelah 4 detik dan bisa ditutup untuk 14 hari. Tombol yang sama ada di halaman Akun dan footer.
+  - Android/Chrome memakai event `beforeinstallprompt`.
+  - iOS Safari menampilkan panduan Bagikan → Tambah ke Layar Utama.
+- **Mode mock:** satu origin hanya bisa punya satu service worker di scope `/`, dan saat mock aktif tempat itu dipakai MSW. Karena itu SW aplikasi hanya terdaftar di build **tanpa mock**. Tes offline (`tests/e2e/pwa.spec.ts`) dijalankan dengan:
+  ```bash
+  E2E_PWA=1 E2E_BASE_URL=http://localhost:3000 npx playwright test pwa --project=pixel-7
+  ```
+
+---
+
 ## Kualitas
 
 ### SEO
@@ -190,19 +232,33 @@ Yang sudah diterapkan:
 - **HTML lebih kecil:** rating bintang memakai CSS mask (HTML menu turun ±37%).
 - **ISR + skeleton** di semua rute data.
 
-Hasil Lighthouse mobile (default throttling), build produksi terhadap `kamee-api` asli, median 3 kali run:
+Hasil Lighthouse mobile (default throttling), build produksi terhadap `kamee-api` asli. Skor Performa adalah median 3 run (1 Oktober 2026, setelah penyempurnaan mobile/PWA). Kolom "sebelum" adalah build sebelumnya yang diukur di mesin dan sesi yang sama sebagai pembanding:
 
-| Halaman | Performa | Aksesibilitas | Best Practices | SEO |
-|---|---|---|---|---|
-| `/` | 90 | 100 | 100 | 100 |
-| `/menu` | 89 | 100 | 100 | 100 |
-| `/menu/kopi-susu-aren` | 91 | 100 | 100 | 100 |
-| `/promo` | 95 | 100 | 100 | 100 |
-| `/blog` | 93 | 100 | 100 | 100 |
-| `/tentang` | 94 | 100 | 100 | 100 |
-| `/kontak` | 98 | 100 | 100 | 100 |
+| Halaman | Performa | Sebelum | LCP | TBT | CLS | A11y | BP | SEO |
+|---|---|---|---|---|---|---|---|---|
+| `/` | 85 | 77–84 | 3,4 s | 320 ms | 0 | 100 | 100 | 100 |
+| `/menu` | 87 | 79–89 | 3,6 s | 210 ms | 0 | 100 | 100 | 100 |
+| `/menu/kopi-susu-aren` | 77 (74–92) | 73–83 | 4,2 s | 380 ms | 0 | 100 | 100 | 100 |
+| `/promo` | 92 | 95 | 3,2 s | 130 ms | 0 | 100 | 100 | 100 |
+| `/blog` | 88 | 80–91 | 3,5 s | 180 ms | 0 | 100 | 100 | 100 |
+| `/kontak` | 89 | 89 | 3,0 s | 300 ms | 0 | 100 | 100 | 100 |
+| `/masuk` | 95 | 92–96 | 2,4 s | 190 ms | 0 | 100 | 100 | 66¹ |
+| `/pesanan` | 90 | 92 | 3,2 s | 200 ms | 0 | 100 | 100 | 100 |
+| `/keranjang` | 82 | 70–73 | 4,0 s | 250 ms | **0** (sebelumnya 0,196) | 100 | 100 | 66¹ |
+| `/checkout` | 81 | 69–70 | 4,0 s | 370 ms | **0** (sebelumnya 0,173) | 100 | 100 | 66¹ |
 
-CLS = 0 di semua halaman. Pengukuran dilakukan di mesin 2 core yang juga menjalankan Laravel, MySQL, dan Redis, sehingga skor Performa berfluktuasi ±8 poin antar run. Ukur ulang di infrastruktur produksi dengan CDN untuk gambar.
+¹ Halaman ini sengaja `noindex` (keranjang, checkout, login), jadi audit "is-crawlable" gagal by design.
+
+Bacaan hasil:
+
+- **Pagu ≥ 90 belum tercapai di semua halaman pada mesin uji ini.** Mesinnya 2 core dan juga menjalankan Laravel, MySQL, dan Redis. Pada hari yang sama, build lama pun hanya mendapat 70–96, sementara sehari sebelumnya build lama mendapat sekitar 90 di halaman utama. Variasi antar run ±10 poin (contoh `/menu/kopi-susu-aren`: 74, 77, 92).
+- **Waktu blok utama:** hidrasi React di CPU yang di-throttle 4×.
+- **Dibanding build lama** di kondisi yang sama: CLS hilang total (keranjang dan checkout), login naik, dan halaman lain setara dalam batas noise.
+- **Perlu diukur ulang** di infrastruktur produksi (server terpisah, CDN gambar).
+- **Regresi yang ditemukan & diperbaiki selama audit:**
+  - **Reload otomatis di kunjungan pertama.** Service worker memicu `controllerchange` pada kunjungan pertama, lalu halaman dimuat ulang. Sekarang reload hanya terjadi setelah pengguna menyetujui pembaruan.
+  - **Modul toast di bundle awal.** Modul toast ikut masuk bundle awal; sekarang dimuat saat dibutuhkan.
+  - **Login tidak lagi statis.** Form login sempat menjadi dinamis; sekarang statis kembali dan form ikut ada di HTML awal.
 
 Catatan pengukuran:
 
@@ -213,7 +269,7 @@ Catatan pengukuran:
 
 ```bash
 npm test                         # 21 tes unit: harga, opsi varian, merge baris, store (undo, catatan, persist)
-E2E_OFFLINE=1 npm run test:e2e   # 20 tes (Pixel 7 + Desktop Chrome): 4 alur toko + 6 alur admin
+E2E_OFFLINE=1 npm run test:e2e   # 47 tes: alur toko + admin (Pixel 7 + Desktop) dan 9 tes UX ponsel × 3 perangkat
 ```
 
 Alur e2e:
@@ -237,6 +293,20 @@ Tes e2e admin (terhadap mock admin):
 - buat lalu hapus produk dengan konfirmasi;
 - menu terbatas Admin Outlet;
 - struk 58 mm.
+
+Tes UX ponsel (`tests/e2e/mobile-ux.spec.ts`, proyek `iphone-14`, `pixel-7`, `galaxy-a`):
+
+- **Tata letak:** tidak ada scroll horizontal, dan semua target sentuh ≥ 44 px di 10 halaman.
+- **Navigasi:** tab bar 4 item, sembunyi saat keyboard terbuka dan di checkout.
+- **Bottom sheet:**
+  - sheet varian: swipe pendek kembali ke posisi semula, swipe panjang menutup;
+  - filter & urutan menu lewat bottom sheet.
+- **Checkout:** ringkasan bisa dilipat, tombol bayar tetap di layar saat menggulir, input `tel`/`autocomplete`/≥ 16 px.
+- **Pembayaran:** tombol Simpan QR dan deeplink e-wallet.
+- **Riwayat pesanan:** tarik untuk memuat ulang (sentuhan disimulasikan lewat CDP).
+- **PWA:**
+  - ajakan pasang: prompt browser di Android, panduan Bagikan di iOS;
+  - manifest, ikon, screenshot, splash, `offline.html`, dan header `sw.js`.
 
 Untuk menguji server yang sudah berjalan: `E2E_BASE_URL=http://localhost:3000 npm run test:e2e`.
 

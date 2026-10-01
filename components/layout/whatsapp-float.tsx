@@ -18,7 +18,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 export function WhatsAppFloat() {
   const pathname = usePathname();
   const { count } = useCartSummary();
-  if (/^\/(checkout|masuk)|\/bayar$/.test(pathname)) return null;
+  if (/^\/(checkout|masuk|keranjang)|\/bayar$/.test(pathname)) return null;
   return (
     <a
       href={waLink("Halo Kamee Coffee, saya mau tanya menu dan pesanan 😊", env.whatsappNumber)}
@@ -26,7 +26,7 @@ export function WhatsAppFloat() {
       rel="noopener noreferrer"
       aria-label="Chat WhatsApp Kamee Coffee"
       className={cn(
-        "fixed right-4 z-40 grid size-14 place-items-center rounded-full bg-whatsapp text-white shadow-lift transition hover:scale-105 md:bottom-6 md:right-6",
+        "hide-on-keyboard fixed right-4 z-40 grid size-14 place-items-center rounded-full bg-whatsapp text-white shadow-lift transition hover:scale-105 md:bottom-6 md:right-6",
         count > 0 ? "hidden md:grid" : "bottom-[calc(5.5rem+env(safe-area-inset-bottom))]",
       )}
     >

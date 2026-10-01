@@ -31,7 +31,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-250",
+        "fixed inset-x-0 top-0 z-50 border-b pt-safe transition-[background-color,border-color,box-shadow] duration-250",
         overHero ? "border-transparent bg-transparent" : "glass border-line/60 shadow-soft",
       )}
     >
@@ -62,14 +62,14 @@ export function Navbar() {
           <Link
             href={mounted && authed ? "/akun" : "/masuk"}
             aria-label={mounted && authed ? "Akun saya" : "Masuk"}
-            className={cn("hidden size-10 place-items-center rounded-full transition md:grid", overHero ? "hover:bg-white/10" : "hover:bg-cream")}
+            className={cn("hidden size-11 place-items-center rounded-full transition md:grid", overHero ? "hover:bg-white/10" : "hover:bg-cream")}
           >
             <User className="size-5" />
           </Link>
           <Link
             href="/keranjang"
             aria-label={`Keranjang, ${count} item`}
-            className={cn("relative grid size-10 place-items-center rounded-full transition", overHero ? "hover:bg-white/10" : "hover:bg-cream")}
+            className={cn("relative grid size-11 place-items-center rounded-full transition", overHero ? "hover:bg-white/10" : "hover:bg-cream")}
           >
             <ShoppingBag className="size-5" />
             {count > 0 && (

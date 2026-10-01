@@ -10,7 +10,7 @@ export function Chip({ selected, className, children, ...props }: ButtonHTMLAttr
       type="button"
       aria-pressed={selected}
       className={cn(
-        "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition duration-150",
+        "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition duration-150",
         selected ? "bg-primary text-on-primary shadow-soft" : "bg-cream text-ink hover:bg-line",
         className,
       )}

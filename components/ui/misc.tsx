@@ -64,7 +64,7 @@ export function Breadcrumb({ items, className }: { items: { label: string; href?
         {items.map((it, i) => (
           <li key={i} className="flex items-center gap-1">
             {it.href ? (
-              <Link href={it.href} className="rounded hover:text-primary">{it.label}</Link>
+              <Link href={it.href} className="-mx-1.5 -my-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded px-1.5 hover:text-primary">{it.label}</Link>
             ) : (
               <span aria-current="page" className="font-semibold text-ink">{it.label}</span>
             )}

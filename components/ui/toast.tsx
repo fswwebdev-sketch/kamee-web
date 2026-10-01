@@ -74,7 +74,7 @@ export function Toaster() {
                   {t.action.label}
                 </button>
               )}
-              <button type="button" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi" className="-m-1 grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-cream">
+              <button type="button" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi" className="-m-2 grid size-11 shrink-0 md:-m-1 md:size-8 place-items-center rounded-full text-muted hover:bg-cream">
                 <X className="size-4" />
               </button>
             </m.div>

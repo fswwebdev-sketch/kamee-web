@@ -22,7 +22,7 @@ export function QuantityStepper({
   /** Tampilkan ikon hapus saat qty = 1 (keranjang) */
   removable?: boolean;
 }) {
-  const btn = cn("grid place-items-center rounded-full text-ink transition hover:bg-cream disabled:opacity-40", size === "sm" ? "size-8" : "size-10");
+  const btn = cn("grid place-items-center rounded-full text-ink transition hover:bg-cream disabled:opacity-40", size === "sm" ? "size-11 md:size-9" : "size-11");
   const showTrash = removable && value <= 1;
   return (
     <div role="group" aria-label={`Jumlah ${label}`} className="inline-flex items-center gap-1 rounded-full border border-line bg-bg p-0.5">

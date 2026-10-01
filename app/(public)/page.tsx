@@ -6,6 +6,7 @@ import { Hero } from "@/components/home/hero";
 import { OutletMap } from "@/components/home/outlet-map";
 import { PromoSection } from "@/components/home/promo-section";
 import { Testimonials } from "@/components/home/testimonials";
+import { InstallBanner } from "@/components/layout/install-app";
 import { VariantSheet } from "@/components/menu/variant-sheet-host";
 import { JsonLd } from "@/components/ui/misc";
 import { getBanners, getOutlets, getProducts, getPromotions, getTestimonials } from "@/lib/data";
@@ -36,6 +37,7 @@ export default async function HomePage() {
       <OutletMap outlets={outlets} />
       <CtaBanner />
       <VariantSheet />
+      <InstallBanner />
     </>
   );
 }

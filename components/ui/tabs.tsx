@@ -54,7 +54,7 @@ export function Tabs({
             onClick={() => onChange(t.id)}
             onKeyDown={(e) => onKey(e, i)}
             className={cn(
-              "h-10 shrink-0 rounded-lg px-4 text-sm font-semibold transition duration-150",
+              "h-11 shrink-0 rounded-lg px-4 md:h-10 text-sm font-semibold transition duration-150",
               active ? "bg-surface text-ink shadow-soft" : "font-medium text-ink/85 hover:bg-surface/60",
             )}
           >

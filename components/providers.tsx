@@ -9,6 +9,8 @@ import { isApiError } from "@/lib/api";
 import { env } from "@/lib/env";
 import { setMockReady } from "@/lib/mock-ready";
 import "@/features/auth/store";
+import { KeyboardWatcher } from "@/features/ui/keyboard";
+import { PwaProvider } from "@/features/pwa/pwa-provider";
 
 // Toaster dimuat setelah hidrasi (tidak ikut bundle kritis).
 const Toaster = dynamic(() => import("@/components/ui/toast").then((m) => m.Toaster), { ssr: false });
@@ -47,6 +49,8 @@ export function Providers({ children }: { children: ReactNode }) {
           <MotionConfig reducedMotion="user">
             {children}
             <Toaster />
+            <KeyboardWatcher />
+            <PwaProvider />
           </MotionConfig>
         </LazyMotion>
       </QueryClientProvider>

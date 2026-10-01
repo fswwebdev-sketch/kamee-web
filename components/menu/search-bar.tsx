@@ -30,7 +30,7 @@ export function SearchBar({ value, onChange, placeholder = "Cari kopi, teh, cami
         className="h-12 w-full rounded-xl border border-line bg-surface pl-12 pr-12 text-ink shadow-soft placeholder:text-muted/80 focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20 [&::-webkit-search-cancel-button]:hidden"
       />
       {text && (
-        <button type="button" onClick={() => { setText(""); onChange(""); }} aria-label="Hapus pencarian" className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-cream">
+        <button type="button" onClick={() => { setText(""); onChange(""); }} aria-label="Hapus pencarian" className="absolute right-1.5 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-cream">
           <X className="size-4" />
         </button>
       )}

@@ -30,9 +30,9 @@ export function ProductGallery({ images, name }: { images: ProductImage[]; name:
   };
 
   return (
-    <div className="flex flex-col gap-3" role="region" aria-roledescription="carousel" aria-label={`Galeri foto ${name}`}>
-      <div className="group relative overflow-hidden rounded-3xl border border-line bg-cream">
-        <div ref={track} onScroll={onScroll} onKeyDown={onKey} tabIndex={0} aria-label="Geser untuk melihat foto lain" className="scrollbar-none flex aspect-square snap-x snap-mandatory overflow-x-auto">
+    <div className="flex min-w-0 flex-col gap-3" role="region" aria-roledescription="carousel" aria-label={`Galeri foto ${name}`}>
+      <div className="group relative -mx-4 overflow-hidden border-line bg-cream md:mx-0 md:rounded-3xl md:border">
+        <div ref={track} onScroll={onScroll} onKeyDown={onKey} tabIndex={0} aria-label="Geser untuk melihat foto lain" className="scrollbar-none flex aspect-square snap-x snap-mandatory overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
           {images.map((img, i) => (
             <div key={img.id} className="relative aspect-square w-full shrink-0 snap-center" role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${images.length}`}>
               <Image src={img.url} alt={img.alt ?? name} fill priority={i === 0} fetchPriority={i === 0 ? "high" : "low"} sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
@@ -43,6 +43,9 @@ export function ProductGallery({ images, name }: { images: ProductImage[]; name:
           <>
             <button type="button" onClick={() => go(index - 1)} aria-label="Foto sebelumnya" className="glass absolute left-3 top-1/2 hidden size-10 -translate-y-1/2 place-items-center rounded-full border text-ink md:grid"><ChevronLeft className="size-5" /></button>
             <button type="button" onClick={() => go(index + 1)} aria-label="Foto berikutnya" className="glass absolute right-3 top-1/2 hidden size-10 -translate-y-1/2 place-items-center rounded-full border text-ink md:grid"><ChevronRight className="size-5" /></button>
+            <span className="absolute right-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-semibold text-white tabular-nums md:hidden" aria-live="polite">
+              {index + 1}/{images.length}
+            </span>
             <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5 md:hidden" aria-hidden="true">
               {images.map((_, i) => <span key={i} className={cn("h-1.5 rounded-full bg-white/80 transition-all", i === index ? "w-5 bg-white" : "w-1.5")} />)}
             </div>

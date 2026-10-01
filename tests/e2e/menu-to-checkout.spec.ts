@@ -43,7 +43,8 @@ test.describe("menu → checkout", () => {
     // Checkout: data pemesan (default: ambil di outlet, sekarang, QRIS)
     await page.getByLabel("Nama").fill("Dinda Putri");
     await page.getByLabel("Nomor WhatsApp").fill("081234567890");
-    await page.getByTestId("submit-order").click();
+    await page.getByLabel("Nomor WhatsApp").blur(); // tutup keyboard: bar bayar sticky tampil lagi
+    await page.getByTestId("submit-order").filter({ visible: true }).click();
 
     // Halaman pembayaran QRIS dengan countdown
     await expect(page).toHaveURL(/\/pesanan\/[A-Z0-9]+\/bayar/, { timeout: 20_000 });
@@ -62,7 +63,8 @@ test.describe("menu → checkout", () => {
     await page.goto("/checkout");
     await page.getByLabel("Nama").fill("Dinda");
     await page.getByLabel("Nomor WhatsApp").fill("12345");
-    await page.getByTestId("submit-order").click();
+    await page.getByLabel("Nomor WhatsApp").blur();
+    await page.getByTestId("submit-order").filter({ visible: true }).click();
     await expect(page.getByLabel("Nomor WhatsApp")).toHaveAttribute("aria-invalid", "true");
     await expect(page).toHaveURL(/\/checkout$/);
   });

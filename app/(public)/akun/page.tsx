@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { InstallAppButton } from "@/components/layout/install-app";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ChevronRight } from "lucide-react";
@@ -38,13 +39,14 @@ export default function AccountPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-44" /><Skeleton className="h-44" /></div>
       )}
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[["/akun/pesanan", "Riwayat pesanan"], ["/akun/voucher", "Voucher saya"], ["/akun/alamat", "Alamat tersimpan"]].map(([href, label]) => (
-          <Link key={href} href={href!} className="flex items-center justify-between rounded-2xl border border-line bg-surface p-4 text-sm font-semibold text-ink hover:border-primary">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[["/akun/pesanan", "Riwayat pesanan"], ["/akun/voucher", "Voucher saya"], ["/akun/alamat", "Alamat tersimpan"], ["/pesanan", "Lacak pesanan dengan kode"]].map(([href, label]) => (
+          <Link key={href} href={href!} className="flex min-h-14 items-center justify-between rounded-2xl border border-line bg-surface p-4 text-sm font-semibold text-ink hover:border-primary active:scale-[.99]">
             {label} <ChevronRight className="size-4 text-muted" aria-hidden="true" />
           </Link>
         ))}
       </div>
+      <InstallAppButton />
       <section aria-labelledby="profil-title" className="rounded-3xl border border-line bg-surface p-5 md:p-6">
         <h2 id="profil-title" className="font-heading text-lg font-semibold">Profil</h2>
         <form

@@ -7,7 +7,7 @@ export const metadata: Metadata = buildMetadata({ title: "Checkout", path: "/che
 
 export default function CheckoutPage() {
   return (
-    <div className="container-page pt-24 pb-16 md:pt-28">
+    <div className="container-page min-h-svh pt-24 pb-16 md:pt-28">
       <Breadcrumb items={[{ label: "Keranjang", href: "/keranjang" }, { label: "Checkout" }]} />
       <h1 className="mt-3 mb-6 text-h1">Checkout</h1>
       <CheckoutForm />

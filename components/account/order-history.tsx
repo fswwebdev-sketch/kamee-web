@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ReceiptText, RotateCcw } from "lucide-react";
+import { ReceiptText, RefreshCw, RotateCcw } from "lucide-react";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/misc";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { useCartActions } from "@/features/cart/hooks";
@@ -29,7 +30,7 @@ const FILTERS = [
 export function OrderHistory() {
   const router = useRouter();
   const [status, setStatus] = useState("");
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useMyOrders(status || undefined);
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage, refetch, isRefetching } = useMyOrders(status || undefined);
   const reorder = useReorder();
   const { addItem, setOutlet } = useCartActions();
   const orders = data?.pages.flatMap((p) => p.data) ?? [];
@@ -54,9 +55,15 @@ export function OrderHistory() {
   };
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="flex flex-col gap-5">
-      <div role="group" aria-label="Filter status" className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:px-0">
-        {FILTERS.map((f) => <Chip key={f.value} selected={status === f.value} onClick={() => setStatus(f.value)}>{f.label}</Chip>)}
+      <div className="flex items-center gap-2">
+        <div role="group" aria-label="Filter status" data-no-ptr className="scrollbar-none -ml-4 flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 md:ml-0 md:pl-0">
+          {FILTERS.map((f) => <Chip key={f.value} selected={status === f.value} onClick={() => setStatus(f.value)}>{f.label}</Chip>)}
+        </div>
+        <button type="button" onClick={() => refetch()} aria-label="Muat ulang riwayat pesanan" className="grid size-11 shrink-0 place-items-center rounded-full text-muted transition hover:bg-cream hover:text-ink">
+          <RefreshCw className={isRefetching ? "size-5 animate-spin" : "size-5"} aria-hidden="true" />
+        </button>
       </div>
       {isLoading ? (
         <div className="flex flex-col gap-3">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-36 rounded-3xl" />)}</div>
@@ -91,5 +98,6 @@ export function OrderHistory() {
       )}
       {hasNextPage && <Button variant="outline" className="mx-auto" loading={isFetchingNextPage} onClick={() => fetchNextPage()}>Muat lebih banyak</Button>}
     </div>
+    </PullToRefresh>
   );
 }

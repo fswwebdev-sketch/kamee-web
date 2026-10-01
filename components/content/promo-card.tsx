@@ -50,7 +50,7 @@ export function PromoCard({ promo }: { promo: Promotion | Voucher }) {
         {promo.ends_at && <p className="flex items-center gap-1.5 text-caption text-muted"><CalendarDays className="size-3.5" aria-hidden="true" />Berlaku s.d. {formatDate(promo.ends_at)}</p>}
         {promo.code ? (
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={copy} className="inline-flex items-center gap-2 rounded-lg border border-dashed border-primary px-3 py-1.5 font-heading text-sm font-semibold tracking-wider text-primary hover:bg-cream">
+            <button type="button" onClick={copy} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-dashed border-primary px-3.5 font-heading text-sm font-semibold tracking-wider text-primary hover:bg-cream">
               {promo.code} <Copy className="size-3.5" aria-hidden="true" /><span className="sr-only">salin kode</span>
             </button>
             <Button size="sm" onClick={use}>Pakai</Button>

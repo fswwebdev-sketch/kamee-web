@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       <JsonLd data={[productJsonLd(product), breadcrumbJsonLd(crumbs)]} />
       <Breadcrumb items={crumbs.map((c, i) => ({ label: c.name, href: i < crumbs.length - 1 ? c.path : undefined }))} />
 
-      <div className="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-14">
+      <div className="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-14">
         <ProductGallery images={images} name={product.name} />
 
         <div className="flex flex-col gap-6">

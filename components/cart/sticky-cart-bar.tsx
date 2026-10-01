@@ -21,13 +21,13 @@ export function StickyCartBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 24, opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 md:hidden"
+          className="hide-on-keyboard fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 md:hidden"
         >
-          <Link href="/keranjang" className="flex items-center justify-between rounded-2xl bg-ink px-4 py-3 text-cream shadow-lift">
+          <Link href="/keranjang" className="flex min-h-14 items-center justify-between rounded-2xl bg-ink px-4 py-2.5 text-cream shadow-lift transition active:scale-[.98] motion-reduce:active:scale-100">
             <span className="text-sm">
               {count} item · <b className="font-heading">{formatRupiah(subtotal)}</b>
             </span>
-            <span className="rounded-xl bg-cream px-3 py-1.5 text-sm font-semibold text-ink">Lihat Keranjang</span>
+            <span className="inline-flex min-h-10 items-center rounded-xl bg-cream px-3.5 text-sm font-semibold text-ink">Lihat Keranjang</span>
           </Link>
         </m.div>
       )}

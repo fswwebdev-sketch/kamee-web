@@ -18,7 +18,7 @@ export function SortSelect({ value, onChange }: { value: string; onChange: (v: s
         id="urutkan"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 appearance-none rounded-lg border border-line bg-surface pl-9 pr-8 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20"
+        className="h-11 appearance-none rounded-lg border border-line bg-surface pl-9 pr-8 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20"
       >
         {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>

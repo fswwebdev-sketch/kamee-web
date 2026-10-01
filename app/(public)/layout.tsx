@@ -11,7 +11,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   return (
     <>
       <Navbar />
-      <main id="konten" tabIndex={-1} className="min-h-[70svh] outline-none">
+      {/* min-h-svh: saat streaming, footer tidak sempat tampil tepat di bawah header lalu terdorong (CLS) */}
+      <main id="konten" tabIndex={-1} className="min-h-svh outline-none">
         {children}
       </main>
       <Footer outlets={outlets} />

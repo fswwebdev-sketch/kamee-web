@@ -24,8 +24,19 @@ export default defineConfig({
     timezoneId: "Asia/Jakarta",
   },
   projects: [
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    // Alur utama & admin: satu ponsel + desktop
+    { name: "mobile", testIgnore: /mobile-ux|pwa/, use: { ...devices["Pixel 7"] } },
+    { name: "desktop", testIgnore: /mobile-ux|pwa/, use: { ...devices["Desktop Chrome"] } },
+    // Audit UX ponsel 360–430 px. Hanya Chromium yang terpasang di CI ini, jadi profil iPhone
+    // memakai viewport/UA/DPR iPhone 14 di Chromium (bukan WebKit asli).
+    { name: "iphone-14", testMatch: /mobile-ux|pwa/, use: { ...devices["iPhone 14"], browserName: "chromium", defaultBrowserType: "chromium" } },
+    { name: "pixel-7", testMatch: /mobile-ux|pwa/, use: { ...devices["Pixel 7"] } },
+    {
+      name: "galaxy-a",
+      testMatch: /mobile-ux|pwa/,
+      // Galaxy A kelas menengah (A05/A15/A25): lebar CSS 360 px
+      use: { ...devices["Galaxy A55"], viewport: { width: 360, height: 800 } },
+    },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined

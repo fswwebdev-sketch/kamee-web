@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Copy, ExternalLink, RefreshCw, TimerOff } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, RefreshCw, Smartphone, TimerOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/misc";
@@ -22,6 +22,16 @@ import { QrisDisplay } from "./qris-display";
  * Halaman bayar: QRIS (countdown 15:00 + polling 3 detik), e-wallet (deeplink), VA.
  * Saat lunas otomatis diarahkan ke halaman lacak pesanan.
  */
+/** Nama e-wallet dari URL deeplink (gopay://, shopeeid://, atau URL simulator Midtrans). */
+function ewalletName(url: string): string {
+  const u = url.toLowerCase();
+  if (u.includes("shopee")) return "ShopeePay";
+  if (u.includes("dana")) return "DANA";
+  if (u.includes("ovo")) return "OVO";
+  if (u.includes("gopay") || u.includes("gojek")) return "GoPay";
+  return "e-wallet";
+}
+
 export function PaymentView({ code, phone }: { code: string; phone: string }) {
   const router = useRouter();
   const started = useRef(Date.now());
@@ -116,16 +126,27 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
               <QrisDisplay value={payment.qr_string} fileName={`QRIS-${code}`} />
               <ol className="max-w-sm list-decimal pl-5 text-left text-sm text-muted">
                 <li>Buka aplikasi e-wallet atau m-banking yang mendukung QRIS.</li>
-                <li>Scan kode QR di atas (atau simpan lalu unggah dari galeri).</li>
+                <li>
+                  <span className="md:hidden">Bayar dari HP ini? Ketuk <b className="text-ink">Simpan QR</b>, lalu di aplikasi pilih Scan → ikon galeri.</span>
+                  <span className="hidden md:inline">Scan kode QR di atas (atau simpan lalu unggah dari galeri).</span>
+                </li>
                 <li>Pastikan nominal {formatRupiah(payment.amount)} lalu konfirmasi.</li>
               </ol>
             </>
           )}
 
-          {payment.method === "ewallet" && payment.deeplink && (
-            <a href={payment.deeplink} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "lg", "w-full max-w-sm")}>
-              Buka aplikasi e-wallet <ExternalLink className="size-4" aria-hidden="true" />
-            </a>
+          {payment.method === "ewallet" && (
+            <div className="flex w-full max-w-sm flex-col items-center gap-3">
+              <span className="grid size-16 place-items-center rounded-2xl bg-cream text-primary"><Smartphone className="size-8" aria-hidden="true" /></span>
+              <p className="text-sm text-muted">Pembayaran dilanjutkan di aplikasi e-wallet. Setelah membayar, kembali ke halaman ini — status diperbarui otomatis.</p>
+              {payment.deeplink ? (
+                <a href={payment.deeplink} rel="noopener noreferrer" data-testid="ewallet-deeplink" className={buttonClasses("primary", "lg", "w-full")}>
+                  Buka aplikasi {ewalletName(payment.deeplink)} <ExternalLink className="size-4" aria-hidden="true" />
+                </a>
+              ) : (
+                <p role="alert" className="text-sm text-danger">Tautan aplikasi tidak tersedia. Pilih metode lain atau hubungi kasir.</p>
+              )}
+            </div>
           )}
 
           {payment.method === "bank_transfer" && payment.va_number && (

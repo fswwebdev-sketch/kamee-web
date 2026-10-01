@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallAppButton } from "./install-app";
 import { Clock, Mail, MapPin } from "lucide-react";
 import { env } from "@/lib/env";
 import { formatHour } from "@/lib/format";
@@ -21,7 +22,7 @@ export function Footer({ outlets }: { outlets: Outlet[] }) {
               { href: env.tiktok, label: "TikTok Kamee Coffee", Icon: TikTokIcon },
               { href: `https://wa.me/${env.whatsappNumber}`, label: "WhatsApp Kamee Coffee", Icon: WhatsAppIcon },
             ].map(({ href, label, Icon }) => (
-              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="grid size-10 place-items-center rounded-full bg-cream text-ink transition hover:bg-primary hover:text-on-primary">
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="grid size-11 place-items-center rounded-full bg-cream text-ink transition hover:bg-primary hover:text-on-primary">
                 <Icon className="size-5" />
               </a>
             ))}
@@ -29,9 +30,9 @@ export function Footer({ outlets }: { outlets: Outlet[] }) {
         </div>
         <div>
           <h2 className="font-heading text-base font-semibold text-ink">Jelajahi</h2>
-          <ul className="mt-4 grid grid-cols-2 gap-2 text-sm text-muted md:grid-cols-1">
+          <ul className="mt-2 grid grid-cols-2 gap-x-4 text-sm text-muted md:mt-4 md:grid-cols-1 md:gap-2">
             {[["/menu", "Menu"], ["/promo", "Promo"], ["/pesanan", "Lacak Pesanan"], ["/tentang", "Tentang Kami"], ["/blog", "Blog"], ["/kontak", "Kontak"]].map(([href, label]) => (
-              <li key={href}><Link href={href!} className="rounded hover:text-primary">{label}</Link></li>
+              <li key={href}><Link href={href!} className="flex min-h-11 items-center rounded hover:text-primary md:min-h-0">{label}</Link></li>
             ))}
           </ul>
         </div>
@@ -48,7 +49,8 @@ export function Footer({ outlets }: { outlets: Outlet[] }) {
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-5 text-caption text-muted md:flex-row md:items-center md:justify-between">
           <p>© {year} Kamee Coffee. Dibuat dengan ☕ di Tangerang.</p>
-          <a href={`mailto:${env.email}`} className="inline-flex items-center gap-1.5 hover:text-primary"><Mail className="size-4" aria-hidden="true" />{env.email}</a>
+          <InstallAppButton variant="link" className="text-caption md:hidden" />
+          <a href={`mailto:${env.email}`} className="inline-flex min-h-11 items-center gap-1.5 hover:text-primary md:min-h-0"><Mail className="size-4" aria-hidden="true" />{env.email}</a>
         </div>
       </div>
     </footer>

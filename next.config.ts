@@ -31,6 +31,16 @@ const nextConfig: NextConfig = {
         ],
       },
       { source: "/:all*(avif|webp|png|jpg|svg|woff2)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // Service worker harus selalu dicek ulang agar pembaruan cepat sampai ke pengguna
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+        ],
+      },
+      { source: "/offline.html", headers: [{ key: "Cache-Control", value: "no-cache" }] },
     ];
   },
 };

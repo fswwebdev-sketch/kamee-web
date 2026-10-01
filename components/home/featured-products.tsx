@@ -31,7 +31,7 @@ export function FeaturedProducts({ initial }: { initial: Product[] }) {
             <p className="text-caption font-semibold tracking-[.14em] text-primary uppercase">Menu Favorit</p>
             <h2 id="unggulan-title" className="mt-2 text-h2">Yang paling banyak dipesan</h2>
           </div>
-          <Link href="/menu" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:gap-2.5 transition-all">
+          <Link href="/menu" className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary hover:gap-2.5 transition-all">
             Lihat semua menu <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
