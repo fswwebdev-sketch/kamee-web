@@ -10,6 +10,7 @@ class PaymentGatewayManager
 {
     /** @var array<string, class-string<PaymentGateway>> */
     private array $drivers = [
+        'manual' => ManualQrisGateway::class,
         'midtrans' => MidtransGateway::class,
         'fake' => FakeGateway::class,
     ];

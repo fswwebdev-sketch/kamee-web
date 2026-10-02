@@ -126,7 +126,7 @@ it('mengelola promo, banner, blog, dan kategori blog', function () {
 it('mengelola outlet dan pengguna admin', function () {
     $outlet = $this->postJson('/api/v1/admin/outlets', [
         'name' => 'Kamee BSD', 'address' => 'Jl. BSD', 'city' => 'Tangerang Selatan', 'lat' => -6.30, 'lng' => 106.65, 'phone_wa' => '081211112222',
-    ])->assertCreated()->assertJsonPath('data.phone_wa', '6281211112222')->assertJsonPath('data.open_time', '07:00')->json('data.id');
+    ])->assertCreated()->assertJsonPath('data.phone_wa', '6281211112222')->assertJsonPath('data.open_time', '10:00')->json('data.id');
     $this->patchJson("/api/v1/admin/outlets/{$outlet}", ['is_open' => false])->assertJsonPath('data.is_open', false);
     $this->getJson("/api/v1/admin/outlets/{$outlet}")->assertOk();
 

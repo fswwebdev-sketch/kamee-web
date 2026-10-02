@@ -91,6 +91,7 @@ Route::middleware('throttle:public')->group(function () {
             Route::get('orders', [Admin\OrderController::class, 'index'])->name('orders.index');
             Route::get('orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
             Route::patch('orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
+            Route::post('orders/{order}/confirm-payment', [Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
             Route::post('orders/{order}/refund', [Admin\OrderController::class, 'refund'])->name('orders.refund');
 
             Route::post('products/bulk', [Admin\ProductController::class, 'bulk'])->name('products.bulk');

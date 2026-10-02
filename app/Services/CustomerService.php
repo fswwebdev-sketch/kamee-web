@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\Product;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CustomerService
@@ -106,7 +107,7 @@ class CustomerService
             'orders_count' => (clone $orders)->count(),
             'completed_orders' => (clone $orders)->where('status', OrderStatus::Completed)->count(),
             'total_spend' => (int) (clone $orders)->whereIn('status', OrderStatus::revenueStatuses())->sum('total'),
-            'last_order_at' => ($last = (clone $orders)->max('created_at')) ? \Illuminate\Support\Carbon::parse($last)->toIso8601String() : null,
+            'last_order_at' => ($last = (clone $orders)->max('created_at')) ? Carbon::parse($last)->toIso8601String() : null,
         ];
     }
 

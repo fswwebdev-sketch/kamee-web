@@ -16,8 +16,8 @@ class ContentSeeder extends Seeder
     {
         $banners = [
             ['Ngopi Hemat 20%', 'Pakai kode KAMEEHEMAT untuk semua menu', '/promo'],
-            ['Signature Baru: Klepon Latte', 'Rasa kue tradisional dalam secangkir kopi', '/menu/klepon-latte'],
-            ['Gratis Ongkir se-Tangerang', 'Minimal belanja Rp50.000 dengan kode GRATISONGKIR', '/promo'],
+            ['Kame Manucano', 'Iced Americano dengan Manuka Honey — favorit pelanggan', '/menu/kame-manucano'],
+            ['Gratis Ongkir sekitar Taman Cibodas', 'Minimal belanja Rp50.000 dengan kode GRATISONGKIR', '/promo'],
         ];
         foreach ($banners as $i => [$title, $subtitle, $link]) {
             Banner::updateOrCreate(['title' => $title], [
@@ -38,12 +38,12 @@ class ContentSeeder extends Seeder
             ->map(fn ($name) => BlogCategory::firstOrCreate(['name' => $name]));
 
         $articles = [
-            ['Cara Menyeduh Kopi Susu Aren ala Kamee di Rumah', 0],
+            ['Cara Membuat Kopi Susu Aren di Rumah', 0],
             ['Mengenal Perbedaan Arabika dan Robusta', 0],
             ['5 Tips Menyimpan Biji Kopi agar Tetap Segar', 0],
-            ['Cerita di Balik Klepon Latte', 1],
-            ['Kenalan dengan Barista Kamee Karawaci', 1],
-            ['Kamee Coffee Buka Outlet Baru di Cikokol', 2],
+            ['Natural, Washed, atau Honey? Mengenal Proses Biji Kopi', 0],
+            ['Cerita di Balik Kame Manucano', 1],
+            ['Menu Akhir Pekan: Mont Blanc dan Cold Brew', 2],
         ];
         foreach ($articles as $i => [$title, $cat]) {
             Blog::firstOrCreate(['title' => $title], [

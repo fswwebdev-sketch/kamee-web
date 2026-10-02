@@ -12,7 +12,7 @@ use App\Services\SettingService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Batalkan pesanan non-tunai yang belum dibayar melewati batas waktu (default 15 menit).
+ * Batalkan pesanan non-tunai yang belum dibayar melewati batas waktu (default 60 menit, pengaturan payment_timeout_minutes).
  * Sebelum membatalkan, status pembayaran online dicek ulang ke penyedia (webhook bisa terlambat).
  */
 class CancelUnpaidOrders

@@ -1,6 +1,6 @@
 # Kamee API ☕
 
-REST API untuk **Kamee Coffee** (`/api/v1`): katalog, pesanan (web, WhatsApp, POS), pembayaran Midtrans, poin loyalitas, promo, konten, dan dashboard admin. Satu kontrak API yang sama dipakai web Next.js, dashboard admin, dan kelak aplikasi mobile/POS.
+REST API untuk **Kamee Coffee** (`/api/v1`): katalog, pesanan (web, WhatsApp, POS), pembayaran QRIS statis dengan konfirmasi admin (Midtrans opsional), poin loyalitas, promo, konten, dan dashboard admin. Satu kontrak API yang sama dipakai web Next.js, dashboard admin, dan kelak aplikasi mobile/POS.
 
 **Stack:** Laravel 12 · PHP 8.3 · MySQL 8 · Redis (cache, queue, lock) · Sanctum · Reverb · Pest · spatie/laravel-query-builder · Scribe · OpenSpout (XLSX)
 
@@ -28,7 +28,7 @@ Membutuhkan Docker + Docker Compose. Layanan: `app` (php artisan serve), `queue`
 
 ```bash
 cp .env.example .env
-# Untuk mencoba tanpa akun Midtrans, set PAYMENT_GATEWAY=fake di .env
+# Default PAYMENT_GATEWAY=manual (QRIS statis + konfirmasi admin) — tidak butuh akun Midtrans
 
 docker compose build
 docker compose run --rm app composer install
@@ -76,12 +76,12 @@ Di produksi, ganti `schedule:work` dengan cron `* * * * * php artisan schedule:r
 
 | Data | Isi |
 |---|---|
-| Outlet | Kamee Coffee Cikokol, Kamee Coffee Karawaci (Tangerang) |
-| Admin | **Super Admin** `superadmin@kamee.id` / `password` · **Admin Outlet** (Cikokol) `admin.cikokol@kamee.id` / `password` |
-| Katalog | 6 kategori (Coffee, Non Coffee, Signature Drink, Tea Series, Snack, Dessert), 30 produk, grup opsi Ukuran/Gula/Es/Topping |
+| Outlet | Satu outlet: **Kamee Coffee Taman Cibodas** (`kamee-taman-cibodas`, id 1), Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Periuk, Kota Tangerang · buka 10:00–17:00 · radius antar 5 km · WA 6281280871630 |
+| Admin | **Super Admin** `superadmin@kamee.id` / `password` · **Admin Outlet** (Taman Cibodas) `admin.cibodas@kamee.id` / `password` |
+| Katalog | Menu asli: 3 kategori (Based Coffee, Manual Brew, Non Coffee), 19 produk, 8 grup opsi (beberapa grup "Ukuran" Cup / Bottle 250 ml / Bottle 1 L dengan selisih harga berbeda per menu, Penyajian, Proses Biji). ID kategori/grup/produk tetap sesuai spesifikasi bersama kamee-web. Rating, ulasan, dan terjual mulai dari 0; kalori & komposisi kosong. Mont Blanc & Cold Brew hanya akhir pekan (tertulis di deskripsi). |
 | Promo | `KAMEEHEMAT` (20% maks Rp15.000, min Rp40.000), `GRATISONGKIR`, `BELI1GRATIS1`, `NGOPI10K` |
 | Pelanggan | 20 pelanggan + alamat, tier Bronze/Silver/Gold |
-| Pesanan | 100 pesanan acak 60 hari terakhir, dibuat lewat service yang sama dengan API (harga, promo, poin, log status, pembayaran, ulasan) |
+| Pesanan | 100 pesanan acak 60 hari terakhir, dibuat lewat service yang sama dengan API (harga, promo, poin, log status, pembayaran QRIS manual / tunai). Tidak ada ulasan produk palsu |
 | Konten | 3 banner, 6 artikel blog, 3 pesan kontak |
 
 Login pelanggan memakai OTP WhatsApp. Dengan `WHATSAPP_DRIVER=log`, kode OTP tertulis di `storage/logs/laravel.log`.
@@ -112,11 +112,11 @@ curl -X POST localhost:8000/api/v1/orders/quote -H 'Content-Type: application/js
 curl -X POST localhost:8000/api/v1/orders \
   -H 'Content-Type: application/json' -H 'Idempotency-Key: 7c0e...' -d @order.json
 
-# 3. Bayar (qris | ewallet + channel gopay/shopeepay | bank_transfer + channel bca/bni/bri/cimb/permata | cash)
+# 3. Bayar — metode aktif diatur KAMEE_PAYMENT_METHODS (default: qris | cash)
 curl -X POST localhost:8000/api/v1/orders/KM260928ABCDE/pay \
   -H 'Content-Type: application/json' -H 'Idempotency-Key: 9a1b...' -d '{"method":"qris"}'
 
-# 4. Polling status tiap 3 detik (maks 15 menit)
+# 4. Polling status tiap 3–5 detik sampai payment_deadline (default 60 menit)
 curl localhost:8000/api/v1/orders/KM260928ABCDE/payment-status
 ```
 
@@ -127,8 +127,9 @@ curl localhost:8000/api/v1/orders/KM260928ABCDE/payment-status
   "outlet_id": 1,
   "customer": { "name": "Dinda", "phone": "6281234567890" },
   "fulfillment": "delivery",
-  "address": { "text": "Jl. Merdeka 10", "lat": -6.200, "lng": 106.630, "note": "Pagar hitam" },
-  "items": [ { "product_id": 5, "qty": 2, "option_ids": [2, 4, 7, 10], "note": "less ice" } ],
+  "address": { "text": "Jl. Cempaka Raya 10", "lat": -6.185, "lng": 106.600, "note": "Pagar hitam" },
+  "items": [ { "product_id": 5, "qty": 2, "option_ids": [10], "note": "less ice" } ],
+  "payment_method": "qris",
   "promo_code": "KAMEEHEMAT",
   "redeem_points": 0,
   "note": "Tolong sedotan kertas"
@@ -149,7 +150,7 @@ Request → FormRequest (validasi + authorize via Policy)
 |---|---|
 | `app/Enums` | Enum PHP: `OrderStatus` (beserta transisi), `PaymentMethod`, `PaymentStatus`, `PromotionType`, `FulfillmentType`, `OrderChannel`, `LoyaltyTransactionType`, `UserRole`, dll. |
 | `app/Services` | `PricingService`, `OrderService`, `OrderStateMachine`, `PromotionService`, `LoyaltyService`, `DeliveryFeeService`, `PaymentService`, `OtpService`, `DashboardService`, `ReportService`, `SettingService`, … |
-| `app/Services/Payments` | Interface `PaymentGateway`, `MidtransGateway`, `FakeGateway` (simulator lokal), `PaymentGatewayManager` |
+| `app/Services/Payments` | Interface `PaymentGateway`, `ManualQrisGateway` (QRIS statis, default), `MidtransGateway`, `FakeGateway` (simulator lokal), `PaymentGatewayManager` |
 | `app/Services/WhatsApp` | Interface `WhatsAppService`; driver `LogWhatsApp`, `FonnteWhatsApp`, `ArrayWhatsApp` (tes); template pesan `OrderMessages` |
 | `app/Actions` | `CancelUnpaidOrders` (scheduler) |
 | `app/Policies` | Otorisasi per model; Admin Outlet dibatasi `outlet_id` |
@@ -197,8 +198,55 @@ Setiap transisi: divalidasi, dicatat di `order_status_logs` (siapa & catatan), d
 
 ## 7. Pembayaran
 
+Gateway dipilih lewat `PAYMENT_GATEWAY` (default **`manual`**). Metode yang boleh dipakai pelanggan diatur `KAMEE_PAYMENT_METHODS`
+(default `qris,cash`). Metode lain ditolak **422** pada field `payment_method` (`"Metode pembayaran tidak tersedia."`), baik di
+`POST /orders` (field opsional `payment_method`) maupun `POST /orders/{code}/pay` (field `method`, alias `payment_method`).
+
+| Variabel | Default | Keterangan |
+|---|---|---|
+| `PAYMENT_GATEWAY` | `manual` | `manual` · `midtrans` · `fake` |
+| `KAMEE_PAYMENT_METHODS` | `qris,cash` | Dipisah koma: `qris`, `ewallet`, `bank_transfer`, `cash` |
+| `KAMEE_QRIS_IMAGE_URL` | — | URL gambar QRIS statis yang ditampilkan ke pelanggan (mis. `${FRONTEND_URL}/payments/qris-kameecoffee.jpg`) |
+| `KAMEE_QRIS_MERCHANT` | `KAMEECOFFEE` | Nama merchant di QRIS |
+| `KAMEE_QRIS_NMID` | `ID1026594722880` | NMID QRIS |
+| `KAMEE_PAYMENT_TIMEOUT` | `60` | Batas bayar (menit) sejak pesanan dibuat; bisa ditimpa Super Admin (`payment_timeout_minutes`) |
+
+### QRIS statis + konfirmasi manual (`PAYMENT_GATEWAY=manual`, default)
+
+1. Pelanggan membuat pesanan lalu `POST /orders/{code}/pay` dengan `{"method":"qris"}`. Tidak ada panggilan ke penyedia luar;
+   respons berisi gambar QRIS statis GoPay Merchant:
+
+   ```json
+   { "data": { "id": 12, "method": "qris", "provider": "manual", "reference": "KM260928ABCDE-1", "amount": 85000,
+       "status": "pending", "qr_string": null, "va_number": null, "deeplink": null, "expires_at": "2026-09-28T11:00:00+07:00",
+       "qris_image_url": "https://kamee.id/payments/qris-kameecoffee.jpg", "merchant_name": "KAMEECOFFEE",
+       "nmid": "ID1026594722880", "requires_manual_confirmation": true, "...": "..." },
+     "message": "Pindai QRIS dan bayar sesuai total pesanan. Admin akan mengonfirmasi pembayaran Anda.", "order_status": "pending" }
+   ```
+
+   Pelanggan memindai QR dan memasukkan nominal sesuai `amount`. Frontend mem-polling `GET /orders/{code}/payment-status`.
+2. Admin memeriksa mutasi GoPay Merchant, lalu mengonfirmasi:
+
+   ```bash
+   curl -X POST localhost:8000/api/v1/admin/orders/42/confirm-payment \
+     -H 'Authorization: Bearer <token admin>' -H 'Content-Type: application/json' -d '{"note":"Mutasi GoPay ref 8841"}'
+   ```
+
+   - Hanya untuk pesanan **pending** (selain itu 422 `errors.order`: "Pesanan tidak dalam status menunggu pembayaran.").
+   - Tagihan QRIS manual terakhir (pending/kedaluwarsa) ditandai `paid`, `paid_at` diisi, dan `raw_payload` ditambah
+     `confirmed_by {id, name}`, `confirmed_at`, `note`. Bila belum ada tagihan, dibuatkan otomatis sebesar total pesanan.
+   - Pesanan `pending → paid` lewat state machine (log status "Pembayaran QRIS dikonfirmasi oleh {nama admin}", siaran realtime, WhatsApp pelanggan).
+   - Otorisasi sama dengan ubah status: Admin Outlet hanya untuk outletnya (pesanan outlet lain 404), Super Admin semua outlet; tanpa token 401.
+   - Respons: `AdminOrderResource` (sama seperti `PATCH /admin/orders/{order}/status`) + `message`.
+3. Pesanan yang tidak dikonfirmasi dalam `payment_timeout_minutes` (default 60) dibatalkan otomatis oleh `orders:cancel-unpaid`.
+
+Field tambahan `PaymentResource` (publik & admin): `qris_image_url`, `merchant_name`, `nmid` (null bila bukan gateway manual) dan
+`requires_manual_confirmation` (`true` bila provider `manual` dan status `pending`). QRIS manual tidak punya webhook
+(`/webhooks/payments/manual` → 404) dan dilewati `payments:reconcile`. Refund pesanan QRIS manual hanya dicatat di log;
+pengembalian dana dilakukan manual di luar sistem.
+
 ### Midtrans (Core API)
-Isi `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION`, dan `PAYMENT_GATEWAY=midtrans`.
+Tetap tersedia. Isi `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION`, `PAYMENT_GATEWAY=midtrans`, dan aktifkan metode yang diinginkan, mis. `KAMEE_PAYMENT_METHODS=qris,ewallet,bank_transfer,cash`.
 
 | Metode | Payload | Respons |
 |---|---|---|
@@ -207,7 +255,7 @@ Isi `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION`, dan 
 | `bank_transfer` + `channel` `bca`/`bni`/`bri`/`cimb`/`permata` | `bank_transfer` / `permata` | `va_number` |
 | `cash` | — (tanpa gateway) | pesanan langsung `processing` |
 
-Tagihan berlaku sampai batas 15 menit sejak pesanan dibuat. Tagihan pending yang masih berlaku dengan metode sama dipakai ulang.
+Tagihan berlaku sampai batas waktu bayar (default 60 menit) sejak pesanan dibuat. Tagihan pending yang masih berlaku dengan metode sama dipakai ulang.
 
 **Webhook:** atur *Payment Notification URL* di dashboard Midtrans ke
 `https://<domain>/api/v1/webhooks/payments/midtrans`.
@@ -239,8 +287,8 @@ window.Echo.private(`order.${code}`).listen('.order.status_updated', (e) => { /*
 
 | Perintah | Jadwal | Fungsi |
 |---|---|---|
-| `orders:cancel-unpaid` | tiap menit | Batalkan pesanan non-tunai belum dibayar > 15 menit (status gateway dicek ulang dulu) |
-| `payments:reconcile` | tiap 5 menit | Cocokkan pembayaran pending dengan status gateway |
+| `orders:cancel-unpaid` | tiap menit | Batalkan pesanan non-tunai belum dibayar > `payment_timeout_minutes` (default 60 menit; status gateway dicek ulang dulu) |
+| `payments:reconcile` | tiap 5 menit | Cocokkan pembayaran pending dengan status gateway (QRIS manual dilewati) |
 | `loyalty:expire-points` | 00:15 setiap hari | Kedaluwarsakan poin (FIFO) |
 
 ## 9. Pengujian
@@ -250,15 +298,15 @@ composer test            # atau: php artisan test
 composer test:coverage   # butuh pcov/xdebug; gagal bila coverage < 80%
 ```
 
-Tes berjalan di SQLite in-memory (lihat `phpunit.xml`) dan juga lulus di MySQL 8:
+Tes berjalan di SQLite in-memory (lihat `phpunit.xml`; gateway `manual`, metode `qris,cash`, dan batas bayar 60 menit dipatok di sana agar tidak bergantung pada `.env` lokal — tes Midtrans mengatur config-nya sendiri) dan juga lulus di MySQL 8:
 
 ```bash
 DB_CONNECTION=mysql DB_DATABASE=kamee_test DB_USERNAME=... DB_PASSWORD=... php artisan test
 ```
 
-**Hasil saat ini: 190 tes, 904 assertion, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
+**Hasil saat ini: 204 tes, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
 
-Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, Midtrans (charge QRIS/e-wallet/VA, refund, status), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
+Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 19 produk, 3 kategori), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
 
 ## 10. Skema database
 

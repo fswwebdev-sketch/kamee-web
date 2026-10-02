@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ConfirmPaymentRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\Admin\AdminOrderResource;
@@ -82,6 +83,23 @@ class OrderController extends Controller
 
         return (new AdminOrderResource($order->fresh()->load('items.options', 'outlet', 'payments', 'latestPayment', 'statusLogs.user', 'handler')))
             ->additional(['message' => 'Status pesanan diperbarui menjadi "'.$order->status->label().'".']);
+    }
+
+    /**
+     * Konfirmasi pembayaran QRIS manual.
+     *
+     * Untuk QRIS statis (gateway manual): admin memeriksa mutasi GoPay Merchant lalu menandai pesanan
+     * pending sebagai lunas. Tagihan QRIS manual terakhir ditandai paid (confirmed_by, confirmed_at, note);
+     * bila belum ada tagihan, dibuatkan otomatis sebesar total pesanan. Admin Outlet hanya untuk outletnya.
+     */
+    public function confirmPayment(ConfirmPaymentRequest $request, Order $order, PaymentService $payments): AdminOrderResource
+    {
+        $this->authorize('updateStatus', $order);
+
+        $payments->confirmManual($order, $request->user(), $request->input('note'));
+
+        return (new AdminOrderResource($order->fresh()->load('items.options', 'outlet', 'payments', 'latestPayment', 'statusLogs.user', 'handler')))
+            ->additional(['message' => 'Pembayaran dikonfirmasi. Pesanan berstatus "'.$order->status->label().'".']);
     }
 
     /**

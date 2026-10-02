@@ -154,5 +154,5 @@ it('mengembalikan status pesanan untuk polling pembayaran', function () {
         ->assertOk()
         ->assertJsonPath('data.order_status', 'pending')
         ->assertJsonPath('data.payment', null)
-        ->assertJsonPath('data.payment_deadline', $order->created_at->addMinutes(15)->toIso8601String());
+        ->assertJsonPath('data.payment_deadline', $order->created_at->addMinutes(60)->toIso8601String());
 });

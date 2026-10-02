@@ -22,8 +22,10 @@ class PaymentController extends Controller
     /**
      * Bayar pesanan.
      *
-     * Membuat transaksi QRIS / e-wallet / VA di Midtrans dan mengembalikan qr_string, va_number, deeplink,
-     * dan expires_at. Metode `cash` langsung memproses pesanan (bayar di kasir). Header `Idempotency-Key` wajib.
+     * Gateway `manual` (default): mengembalikan QRIS statis (qris_image_url, merchant_name, nmid) dengan
+     * requires_manual_confirmation = true; admin mengonfirmasi lewat POST admin/orders/{order}/confirm-payment.
+     * Gateway `midtrans`: membuat transaksi QRIS / e-wallet / VA dan mengembalikan qr_string, va_number, deeplink,
+     * dan expires_at. Metode yang tidak aktif (KAMEE_PAYMENT_METHODS) ditolak 422 pada field payment_method. Metode `cash` langsung memproses pesanan (bayar di kasir). Header `Idempotency-Key` wajib.
      *
      * @header Idempotency-Key 9a1b2c3d-0000-4000-8000-000000000001
      *
@@ -37,9 +39,11 @@ class PaymentController extends Controller
 
         return (new PaymentResource($payment))
             ->additional([
-                'message' => $payment->method === PaymentMethod::Cash
-                    ? 'Pesanan diteruskan ke barista. Silakan bayar tunai di kasir.'
-                    : 'Transaksi pembayaran dibuat. Selesaikan sebelum batas waktu.',
+                'message' => match (true) {
+                    $payment->method === PaymentMethod::Cash => 'Pesanan diteruskan ke barista. Silakan bayar tunai di kasir.',
+                    $payment->provider === 'manual' => 'Pindai QRIS dan bayar sesuai total pesanan. Admin akan mengonfirmasi pembayaran Anda.',
+                    default => 'Transaksi pembayaran dibuat. Selesaikan sebelum batas waktu.',
+                },
                 'order_status' => $order->fresh()->status->value,
             ])
             ->response()
@@ -49,7 +53,7 @@ class PaymentController extends Controller
     /**
      * Status pembayaran (polling).
      *
-     * Disarankan dipanggil tiap 3 detik, maksimal 15 menit.
+     * Disarankan dipanggil tiap 3–5 detik sampai batas waktu bayar (payment_deadline).
      *
      * @urlParam code string Kode pesanan. Example: KM260928ABCDE
      */

@@ -182,6 +182,75 @@ class PaymentService
         ]);
     }
 
+    /**
+     * Konfirmasi manual pembayaran QRIS statis oleh admin (gateway manual): pesanan pending → paid.
+     *
+     * Memakai tagihan QRIS manual terakhir (pending/expired); bila belum ada, dibuatkan tagihan baru
+     * sebesar total pesanan agar laporan pembayaran tetap lengkap.
+     */
+    public function confirmManual(Order $order, User $actor, ?string $note = null): Order
+    {
+        return Cache::lock("payment:create:{$order->id}", 20)->block(10, function () use ($order, $actor, $note) {
+            return DB::transaction(function () use ($order, $actor, $note) {
+                /** @var Order $locked */
+                $locked = Order::query()->withoutGlobalScopes()->lockForUpdate()->findOrFail($order->id);
+
+                if ($locked->status !== OrderStatus::Pending) {
+                    throw BusinessException::field('order', 'Pesanan tidak dalam status menunggu pembayaran.');
+                }
+
+                $payment = $locked->payments()
+                    ->where('provider', 'manual')
+                    ->where('method', '!=', PaymentMethod::Cash)
+                    ->whereIn('status', [PaymentStatus::Pending, PaymentStatus::Expired])
+                    ->latest('id')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($payment === null) {
+                    $attempt = $locked->payments()->count() + 1;
+                    $payment = $locked->payments()->create([
+                        'method' => PaymentMethod::Qris,
+                        'provider' => 'manual',
+                        'provider_ref' => "{$locked->code}-{$attempt}",
+                        'amount' => $locked->total,
+                        'status' => PaymentStatus::Pending,
+                        'expires_at' => $this->deadline($locked),
+                        'raw_payload' => [
+                            'manual' => true,
+                            'merchant_name' => config('kamee.manual_qris.merchant_name'),
+                            'nmid' => config('kamee.manual_qris.nmid'),
+                            'qris_image_url' => config('kamee.manual_qris.image_url'),
+                        ],
+                    ]);
+                }
+
+                $confirmedAt = now();
+                $payment->status = PaymentStatus::Paid;
+                $payment->paid_at = $confirmedAt;
+                $payment->raw_payload = array_merge($payment->raw_payload ?? [], [
+                    'confirmed_by' => ['id' => $actor->id, 'name' => $actor->name],
+                    'confirmed_at' => $confirmedAt->toIso8601String(),
+                    'note' => $note,
+                ]);
+                $payment->save();
+
+                // Tagihan lain yang masih menunggu tidak dipakai lagi.
+                $locked->payments()->whereKeyNot($payment->id)->where('status', PaymentStatus::Pending)
+                    ->update(['status' => PaymentStatus::Expired]);
+
+                $this->stateMachine->transition($order, OrderStatus::Paid, $actor, "Pembayaran QRIS dikonfirmasi oleh {$actor->name}");
+
+                Log::info('Pembayaran QRIS manual dikonfirmasi', [
+                    'order' => $locked->code, 'payment' => $payment->id, 'amount' => $payment->amount,
+                    'admin_id' => $actor->id, 'note' => $note,
+                ]);
+
+                return $order;
+            });
+        });
+    }
+
     /** Refund & batalkan pesanan yang sudah dibayar (khusus Super Admin). */
     public function refund(Order $order, User $actor, string $reason): Order
     {
@@ -220,6 +289,7 @@ class PaymentService
         Payment::query()
             ->where('status', PaymentStatus::Pending)
             ->where('method', '!=', PaymentMethod::Cash)
+            ->where('provider', '!=', 'manual') // QRIS statis: tidak ada API status, dikonfirmasi admin
             ->where('created_at', '<=', now()->subMinutes($olderThanMinutes))
             ->where('created_at', '>=', now()->subDay())
             ->chunkById(100, function ($payments) use (&$changed) {

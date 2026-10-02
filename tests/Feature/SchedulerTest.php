@@ -23,26 +23,26 @@ it('mendaftarkan tiga tugas terjadwal', function () {
     ]);
 });
 
-it('membatalkan pesanan belum dibayar lebih dari 15 menit', function () {
+it('membatalkan pesanan belum dibayar lebih dari 60 menit', function () {
     Http::fake(['*' => Http::response(midtransStatus('x', 'pending', 1))]);
 
-    $stale = Order::factory()->create(['created_at' => now()->subMinutes(16)]);
+    $stale = Order::factory()->create(['created_at' => now()->subMinutes(61)]);
     $pendingPayment = Payment::factory()->create(['order_id' => $stale->id]);
-    $fresh = Order::factory()->create(['created_at' => now()->subMinutes(10)]);
-    $cash = Order::factory()->create(['created_at' => now()->subMinutes(30)]);
+    $fresh = Order::factory()->create(['created_at' => now()->subMinutes(45)]);
+    $cash = Order::factory()->create(['created_at' => now()->subMinutes(90)]);
     Payment::factory()->cash()->create(['order_id' => $cash->id]);
 
     $this->artisan('orders:cancel-unpaid')->expectsOutput('1 pesanan dibatalkan otomatis.')->assertSuccessful();
 
     expect($stale->fresh()->status)->toBe(OrderStatus::Cancelled)
-        ->and($stale->fresh()->cancelled_reason)->toBe('Dibatalkan otomatis: pembayaran melewati batas 15 menit.')
+        ->and($stale->fresh()->cancelled_reason)->toBe('Dibatalkan otomatis: pembayaran melewati batas 60 menit.')
         ->and($pendingPayment->fresh()->status)->toBe(PaymentStatus::Expired)
         ->and($fresh->fresh()->status)->toBe(OrderStatus::Pending)
         ->and($cash->fresh()->status)->toBe(OrderStatus::Pending);
 });
 
 it('tidak membatalkan pesanan yang ternyata sudah dibayar (webhook terlambat)', function () {
-    $order = Order::factory()->create(['created_at' => now()->subMinutes(20), 'total' => 45000]);
+    $order = Order::factory()->create(['created_at' => now()->subMinutes(70), 'total' => 45000]);
     $payment = Payment::factory()->create(['order_id' => $order->id, 'amount' => 45000]);
     Http::fake(['*' => Http::response(midtransStatus($payment->provider_ref, 'settlement', 45000))]);
 

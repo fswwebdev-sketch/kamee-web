@@ -7,95 +7,102 @@ use App\Models\Category;
 use App\Models\OptionGroup;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
+/**
+ * Menu asli Kamee Coffee (spesifikasi bersama kamee-web & kamee-api).
+ *
+ * ID kategori, grup opsi, dan produk dibuat tetap agar cocok dengan data mock frontend.
+ * Beberapa grup bernama sama ("Ukuran") tetapi selisih harga Bottle 1 L berbeda per menu,
+ * sehingga tiap grup punya kunci internal sendiri. Rating/ulasan/terjual mulai dari 0.
+ */
 class CatalogSeeder extends Seeder
 {
+    /** id, slug, nama, ikon */
+    private const CATEGORIES = [
+        [1, 'based-coffee', 'Based Coffee', 'coffee'],
+        [2, 'manual-brew', 'Manual Brew', 'filter'],
+        [3, 'non-coffee', 'Non Coffee', 'cup-soda'],
+    ];
+
+    /** kunci => [id, nama, tipe, wajib, [[opsi, selisih harga]]] — opsi pertama = default. */
+    private const OPTION_GROUPS = [
+        'size-americano' => [1, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 50000]]],
+        'size-orangecano' => [2, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 59000]]],
+        'size-manucano' => [3, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 67000]]],
+        'size-latte' => [4, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 63000]]],
+        'size-choco-regular' => [5, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 1 L', 67000]]],
+        'size-choco-premium' => [6, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 1 L', 95000]]],
+        'brew-style' => [7, 'Penyajian', 'single', true, [['Hot', 0], ['Japanese (iced)', 0]]],
+        'bean-process' => [8, 'Proses Biji', 'single', true, [['Natural', 0], ['Washed', 0], ['Honey', 0]]],
+    ];
+
+    /** id, slug, nama, kategori, harga, grup opsi, best seller, featured, hanya akhir pekan, deskripsi singkat */
+    private const PRODUCTS = [
+        [1, 'americano', 'Americano', 'based-coffee', 15000, ['size-americano'], false, false, false, 'Espresso dan air — bersih, ringan, tanpa susu.'],
+        [2, 'kame-orangecano', 'Kame Orangecano', 'based-coffee', 16000, ['size-orangecano'], false, true, false, 'Americano dengan sentuhan jeruk yang segar.'],
+        [3, 'kame-manucano', 'Kame Manucano', 'based-coffee', 18000, ['size-manucano'], true, true, false, 'Iced Americano with Manuka Honey.'],
+        [4, 'caramel-latte-kame', 'Caramel Latte Kame', 'based-coffee', 17000, ['size-latte'], false, false, false, 'Latte susu dengan karamel.'],
+        [5, 'aren-kame', 'Aren Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Kopi susu dengan gula aren.'],
+        [6, 'pandan-latte-kame', 'Pandan Latte Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Latte dengan aroma pandan.'],
+        [7, 'spanish-latte-kame', 'Spanish Latte Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Latte manis dengan susu kental.'],
+        [8, 'butterscotch-sea-salt-latte', 'Butterscotch Sea Salt Latte', 'based-coffee', 23000, [], false, false, false, 'Latte butterscotch dengan sea salt.'],
+        [9, 'mont-blanc', 'Mont Blanc', 'based-coffee', 35000, [], false, false, true, 'Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).'],
+        [10, 'local-beans', 'Local Beans', 'manual-brew', 26000, ['brew-style', 'bean-process'], false, false, false, 'Manual brew biji kopi lokal — Hot atau Japanese, proses Natural, Washed, atau Honey.'],
+        [11, 'cold-brew', 'Cold Brew', 'manual-brew', 28000, [], false, false, true, 'Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.'],
+        [12, 'iced-matcha-latte', 'Iced Matcha Latte', 'non-coffee', 23000, [], false, false, false, 'Matcha dengan susu dingin.'],
+        [13, 'iced-strawberry-matcha-latte', 'Iced Strawberry Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan stroberi.'],
+        [14, 'iced-matcha-sea-salt-cloud', 'Iced Matcha Sea Salt Cloud', 'non-coffee', 25000, [], false, false, false, 'Matcha dengan lapisan sea salt cream.'],
+        [15, 'regular-chocolate', 'Regular Chocolate', 'non-coffee', 18000, ['size-choco-regular'], false, false, false, 'Cokelat susu klasik. Tersedia juga ukuran 1 L.'],
+        [16, 'premium-dark-chocolate', 'Premium Dark Chocolate', 'non-coffee', 25000, ['size-choco-premium'], false, false, false, 'Dark chocolate yang lebih pekat. Tersedia juga ukuran 1 L.'],
+        [17, 'iced-chocolate-sea-salt-cloud', 'Iced Chocolate Sea Salt Cloud', 'non-coffee', 25000, [], false, false, false, 'Cokelat dingin dengan lapisan sea salt cream.'],
+        [18, 'iced-strawberry-choco', 'Iced Strawberry Choco', 'non-coffee', 23000, [], false, false, false, 'Cokelat dingin dengan stroberi.'],
+        [19, 'iced-strawberry-choco-sea-salt-cloud', 'Iced Strawberry Choco Sea Salt Cloud', 'non-coffee', 26000, [], false, false, false, 'Strawberry choco dengan lapisan sea salt cream.'],
+    ];
+
+    private const WEEKEND_NOTE = 'Hanya tersedia akhir pekan (Sabtu–Minggu).';
+
     public function run(): void
     {
+        $categories = [];
+        foreach (self::CATEGORIES as $sort => [$id, $slug, $name, $icon]) {
+            $categories[$slug] = Category::unguarded(fn () => Category::updateOrCreate(['id' => $id], [
+                'slug' => $slug, 'name' => $name, 'icon' => $icon, 'sort_order' => $sort + 1, 'is_active' => true,
+            ]));
+        }
+
         $groups = $this->optionGroups();
 
-        $drink = [$groups['Ukuran'], $groups['Gula'], $groups['Es'], $groups['Topping']];
-        $tea = [$groups['Ukuran'], $groups['Gula'], $groups['Es']];
+        foreach (self::PRODUCTS as [$id, $slug, $name, $category, $price, $groupKeys, $bestSeller, $featured, $weekendOnly, $short]) {
+            $description = $weekendOnly && ! str_contains($short, 'Sabtu') ? "{$short} ".self::WEEKEND_NOTE : $short;
 
-        $catalog = [
-            ['Coffee', 'coffee', $drink, [
-                ['Americano', 18000, 'Espresso dan air panas, bersih dan bold.', 'Espresso double shot, air', 10],
-                ['Cafe Latte', 25000, 'Espresso lembut dengan susu segar.', 'Espresso, susu segar', 190],
-                ['Cappuccino', 25000, 'Seimbang antara espresso, susu, dan foam tebal.', 'Espresso, susu segar, milk foam', 130],
-                ['Es Kopi Susu Kamee', 22000, 'Kopi susu andalan dengan gula aren khas Kamee.', 'Espresso, susu segar, gula aren', 210, true, true],
-                ['Kopi Susu Aren', 24000, 'Manis legit gula aren Banten.', 'Espresso, susu, gula aren', 230, false, true],
-                ['Caramel Macchiato', 30000, 'Vanilla, susu, espresso, dan saus karamel.', 'Espresso, susu, sirup vanilla, karamel', 250],
-                ['Vietnamese Drip', 22000, 'Robusta pekat dengan susu kental manis.', 'Robusta, susu kental manis', 180],
-            ]],
-            ['Non Coffee', 'non-coffee', $drink, [
-                ['Chocolate', 25000, 'Cokelat premium yang creamy.', 'Cokelat bubuk, susu segar', 280, false, true],
-                ['Matcha Latte', 28000, 'Matcha Jepang dengan susu segar.', 'Matcha, susu segar', 200, true],
-                ['Red Velvet Latte', 27000, 'Red velvet lembut dengan aroma vanilla.', 'Red velvet powder, susu', 240],
-                ['Taro Latte', 26000, 'Talas ungu manis dan wangi.', 'Taro powder, susu', 230],
-                ['Strawberry Milk', 25000, 'Susu segar dengan selai stroberi.', 'Susu segar, selai stroberi', 210],
-            ]],
-            ['Signature Drink', 'signature-drink', $drink, [
-                ['Kamee Butterscotch', 32000, 'Latte butterscotch dengan sea salt cream.', 'Espresso, susu, butterscotch, sea salt cream', 290, true, true],
-                ['Pandan Latte', 30000, 'Aroma pandan asli dan espresso.', 'Espresso, susu, pandan', 220, true],
-                ['Klepon Latte', 30000, 'Terinspirasi kue klepon: pandan, gula merah, kelapa.', 'Espresso, susu, pandan, gula merah, kelapa', 260],
-                ['Salted Caramel Cold Brew', 32000, 'Cold brew 18 jam dengan salted caramel foam.', 'Cold brew, salted caramel foam', 180],
-                ['Kopi Rempah', 28000, 'Kopi hangat dengan jahe, kayu manis, dan cengkih.', 'Robusta, jahe, kayu manis, cengkih', 120],
-            ]],
-            ['Tea Series', 'tea-series', $tea, [
-                ['Lychee Tea', 22000, 'Teh melati dengan buah leci.', 'Teh melati, leci', 120, false, true],
-                ['Lemon Tea', 18000, 'Teh segar dengan perasan lemon.', 'Teh hitam, lemon', 90],
-                ['Thai Tea', 22000, 'Teh Thailand creamy.', 'Thai tea, susu', 230],
-                ['Peach Oolong', 24000, 'Oolong wangi dengan persik.', 'Teh oolong, persik', 110],
-            ]],
-            ['Snack', 'snack', [], [
-                ['Croissant Butter', 22000, 'Croissant renyah berlapis mentega.', 'Tepung, mentega', 280],
-                ['Pisang Goreng Keju', 20000, 'Pisang goreng krispi dengan parutan keju.', 'Pisang, keju, susu kental manis', 350, false, true],
-                ['Kentang Goreng', 20000, 'French fries dengan saus sambal dan mayo.', 'Kentang, saus', 320],
-                ['Roti Bakar Cokelat', 22000, 'Roti bakar mentega dengan meses cokelat.', 'Roti, mentega, meses', 380],
-                ['Cireng Rujak', 18000, 'Cireng kenyal dengan bumbu rujak.', 'Tepung tapioka, bumbu rujak', 300],
-            ]],
-            ['Dessert', 'dessert', [], [
-                ['Tiramisu Cup', 32000, 'Tiramisu lembut dengan espresso Kamee.', 'Mascarpone, ladyfinger, espresso', 360, true],
-                ['Fudgy Brownies', 22000, 'Brownies cokelat padat dan lembap.', 'Cokelat, mentega, telur', 380],
-                ['Cheesecake', 30000, 'Baked cheesecake dengan saus berry.', 'Cream cheese, biskuit, berry', 340],
-                ['Affogato', 28000, 'Es krim vanilla disiram espresso.', 'Es krim vanilla, espresso', 210],
-            ]],
-        ];
+            $product = Product::unguarded(fn () => Product::updateOrCreate(['id' => $id], [
+                'slug' => $slug,
+                'category_id' => $categories[$category]->id,
+                'name' => $name,
+                'short_description' => $short,
+                'description' => $description,
+                'composition' => null,
+                'calories' => null,
+                'base_price' => $price,
+                'image' => 'https://placehold.co/600x600/04338B/FFFFFF/png?text='.rawurlencode($name),
+                'rating_avg' => 0,
+                'review_count' => 0,
+                'sold_count' => 0,
+                'is_featured' => $featured,
+                'is_best_seller' => $bestSeller,
+                'is_active' => true,
+            ]));
 
-        foreach ($catalog as $sort => [$name, $slug, $productGroups, $products]) {
-            $category = Category::updateOrCreate(['slug' => $slug], [
-                'name' => $name, 'icon' => $slug, 'sort_order' => $sort + 1, 'is_active' => true,
-            ]);
+            $product->optionGroups()->sync(
+                collect($groupKeys)->mapWithKeys(fn (string $key, int $i) => [$groups[$key]->id => ['sort_order' => $i]])->all()
+            );
 
-            foreach ($products as $row) {
-                [$pName, $price, $short, $composition, $calories, $featured, $best] = array_pad($row, 7, false);
-
-                $product = Product::updateOrCreate(['slug' => Str::slug($pName)], [
-                    'category_id' => $category->id,
-                    'name' => $pName,
-                    'short_description' => $short,
-                    'description' => "{$short} Dibuat fresh setiap pesanan oleh barista Kamee Coffee menggunakan biji kopi pilihan dari petani lokal.",
-                    'composition' => $composition,
-                    'calories' => $calories,
-                    'base_price' => $price,
-                    'image' => 'https://placehold.co/600x600/png?text='.rawurlencode($pName),
-                    'is_featured' => $featured,
-                    'is_best_seller' => $best,
-                    'is_active' => true,
+            if ($product->images()->doesntExist()) {
+                $product->images()->create([
+                    'path' => 'https://placehold.co/1200x900/04338B/FFFFFF/png?text='.rawurlencode($name),
+                    'alt' => "{$name} — Kamee Coffee",
+                    'sort_order' => 1,
                 ]);
-
-                $product->optionGroups()->sync(collect($productGroups)->mapWithKeys(fn ($g, $i) => [$g->id => ['sort_order' => $i]])->all());
-
-                if ($product->images()->doesntExist()) {
-                    foreach ([1, 2] as $n) {
-                        $product->images()->create([
-                            'path' => 'https://placehold.co/1200x900/png?text='.rawurlencode("{$pName} {$n}"),
-                            'alt' => "{$pName} foto {$n}",
-                            'sort_order' => $n,
-                        ]);
-                    }
-                }
             }
         }
     }
@@ -103,20 +110,17 @@ class CatalogSeeder extends Seeder
     /** @return array<string, OptionGroup> */
     private function optionGroups(): array
     {
-        $definitions = [
-            'Ukuran' => [OptionGroupType::Single, true, [['Regular', 0], ['Large', 5000]]],
-            'Gula' => [OptionGroupType::Single, true, [['Normal', 0], ['Less Sugar', 0], ['Tanpa Gula', 0]]],
-            'Es' => [OptionGroupType::Single, true, [['Normal Ice', 0], ['Less Ice', 0], ['Tanpa Es', 0], ['Panas', 0]]],
-            'Topping' => [OptionGroupType::Multi, false, [['Extra Shot', 6000], ['Boba', 5000], ['Cheese Foam', 7000], ['Oat Milk', 8000], ['Whipped Cream', 4000]]],
-        ];
-
         $groups = [];
-        foreach ($definitions as $name => [$type, $required, $options]) {
-            $group = OptionGroup::updateOrCreate(['name' => $name], ['type' => $type, 'is_required' => $required]);
+        foreach (self::OPTION_GROUPS as $key => [$id, $name, $type, $required, $options]) {
+            $group = OptionGroup::unguarded(fn () => OptionGroup::updateOrCreate(['id' => $id], [
+                'name' => $name, 'type' => OptionGroupType::from($type), 'is_required' => $required,
+            ]));
+
             foreach ($options as $i => [$optName, $delta]) {
                 $group->options()->updateOrCreate(['name' => $optName], ['price_delta' => $delta, 'sort_order' => $i]);
             }
-            $groups[$name] = $group->load('options');
+
+            $groups[$key] = $group;
         }
 
         return $groups;

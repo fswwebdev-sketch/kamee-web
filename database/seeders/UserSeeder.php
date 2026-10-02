@@ -19,11 +19,11 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        User::updateOrCreate(['email' => 'admin.cikokol@kamee.id'], [
-            'name' => 'Admin Kamee Cikokol',
+        User::updateOrCreate(['email' => 'admin.cibodas@kamee.id'], [
+            'name' => 'Admin Kamee Taman Cibodas',
             'password' => 'password',
             'role' => UserRole::OutletAdmin,
-            'outlet_id' => Outlet::where('slug', 'kamee-cikokol')->value('id'),
+            'outlet_id' => Outlet::where('slug', OutletSeeder::SLUG)->value('id'),
             'is_active' => true,
         ]);
     }

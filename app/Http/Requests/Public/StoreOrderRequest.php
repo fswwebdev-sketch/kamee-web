@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Public;
 
 use App\Enums\FulfillmentType;
+use App\Enums\PaymentMethod;
+use App\Rules\EnabledPaymentMethod;
 use App\Rules\IndonesianPhone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,6 +36,7 @@ class StoreOrderRequest extends FormRequest
             'promo_code' => ['nullable', 'string', 'max:50'],
             'redeem_points' => ['nullable', 'integer', 'min:0'],
             'note' => ['nullable', 'string', 'max:500'],
+            'payment_method' => ['nullable', 'bail', Rule::enum(PaymentMethod::class), new EnabledPaymentMethod],
         ];
     }
 
@@ -57,6 +60,7 @@ class StoreOrderRequest extends FormRequest
             'promo_code' => ['example' => 'KAMEEHEMAT'],
             'redeem_points' => ['description' => 'Poin yang ditukar (khusus member login).', 'example' => 0],
             'note' => ['example' => 'Tolong sedotan kertas'],
+            'payment_method' => ['description' => 'Opsional, metode bayar yang akan dipakai (qris | cash secara default). Ditolak bila tidak aktif.', 'example' => 'qris'],
         ];
     }
 }

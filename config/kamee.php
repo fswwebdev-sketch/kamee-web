@@ -14,7 +14,7 @@ return [
 
     'settings' => [
         // Pesanan & pembayaran
-        'payment_timeout_minutes' => (int) env('KAMEE_PAYMENT_TIMEOUT', 15),
+        'payment_timeout_minutes' => (int) env('KAMEE_PAYMENT_TIMEOUT', 60),
         'service_fee' => (int) env('KAMEE_SERVICE_FEE', 0),
 
         // Ongkir: tarif dasar untuk jarak <= delivery_base_km, lalu per km berikutnya (dibulatkan ke atas)
@@ -30,9 +30,9 @@ return [
         'points_expiry_months' => 12,
 
         // Kontak & jam buka default outlet baru
-        'whatsapp_number' => env('KAMEE_WHATSAPP_NUMBER', '6281200000000'),
-        'default_open_time' => '07:00',
-        'default_close_time' => '22:00',
+        'whatsapp_number' => env('KAMEE_WHATSAPP_NUMBER', '6281280871630'),
+        'default_open_time' => '10:00',
+        'default_close_time' => '17:00',
     ],
 
     'otp' => [
@@ -45,7 +45,18 @@ return [
 
     'idempotency_ttl_hours' => 24,
 
-    'payment_gateway' => env('PAYMENT_GATEWAY', 'midtrans'),
+    // manual (QRIS statis + konfirmasi admin) | midtrans | fake (simulator lokal)
+    'payment_gateway' => env('PAYMENT_GATEWAY', 'manual'),
+
+    // Metode pembayaran yang diterima saat checkout: qris, ewallet, bank_transfer, cash
+    'payment_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('KAMEE_PAYMENT_METHODS', 'qris,cash'))))),
+
+    // QRIS statis (GoPay Merchant) untuk gateway manual; pembayaran dikonfirmasi admin.
+    'manual_qris' => [
+        'image_url' => env('KAMEE_QRIS_IMAGE_URL', null),
+        'merchant_name' => env('KAMEE_QRIS_MERCHANT', 'KAMEECOFFEE'),
+        'nmid' => env('KAMEE_QRIS_NMID', 'ID1026594722880'),
+    ],
 
     'turnstile' => [
         'secret' => env('TURNSTILE_SECRET_KEY'),

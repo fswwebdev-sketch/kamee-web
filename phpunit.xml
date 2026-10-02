@@ -35,7 +35,14 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="WHATSAPP_DRIVER" value="array"/>
-        <env name="PAYMENT_GATEWAY" value="midtrans"/>
+        <env name="PAYMENT_GATEWAY" value="manual"/>
+        <env name="KAMEE_PAYMENT_METHODS" value="qris,cash"/>
+        <env name="KAMEE_PAYMENT_TIMEOUT" value="60"/>
+        <env name="KAMEE_SERVICE_FEE" value="0"/>
+        <env name="KAMEE_WHATSAPP_NUMBER" value="6281280871630"/>
+        <env name="KAMEE_QRIS_IMAGE_URL" value="https://kamee.test/payments/qris-kameecoffee.jpg"/>
+        <env name="KAMEE_QRIS_MERCHANT" value="KAMEECOFFEE"/>
+        <env name="KAMEE_QRIS_NMID" value="ID1026594722880"/>
         <env name="MIDTRANS_SERVER_KEY" value="SB-Mid-server-TEST"/>
         <env name="MIDTRANS_IS_PRODUCTION" value="false"/>
         <env name="TURNSTILE_SECRET_KEY" value=""/>

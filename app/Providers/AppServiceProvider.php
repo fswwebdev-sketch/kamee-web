@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Payments\FakeGateway;
+use App\Services\Payments\ManualQrisGateway;
 use App\Services\Payments\MidtransGateway;
 use App\Services\SettingService;
 use App\Services\WhatsApp\ArrayWhatsApp;
@@ -36,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         $this->app->bind(FakeGateway::class, fn () => new FakeGateway((string) config('app.key')));
+
+        $this->app->bind(ManualQrisGateway::class, fn () => new ManualQrisGateway(
+            config('kamee.manual_qris.image_url'),
+            (string) config('kamee.manual_qris.merchant_name'),
+            (string) config('kamee.manual_qris.nmid'),
+        ));
     }
 
     public function boot(): void

@@ -15,21 +15,21 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Outlet;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\CreateOrderData;
 use App\Services\OrderService;
 use App\Services\OrderStateMachine;
-use App\Services\Payments\PaymentNotification;
 use App\Services\PaymentService;
 use App\Services\Pricing\CartItem;
-use App\Services\ReviewService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
 
 /**
- * 100 pesanan acak 60 hari terakhir, dibuat melalui service yang sama dengan API
- * (harga, promo, poin, log status, pembayaran) agar datanya konsisten.
+ * 100 pesanan acak 60 hari terakhir di outlet Taman Cibodas (jam buka 10:00–17:00), dibuat melalui
+ * service yang sama dengan API (harga, promo, poin, log status, pembayaran) agar datanya konsisten.
+ * Pembayaran: QRIS statis yang dikonfirmasi admin, atau tunai. Tidak membuat ulasan produk.
  */
 class DemoOrderSeeder extends Seeder
 {
@@ -41,8 +41,9 @@ class DemoOrderSeeder extends Seeder
         private readonly OrderService $orders,
         private readonly OrderStateMachine $stateMachine,
         private readonly PaymentService $payments,
-        private readonly ReviewService $reviews,
     ) {}
+
+    private ?User $admin = null;
 
     public function run(): void
     {
@@ -57,11 +58,12 @@ class DemoOrderSeeder extends Seeder
         $outlets = Outlet::all();
         $products = Product::with('optionGroups.options')->where('is_active', true)->get();
         $customers = Customer::all();
+        $this->admin = User::where('email', 'admin.cibodas@kamee.id')->first() ?? User::where('email', 'superadmin@kamee.id')->first();
 
         // Urutkan waktu agar poin & tier terakumulasi secara kronologis.
         $this->realNow = now()->copy();
         $times = collect(range(1, self::TOTAL))
-            ->map(fn () => now()->subDays(mt_rand(0, 59))->setTime(mt_rand(9, 20), mt_rand(0, 59)))
+            ->map(fn () => now()->subDays(mt_rand(0, 59))->setTime(mt_rand(10, 15), mt_rand(0, 59)))
             ->map(fn (Carbon $t) => $t->greaterThan($this->realNow->copy()->subHour()) ? $t->subDay() : $t)
             ->sort()->values();
 
@@ -85,6 +87,9 @@ class DemoOrderSeeder extends Seeder
         }
 
         Carbon::setTestNow();
+
+        // Angka terjual di katalog dibiarkan 0 (belum ada data penjualan nyata); laporan tetap memakai data pesanan demo.
+        Product::query()->update(['sold_count' => 0]);
     }
 
     private function createOrder(Outlet $outlet, $products, ?Customer $member, FulfillmentType $fulfillment, ?string $promo): ?Order
@@ -130,35 +135,39 @@ class DemoOrderSeeder extends Seeder
     {
         $roll = mt_rand(1, 100);
         $isRecent = $time->greaterThan($this->realNow->copy()->subDays(2));
+        $timeout = (int) config('kamee.settings.payment_timeout_minutes', 60);
 
         if ($roll <= 12) {
-            Carbon::setTestNow($time->copy()->addMinutes(16));
-            $this->stateMachine->transition($order, OrderStatus::Cancelled, null, 'Dibatalkan otomatis: pembayaran melewati batas 15 menit.');
+            Carbon::setTestNow($time->copy()->addMinutes($timeout + 1));
+            $this->stateMachine->transition($order, OrderStatus::Cancelled, null, "Dibatalkan otomatis: pembayaran melewati batas {$timeout} menit.");
 
             return;
         }
 
-        $method = [PaymentMethod::Qris, PaymentMethod::Qris, PaymentMethod::EWallet, PaymentMethod::BankTransfer, PaymentMethod::Cash][mt_rand(0, 4)];
+        $method = [PaymentMethod::Qris, PaymentMethod::Qris, PaymentMethod::Qris, PaymentMethod::Cash][mt_rand(0, 3)];
 
         Carbon::setTestNow($time->copy()->addMinutes(2));
         if ($method === PaymentMethod::Cash) {
             $this->payments->pay($order, PaymentMethod::Cash);
         } else {
-            $payment = $order->payments()->create([
-                'method' => $method,
-                'provider' => 'midtrans',
+            $order->payments()->create([
+                'method' => PaymentMethod::Qris,
+                'provider' => 'manual',
                 'provider_ref' => "{$order->code}-1",
                 'amount' => $order->total,
                 'status' => PaymentStatus::Pending,
-                'qr_string' => $method === PaymentMethod::Qris ? '00020101021126DEMO'.$order->code : null,
-                'va_number' => $method === PaymentMethod::BankTransfer ? '12345'.str_pad((string) $order->id, 8, '0', STR_PAD_LEFT) : null,
-                'expires_at' => $time->copy()->addMinutes(15),
-                'raw_payload' => ['demo' => true, 'bank' => $method === PaymentMethod::BankTransfer ? 'bca' : null],
+                'expires_at' => $time->copy()->addMinutes($timeout),
+                'raw_payload' => [
+                    'manual' => true,
+                    'merchant_name' => config('kamee.manual_qris.merchant_name'),
+                    'nmid' => config('kamee.manual_qris.nmid'),
+                    'qris_image_url' => config('kamee.manual_qris.image_url'),
+                ],
             ]);
-            Carbon::setTestNow($time->copy()->addMinutes(4));
-            $this->payments->applyNotification(new PaymentNotification('midtrans', $payment->provider_ref, PaymentStatus::Paid, $payment->amount, ['demo' => true]));
-            Carbon::setTestNow($time->copy()->addMinutes(6));
-            $this->stateMachine->transition($order->refresh(), OrderStatus::Processing, null, 'Pesanan mulai disiapkan');
+            Carbon::setTestNow($time->copy()->addMinutes(5));
+            $this->payments->confirmManual($order, $this->admin, 'Cek mutasi GoPay Merchant');
+            Carbon::setTestNow($time->copy()->addMinutes(7));
+            $this->stateMachine->transition($order->refresh(), OrderStatus::Processing, $this->admin, 'Pesanan mulai disiapkan');
         }
 
         // Pesanan hari terakhir sebagian dibiarkan berjalan (untuk demo dashboard realtime).
@@ -173,17 +182,5 @@ class DemoOrderSeeder extends Seeder
 
         Carbon::setTestNow($time->copy()->addMinutes(45));
         $this->stateMachine->transition($order->refresh(), OrderStatus::Completed, null, 'Pesanan selesai');
-
-        if ($order->customer_id && mt_rand(1, 100) <= 40) {
-            Carbon::setTestNow($time->copy()->addHours(3));
-            $item = $order->items()->first();
-            $this->reviews->create($order->customer, [
-                'order_code' => $order->code,
-                'product_id' => $item->product_id,
-                'rating' => [5, 5, 5, 4, 4, 3][mt_rand(0, 5)],
-                'comment' => ['Enak banget, pas manisnya!', 'Kopinya mantap, pasti pesan lagi.', 'Pengiriman cepat dan masih dingin.',
-                    'Rasanya konsisten, favorit saya.', 'Harga sepadan dengan rasa.', 'Lumayan, next coba less sugar.'][mt_rand(0, 5)],
-            ]);
-        }
     }
 }

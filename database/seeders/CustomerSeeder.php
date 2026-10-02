@@ -39,8 +39,9 @@ class CustomerSeeder extends Seeder
                 CustomerAddress::factory()->for($customer)->create([
                     'label' => 'Rumah',
                     'is_default' => true,
-                    'lat' => -6.200 + ($i % 5) * 0.004,
-                    'lng' => 106.625 + ($i % 4) * 0.004,
+                    // Sekitar outlet Taman Cibodas (dalam radius antar 5 km)
+                    'lat' => -6.190 + ($i % 5) * 0.004,
+                    'lng' => 106.590 + ($i % 4) * 0.004,
                 ]);
             }
         }

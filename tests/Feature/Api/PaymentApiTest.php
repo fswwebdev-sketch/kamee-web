@@ -18,11 +18,14 @@ function midtransCharge(array $overrides = []): array
         'transaction_id' => 'trx-123',
         'transaction_status' => 'pending',
         'gross_amount' => '50000.00',
-        'expiry_time' => '2026-09-28 10:15:00',
+        'expiry_time' => '2026-09-28 11:00:00',
     ], $overrides);
 }
 
 beforeEach(function () {
+    // Tes ini khusus Midtrans Core API (semua metode online aktif).
+    config(['kamee.payment_gateway' => 'midtrans', 'kamee.payment_methods' => ['qris', 'ewallet', 'bank_transfer', 'cash']]);
+
     $this->order = Order::factory()->create(['total' => 50000, 'subtotal' => 50000, 'customer_phone' => '6281234567890']);
 });
 
@@ -39,13 +42,13 @@ it('membuat transaksi QRIS di Midtrans', function () {
         ->assertJsonPath('data.reference', "{$this->order->code}-1")
         ->assertJsonPath('data.qr_string', '00020101021226620014COM.GO-JEK.WWW')
         ->assertJsonPath('data.amount', 50000)
-        ->assertJsonPath('data.expires_at', '2026-09-28T10:15:00+07:00')
+        ->assertJsonPath('data.expires_at', '2026-09-28T11:00:00+07:00')
         ->assertJsonPath('order_status', 'pending');
 
     Http::assertSent(fn (Request $r) => $r->url() === MIDTRANS.'/v2/charge'
         && $r['payment_type'] === 'qris'
         && $r['transaction_details'] === ['order_id' => "{$this->order->code}-1", 'gross_amount' => 50000]
-        && $r['custom_expiry']['expiry_duration'] === 15
+        && $r['custom_expiry']['expiry_duration'] === 60
         && $r->hasHeader('Authorization', 'Basic '.base64_encode('SB-Mid-server-TEST:')));
 });
 
@@ -104,7 +107,7 @@ it('menolak pembayaran untuk pesanan yang bukan pending atau sudah lewat batas w
     $this->postJson("/api/v1/orders/{$paid->code}/pay", ['method' => 'qris'], idem())
         ->assertUnprocessable()->assertJsonPath('message', 'Pesanan tidak dalam status menunggu pembayaran.');
 
-    $this->travel(16)->minutes();
+    $this->travel(61)->minutes();
     $this->postJson("/api/v1/orders/{$this->order->code}/pay", ['method' => 'qris'], idem())
         ->assertUnprocessable()->assertJsonPath('message', 'Batas waktu pembayaran sudah habis. Silakan buat pesanan baru.');
 });
