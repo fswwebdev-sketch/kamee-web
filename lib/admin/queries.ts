@@ -182,6 +182,21 @@ export function useOrderStatus() {
   });
 }
 
+/** QRIS statis: admin mengonfirmasi dana sudah masuk (pending → paid). */
+export function useConfirmPayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, note }: { id: number; note?: string | null }) =>
+      adminApi<{ data: AdminOrder; message: string }>(`orders/${id}/confirm-payment`, { method: "POST", body: { note: note || null } }),
+    onSuccess: (res) => {
+      qc.setQueryData(adminKeys.item("orders", res.data.id), res.data);
+      qc.invalidateQueries({ queryKey: adminKeys.resource("orders") });
+      qc.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      toast.success(res.message);
+    },
+  });
+}
+
 export function useRefundOrder() {
   const qc = useQueryClient();
   return useMutation({

@@ -60,7 +60,7 @@ function OutletForm({ outlet, onDone }: { outlet: Outlet | null; onDone: () => v
           delivery_radius_km: String(outlet.delivery_radius_km),
           is_open: outlet.is_open,
         }
-      : { name: "", slug: "", address: "", city: "Tangerang", lat: "", lng: "", phone_wa: "", open_time: "07:00", close_time: "22:00", delivery_radius_km: "5", is_open: true },
+      : { name: "", slug: "", address: "", city: "Tangerang", lat: "", lng: "", phone_wa: "", open_time: "10:00", close_time: "17:00", delivery_radius_km: "5", is_open: true },
   });
   const { register, handleSubmit, watch, setValue, getFieldState, formState: { errors } } = form;
   // Outlet baru: jam awal mengikuti "Jam buka default" di Pengaturan.

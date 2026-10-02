@@ -30,11 +30,12 @@ export function OutletSwitcher({ user }: { user: AdminUser }) {
   const setOutletId = useAdminUi((s) => s.setOutletId);
   const outlets = useOutletsRef(can(user, "outlets.switch"));
 
-  if (!can(user, "outlets.switch")) {
+  const single = outlets.data?.length === 1 ? outlets.data[0] : null;
+  if (!can(user, "outlets.switch") || single) {
     return (
       <span className="flex h-10 items-center gap-2 rounded-xl border border-line px-3 text-sm font-medium text-ink">
         <Store className="size-4 text-primary" aria-hidden="true" />
-        <span className="max-w-40 truncate">{user.outlet?.name ?? "Outlet"}</span>
+        <span className="max-w-40 truncate">{user.outlet?.name ?? single?.name ?? "Outlet"}</span>
       </span>
     );
   }

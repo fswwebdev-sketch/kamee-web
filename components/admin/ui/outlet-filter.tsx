@@ -11,7 +11,8 @@ export function OutletFilter({ user }: { user: AdminUser }) {
   const outletId = useAdminUi((s) => s.outletId);
   const setOutletId = useAdminUi((s) => s.setOutletId);
   const outlets = useOutletsRef(can(user, "outlets.switch"));
-  if (!can(user, "outlets.switch")) return null;
+  // Hanya satu outlet → filter tidak berguna
+  if (!can(user, "outlets.switch") || (outlets.data?.length ?? 0) <= 1) return null;
   return (
     <FilterSelect label="Outlet" value={outletId ? String(outletId) : ""} onChange={(v) => setOutletId(v ? Number(v) : null)}>
       <option value="">Semua outlet</option>

@@ -12,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display_override: ["standalone", "minimal-ui"],
     orientation: "portrait",
     // Warna splash Android = background_color + ikon 512
-    background_color: "#FFFBF5",
-    theme_color: "#6F4E37",
+    background_color: "#F4F6FB",
+    theme_color: "#04338B",
     lang: "id",
     dir: "ltr",
     categories: ["food", "shopping", "lifestyle"],

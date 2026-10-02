@@ -33,6 +33,7 @@ import {
   promotions as seedPromotions,
   tiers,
 } from "../data";
+import { manualQrisFields } from "@/lib/payments";
 
 export interface MockAdminState {
   users: (AdminUser & { password: string; token: string })[];
@@ -76,7 +77,7 @@ export function wib(d: Date): string {
 
 const FIRST = ["Dinda", "Rizky", "Salsa", "Bima", "Nadia", "Fajar", "Ayu", "Kevin", "Putri", "Dimas", "Intan", "Raka", "Citra", "Yoga", "Maya", "Arif", "Laras", "Gilang", "Tiara", "Hendra", "Wulan", "Farhan", "Sekar", "Andre"];
 const LAST = ["Putri", "Pratama", "Wijaya", "Saputra", "Lestari", "Hidayat", "Anggraini", "Nugroho", "Permata", "Siregar", "Kusuma", "Maharani", "Setiawan", "Rahmawati"];
-const STREETS = ["Jl. Merdeka", "Jl. Sudirman", "Jl. Imam Bonjol", "Jl. Daan Mogot", "Jl. Gatot Subroto", "Jl. Perintis Kemerdekaan", "Jl. Veteran"];
+const STREETS = ["Jl. Cempaka Raya", "Jl. Flamboyan Raya", "Jl. Melati Raya", "Jl. Anggrek", "Jl. Kenanga", "Jl. Bougenville", "Jl. Mawar"];
 
 function statusPath(final: OrderStatus, fulfillment: Fulfillment, method: PaymentMethod): OrderStatus[] {
   const start: OrderStatus[] = method === "cash" ? ["pending", "processing"] : ["pending", "paid", "processing"];
@@ -97,14 +98,15 @@ function statusPath(final: OrderStatus, fulfillment: Fulfillment, method: Paymen
 }
 
 const LOG_NOTE: Partial<Record<OrderStatus, string>> = {
-  paid: "Pembayaran berhasil",
+  paid: "Pembayaran QRIS dikonfirmasi admin",
   processing: "Pesanan diproses barista",
   shipped: "Pesanan dalam pengantaran",
   completed: "Pesanan selesai",
-  cancelled: "Dibatalkan otomatis: pembayaran melewati batas 15 menit.",
+  cancelled: "Dibatalkan otomatis: pembayaran melewati batas 60 menit.",
 };
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = { qris: "QRIS", ewallet: "E-Wallet", bank_transfer: "Transfer Bank", cash: "Tunai" };
+
 
 /* ------------------------------------------------------------------ seed */
 
@@ -145,8 +147,7 @@ function seed(): MockAdminState {
 
   const users: MockAdminState["users"] = [
     { id: 1, name: "Super Admin Kamee", email: "superadmin@kamee.id", role: "super_admin", role_label: "Super Admin", outlet_id: null, outlet: null, is_active: true, last_login_at: created(1), created_at: created(200), password: "password", token: "mock-token-1" },
-    { id: 2, name: "Admin Kamee Cikokol", email: "admin.cikokol@kamee.id", role: "outlet_admin", role_label: "Admin Outlet", outlet_id: 1, outlet: { id: 1, name: outlets[0]!.name }, is_active: true, last_login_at: created(2), created_at: created(180), password: "password", token: "mock-token-2" },
-    { id: 3, name: "Admin Kamee Karawaci", email: "admin.karawaci@kamee.id", role: "outlet_admin", role_label: "Admin Outlet", outlet_id: 2, outlet: { id: 2, name: outlets[1]!.name }, is_active: true, last_login_at: null, created_at: created(90), password: "password", token: "mock-token-3" },
+    { id: 2, name: "Admin Kamee Cibodas", email: "admin.cibodas@kamee.id", role: "outlet_admin", role_label: "Admin Outlet", outlet_id: 1, outlet: { id: 1, name: outlets[0]!.name }, is_active: true, last_login_at: created(2), created_at: created(180), password: "password", token: "mock-token-2" },
   ];
 
   // Pelanggan terdaftar
@@ -166,7 +167,7 @@ function seed(): MockAdminState {
       referral_code: `KM${(i * 7919).toString(36).toUpperCase().padStart(6, "X")}`,
       created_at: created(i < 6 ? r() * 12 : days),
       orders_count: 0,
-      addresses: [{ id: i + 1, label: "Rumah", address: `${pick(STREETS)} No. ${1 + Math.floor(r() * 90)}, Tangerang`, lat: -6.2 + (r() - 0.5) * 0.05, lng: 106.62 + (r() - 0.5) * 0.05, note: null, is_default: true }],
+      addresses: [{ id: i + 1, label: "Rumah", address: `${pick(STREETS)} No. ${1 + Math.floor(r() * 90)}, Taman Cibodas, Tangerang`, lat: -6.182 + (r() - 0.5) * 0.03, lng: 106.597 + (r() - 0.5) * 0.03, note: null, is_default: true }],
     };
   });
 
@@ -179,13 +180,19 @@ function seed(): MockAdminState {
   const active = products.filter((p) => p.is_active);
   const popularity = active.map((p, i) => ({ p, w: 1 + ((i * 37) % 11) + (p.is_best_seller ? 8 : 0) }));
   const totalW = popularity.reduce((s, x) => s + x.w, 0);
-  const weightedProduct = () => {
+  const WEEKEND_ONLY = new Set(["mont-blanc", "cold-brew"]);
+  const weightedProduct = (weekend: boolean): AdminProduct => {
     let x = r() * totalW;
+    let chosen = popularity[0]!.p;
     for (const it of popularity) {
       x -= it.w;
-      if (x <= 0) return it.p;
+      if (x <= 0) {
+        chosen = it.p;
+        break;
+      }
     }
-    return popularity[0]!.p;
+    // Mont Blanc & Cold Brew hanya dijual Sabtu–Minggu
+    return !weekend && WEEKEND_ONLY.has(chosen.slug) ? weightedProduct(weekend) : chosen;
   };
 
   // Slot waktu pesanan 150 hari terakhir, lalu beberapa pesanan "live" yang selalu ada
@@ -197,10 +204,10 @@ function seed(): MockAdminState {
     const dow = new Date(date.getTime() + TZ_OFFSET * 60_000).getUTCDay();
     const growth = 1 + (150 - day) / 300; // tren naik perlahan
     for (const outlet of outlets) {
-      const base = (outlet.id === 1 ? 4 : 3) + (dow === 0 || dow === 6 ? 3 : 0);
+      const base = 5 + (dow === 0 || dow === 6 ? 3 : 0);
       const count = Math.max(1, Math.round((base + r() * 3) * growth));
       for (let n = 0; n < count; n++) {
-        const hour = 7 + Math.floor(r() * 14);
+        const hour = 10 + Math.floor(r() * 7); // buka 10.00–17.00 WIB
         const minute = Math.floor(r() * 60);
         const at = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hour - 7, minute));
         // Pesanan hari ini dari 3 jam terakhir digantikan set "live" di bawah
@@ -213,11 +220,11 @@ function seed(): MockAdminState {
     { status: "pending", method: "cash", fulfillment: "dine_in" },
     { status: "pending", method: "qris" },
     { status: "paid", method: "qris", fulfillment: "pickup" },
-    { status: "paid", method: "ewallet", fulfillment: "delivery" },
+    { status: "paid", method: "qris", fulfillment: "delivery" },
     { status: "processing", method: "cash", fulfillment: "pickup" },
     { status: "processing", method: "qris", fulfillment: "delivery" },
-    { status: "processing", method: "ewallet", fulfillment: "dine_in" },
-    { status: "shipped", method: "bank_transfer", fulfillment: "delivery" },
+    { status: "processing", method: "qris", fulfillment: "dine_in" },
+    { status: "shipped", method: "qris", fulfillment: "delivery" },
     { status: "completed", method: "cash", fulfillment: "pickup" },
     { status: "cancelled", method: "qris", fulfillment: "pickup" },
   ];
@@ -229,7 +236,8 @@ function seed(): MockAdminState {
 
   for (const { at, outlet, live } of slots) {
     const fulfillment: Fulfillment = live?.fulfillment ?? pick(["pickup", "pickup", "dine_in", "dine_in", "delivery"] as const);
-    const method: PaymentMethod = live?.method ?? pick(["qris", "qris", "qris", "ewallet", "ewallet", "bank_transfer", "cash", "cash"] as const);
+    const method: PaymentMethod = live?.method ?? pick(["qris", "qris", "qris", "cash", "cash"] as const);
+    const weekend = [0, 6].includes(new Date(at.getTime() + TZ_OFFSET * 60_000).getUTCDay());
     const channel = pick(["web", "web", "web", "web", "whatsapp", "whatsapp", "pos"] as const);
     const registered = r() < 0.72 ? customers[Math.floor(r() * customers.length)]! : null;
     const name = registered?.name ?? `${pick(FIRST)} ${pick(LAST)}`;
@@ -238,7 +246,7 @@ function seed(): MockAdminState {
     const lines = 1 + Math.floor(r() * 3);
     const items: OrderItem[] = [];
     for (let l = 0; l < lines; l++) {
-      const p = weightedProduct();
+      const p = weightedProduct(weekend);
       const groups = productGroups[p.id] ?? [];
       const opts: { name: string; price_delta: number }[] = [];
       for (const g of groups) {
@@ -252,7 +260,7 @@ function seed(): MockAdminState {
       }
       const unit = p.base_price + opts.reduce((s, o) => s + o.price_delta, 0);
       const qty = r() < 0.75 ? 1 : 2;
-      items.push({ id: itemId++, product_id: p.id, product_name: p.name, unit_price: unit, qty, subtotal: unit * qty, note: r() < 0.08 ? "Es dipisah ya" : null, options: opts });
+      items.push({ id: itemId++, product_id: p.id, product_name: p.name, unit_price: unit, qty, subtotal: unit * qty, note: r() < 0.08 ? "Less ice ya" : null, options: opts });
     }
     const subtotal = items.reduce((s, i) => s + i.subtotal, 0);
     const discount = r() < 0.12 && subtotal >= 40000 ? Math.min(15000, Math.round(subtotal * 0.2)) : 0;
@@ -286,17 +294,18 @@ function seed(): MockAdminState {
       id: paymentId++,
       method,
       method_label: PAYMENT_LABEL[method],
-      provider: method === "cash" ? "cash" : "midtrans",
-      reference: method === "cash" ? null : `MT-${(orderId * 7919).toString(36).toUpperCase()}`,
+      provider: method === "cash" ? "cash" : "manual",
+      reference: method === "cash" ? null : `QR-${(orderId * 7919).toString(36).toUpperCase()}`,
       amount: total,
       status: status === "cancelled" ? "expired" : isPaid ? "paid" : "pending",
       status_label: status === "cancelled" ? "Kedaluwarsa" : isPaid ? "Berhasil" : "Menunggu",
       qr_string: null,
-      va_number: method === "bank_transfer" ? `8808${String(orderId).padStart(8, "0")}` : null,
-      bank: method === "bank_transfer" ? "bca" : null,
+      va_number: null,
+      bank: null,
       deeplink: null,
-      expires_at: method === "cash" ? null : wib(new Date(at.getTime() + 15 * 60_000)),
+      expires_at: method === "cash" ? null : wib(new Date(at.getTime() + 60 * 60_000)),
       paid_at: isPaid ? paidLog!.at : null,
+      ...manualQrisFields(method, isPaid || status === "cancelled" ? "done" : "pending"),
     };
     const code = `KM${wib(at).slice(2, 10).replace(/-/g, "")}${(orderId * 2654435761 >>> 0).toString(36).toUpperCase().slice(0, 5).padEnd(5, "X")}`;
     const order: AdminOrder = {
@@ -312,7 +321,7 @@ function seed(): MockAdminState {
       customer_id: registered?.id ?? null,
       customer_name: name,
       customer_phone: phone,
-      address: fulfillment === "delivery" ? registered?.addresses[0]?.address ?? `${pick(STREETS)} No. ${1 + Math.floor(r() * 90)}, Tangerang` : null,
+      address: fulfillment === "delivery" ? registered?.addresses[0]?.address ?? `${pick(STREETS)} No. ${1 + Math.floor(r() * 90)}, Taman Cibodas, Tangerang` : null,
       lat: null,
       lng: null,
       scheduled_at: null,
@@ -364,9 +373,9 @@ function seed(): MockAdminState {
 
   const contacts: Contact[] = [
     { id: 1, name: "Farah Handayani", email: "farah@example.com", phone: "6281390001122", subject: "Kerja sama", message: "Halo Kamee, kami dari komunitas lari Tangerang ingin mengajak kerja sama untuk event fun run bulan depan. Apakah bisa sponsor minuman untuk 150 peserta?", status: "new", created_at: created(0.2) },
-    { id: 2, name: "Bagas Prakoso", email: "bagas@example.com", phone: "6281277701234", subject: "Pesanan", message: "Pesanan saya kemarin kurang satu topping boba. Kode pesanan tertera di struk. Mohon dicek ya.", status: "new", created_at: created(0.9) },
-    { id: 3, name: "Melati Kurnia", email: "melati@example.com", phone: null, subject: "Reservasi tempat", message: "Apakah bisa reservasi area untuk 12 orang hari Sabtu jam 4 sore di outlet Karawaci?", status: "read", created_at: created(2.4) },
-    { id: 4, name: "Yusuf Ramadhan", email: "yusuf@example.com", phone: "6285711122233", subject: "Saran", message: "Suka banget sama Klepon Latte! Tolong tambah varian less sugar untuk signature drink lainnya.", status: "replied", created_at: created(5) },
+    { id: 2, name: "Bagas Prakoso", email: "bagas@example.com", phone: "6281277701234", subject: "Pesanan", message: "Pesanan saya kemarin Aren Kame-nya kurang satu. Kode pesanan tertera di struk. Mohon dicek ya.", status: "new", created_at: created(0.9) },
+    { id: 3, name: "Melati Kurnia", email: "melati@example.com", phone: null, subject: "Reservasi tempat", message: "Apakah bisa reservasi tempat untuk 8 orang hari Sabtu jam 3 sore?", status: "read", created_at: created(2.4) },
+    { id: 4, name: "Yusuf Ramadhan", email: "yusuf@example.com", phone: "6285711122233", subject: "Saran", message: "Suka banget sama Pandan Latte Kame! Kapan ada menu baru lagi?", status: "replied", created_at: created(5) },
     { id: 5, name: "PT Sinar Kopi", email: "procurement@sinarkopi.co.id", phone: null, subject: "Kerja sama", message: "Kami supplier biji kopi arabika Jawa Barat, ingin menawarkan sampel gratis untuk dicoba.", status: "read", created_at: created(8) },
   ];
 
@@ -378,7 +387,7 @@ function seed(): MockAdminState {
     categories,
     optionGroups,
     products,
-    unavailable: { 1: [], 2: [26] },
+    unavailable: { 1: [] },
     promotions,
     banners,
     blogCategories: seedBlogCategories.map((c) => ({ ...c })),
@@ -388,7 +397,7 @@ function seed(): MockAdminState {
     orders,
     contacts,
     settings: {
-      payment_timeout_minutes: 15,
+      payment_timeout_minutes: 60,
       service_fee: 0,
       delivery_base_fee: 8000,
       delivery_base_km: 2,
@@ -398,9 +407,9 @@ function seed(): MockAdminState {
       points_max_redeem_percent: 50,
       points_min_redeem: 10,
       points_expiry_months: 12,
-      whatsapp_number: "6281211110001",
-      default_open_time: "07:00",
-      default_close_time: "22:00",
+      whatsapp_number: "6281280871630",
+      default_open_time: "10:00",
+      default_close_time: "17:00",
     },
     seq: 100_000,
   };

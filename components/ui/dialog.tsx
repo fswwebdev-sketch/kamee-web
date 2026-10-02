@@ -49,7 +49,7 @@ export function Dialog({
         <div className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-6">
           <m.div
             ref={backdropRef}
-            className="absolute inset-0 bg-[#1A1210]/55 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-[#0A1020]/55 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

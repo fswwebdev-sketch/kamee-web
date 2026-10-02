@@ -78,9 +78,9 @@ export function usePayOrder() {
 }
 
 const POLL_MS = 3000;
-const POLL_LIMIT_MS = 15 * 60_000;
+const POLL_LIMIT_MS = 60 * 60_000;
 
-/** Polling status bayar tiap 3 detik, berhenti saat final atau lewat 15 menit. */
+/** Polling status bayar tiap 3 detik, berhenti saat final atau lewat 60 menit (batas bayar). */
 export function usePaymentStatus(code: string, startedAt: number) {
   return useQuery({
     queryKey: qk.paymentStatus(code),

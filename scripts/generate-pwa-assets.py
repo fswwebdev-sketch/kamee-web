@@ -11,11 +11,11 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent / "public"
-PRIMARY = (111, 78, 55)
-CREAM = (245, 230, 202)
-CREMA = (150, 102, 66)
-INK = (62, 39, 35)
-SPLASH_BG = (255, 251, 245)  # --color-surface
+PRIMARY = (4, 51, 139)
+CREAM = (227, 234, 247)
+CREMA = (42, 91, 184)
+INK = (11, 27, 63)
+SPLASH_BG = (244, 246, 251)  # --color-surface
 SS = 4  # supersampling
 
 

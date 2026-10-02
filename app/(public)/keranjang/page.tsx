@@ -70,7 +70,7 @@ export default function CartPage() {
           className="mt-8"
           illustration={<EmptyCupIllustration />}
           title="Keranjangmu masih kosong"
-          description="Yuk pilih kopi atau camilan favoritmu dulu."
+          description="Yuk pilih kopi atau minuman favoritmu dulu."
           action={<Link href="/menu" className={buttonClasses("primary", "lg")}>Jelajahi Menu</Link>}
         />
       ) : (

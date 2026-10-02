@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Panel admin terhadap mock MSW admin (mocks/admin), tanpa backend.
- * Akun mock: superadmin@kamee.id & admin.cikokol@kamee.id, sandi "password".
+ * Akun mock: superadmin@kamee.id & admin.cibodas@kamee.id, sandi "password".
  */
 
 async function login(page: Page, email: string) {
@@ -64,6 +64,22 @@ test.describe("panel admin", () => {
     await expect(page.getByText(/Menampilkan \d+–\d+ dari \d+/)).toBeVisible();
   });
 
+  test("Pesanan QRIS: admin mengonfirmasi pembayaran manual", async ({ page }) => {
+    await login(page, "admin.cibodas@kamee.id");
+    // Buat pesanan QRIS baru (mock) agar tes tidak bergantung pada urutan tes lain
+    const sim = await page.request.post("/api/admin/__mock/simulate?method=qris", { headers: { "X-Requested-With": "kamee-admin" } });
+    expect(sim.ok()).toBe(true);
+    await page.goto("/admin/pesanan");
+    const pending = page.locator("section[aria-label^='Pending']");
+    await expect(pending.getByText("Cek QRIS").first()).toBeVisible();
+    await pending.getByRole("button", { name: "Konfirmasi pembayaran" }).first().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText(/GoPay Merchant/);
+    await dialog.getByLabel(/Catatan/).fill("Ref GoPay 123");
+    await dialog.getByRole("button", { name: "Ya, dana sudah masuk" }).click();
+    await expect(page.getByText(/Pembayaran dikonfirmasi/)).toBeVisible();
+  });
+
   test("Produk: buat lalu hapus dengan konfirmasi", async ({ page }) => {
     await login(page, "superadmin@kamee.id");
     await page.goto("/admin/produk/baru");
@@ -82,7 +98,7 @@ test.describe("panel admin", () => {
   });
 
   test("Admin Outlet: menu terbatas dan halaman Super Admin ditolak", async ({ page }) => {
-    await login(page, "admin.cikokol@kamee.id");
+    await login(page, "admin.cibodas@kamee.id");
     await expect(page.getByText("Admin Outlet").first()).toBeVisible();
     for (const hidden of ["Pengaturan", "Pengguna", "Promo & Voucher", "Kategori"]) {
       await expect(sidebar(page).getByRole("link", { name: hidden })).toHaveCount(0);

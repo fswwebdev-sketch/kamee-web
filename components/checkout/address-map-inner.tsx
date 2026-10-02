@@ -8,12 +8,12 @@ import { env } from "@/lib/env";
 
 const pin = L.divIcon({
   className: "",
-  html: `<div style="width:36px;height:36px;transform:translate(-50%,-100%);position:relative"><svg viewBox="0 0 24 24" width="36" height="36"><path fill="#6F4E37" stroke="#fff" stroke-width="1.5" d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.8" fill="#F5E6CA"/></svg></div>`,
+  html: `<div style="width:36px;height:36px;transform:translate(-50%,-100%);position:relative"><svg viewBox="0 0 24 24" width="36" height="36"><path fill="#04338B" stroke="#fff" stroke-width="1.5" d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.8" fill="#E3EAF7"/></svg></div>`,
   iconSize: [0, 0],
 });
 const store = L.divIcon({
   className: "",
-  html: `<div style="transform:translate(-50%,-50%);width:30px;height:30px;border-radius:999px;background:#3E2723;color:#F5E6CA;display:grid;place-items:center;font:600 14px sans-serif;border:2px solid #fff">☕</div>`,
+  html: `<div style="transform:translate(-50%,-50%);width:30px;height:30px;border-radius:999px;background:#0B1B3F;color:#E3EAF7;display:grid;place-items:center;font:600 14px sans-serif;border:2px solid #fff">☕</div>`,
   iconSize: [0, 0],
 });
 
@@ -45,7 +45,7 @@ export default function AddressMapInner({
       <TileLayer url={env.mapTileUrl} attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' />
       {outlet && (
         <>
-          <Circle center={[outlet.lat, outlet.lng]} radius={outlet.radiusKm * 1000} pathOptions={{ color: "#6F4E37", weight: 1, fillOpacity: 0.06 }} />
+          <Circle center={[outlet.lat, outlet.lng]} radius={outlet.radiusKm * 1000} pathOptions={{ color: "#04338B", weight: 1, fillOpacity: 0.06 }} />
           <Marker position={[outlet.lat, outlet.lng]} icon={store} title={outlet.name} keyboard={false} />
         </>
       )}

@@ -82,7 +82,7 @@ export function AdminLoginForm() {
           <p className="flex items-center gap-2 font-semibold text-ink"><Info className="size-4 text-primary" aria-hidden="true" /> Mode demo (mock)</p>
           <ul className="mt-2 space-y-1 text-muted">
             <li><span className="font-medium text-ink">superadmin@kamee.id</span> — Super Admin</li>
-            <li><span className="font-medium text-ink">admin.cikokol@kamee.id</span> — Admin Outlet</li>
+            <li><span className="font-medium text-ink">admin.cibodas@kamee.id</span> — Admin Outlet</li>
             <li>Kata sandi: <span className="font-medium text-ink">password</span></li>
           </ul>
         </div>

@@ -17,11 +17,12 @@ import type {
 } from "@/types/api";
 import { banners, blogCategories, blogs, categories, outlets, productGroups, products, promotions, reviews, tiers } from "./data";
 import { db, nextId, persist } from "./db";
+import { isPaymentMethodEnabled, manualQrisFields } from "@/lib/payments";
 
 const API = "*/api/v1";
 export const MOCK_OTP = "123456";
-/** Pembayaran online di mock otomatis lunas setelah jeda ini (simulasi pelanggan membayar). */
-export const MOCK_PAY_DELAY_MS = 6000;
+/** Batas waktu bayar (menit) — sama dengan setting payment_timeout_minutes kamee-api. */
+export const PAYMENT_TIMEOUT_MIN = 60;
 
 type Json = Record<string, unknown>;
 
@@ -295,15 +296,6 @@ function addLoyalty(customer: Customer, type: LoyaltyTransaction["type"], points
 /** Simulasi alur pesanan di mock: lunas → diproses → (dikirim) → selesai. */
 function advance(order: Order) {
   const s = db();
-  const payment = s.payments.find((p) => p.order_code === order.code && p.status === "pending");
-  if (payment && payment.method !== "cash" && Date.now() - payment.created_ms > MOCK_PAY_DELAY_MS) {
-    payment.status = "paid";
-    payment.status_label = "Berhasil";
-    payment.paid_at = nowIso();
-    setStatus(order, "paid", `Pembayaran ${payment.method_label} diterima`);
-    order.payment = { ...payment };
-    persist();
-  }
   // Simulasi dapur & kurir agar halaman lacak pesanan terlihat hidup.
   const last = order.timeline?.at(-1);
   const since = last ? Date.now() - new Date(last.at).getTime() : 0;
@@ -313,10 +305,10 @@ function advance(order: Order) {
     else completeOrder(order);
   } else if (order.status === "shipped" && since > 45000) completeOrder(order);
 
-  const deadline = new Date(order.created_at).getTime() + 15 * 60000;
+  const deadline = new Date(order.created_at).getTime() + PAYMENT_TIMEOUT_MIN * 60000;
   if (order.status === "pending" && !s.payments.some((p) => p.order_code === order.code && p.method === "cash") && Date.now() > deadline) {
-    setStatus(order, "cancelled", "Dibatalkan otomatis: pembayaran melewati batas 15 menit.");
-    order.cancelled_reason = "Dibatalkan otomatis: pembayaran melewati batas 15 menit.";
+    setStatus(order, "cancelled", `Dibatalkan otomatis: pembayaran melewati batas ${PAYMENT_TIMEOUT_MIN} menit.`);
+    order.cancelled_reason = `Dibatalkan otomatis: pembayaran melewati batas ${PAYMENT_TIMEOUT_MIN} menit.`;
     persist();
   }
 }
@@ -342,7 +334,7 @@ function findOrder(code: string) {
 function pay(order: Order, method: PaymentMethod, channel: string | null): Payment {
   if (order.status !== "pending") reject("order", "Pesanan tidak dalam status menunggu pembayaran.");
   const s = db();
-  const deadline = new Date(new Date(order.created_at).getTime() + 15 * 60000).toISOString();
+  const deadline = new Date(new Date(order.created_at).getTime() + PAYMENT_TIMEOUT_MIN * 60000).toISOString();
   const existing = s.payments.find((p) => p.order_code === order.code && p.status === "pending" && p.method === method);
   if (existing) return existing;
   s.payments.filter((p) => p.order_code === order.code && p.status === "pending").forEach((p) => (p.status = "expired"));
@@ -353,17 +345,19 @@ function pay(order: Order, method: PaymentMethod, channel: string | null): Payme
     created_ms: Date.now(),
     method,
     method_label: METHOD_LABEL[method],
-    provider: method === "cash" ? "cash" : "midtrans",
+    provider: method === "cash" ? "cash" : method === "qris" ? "manual" : "midtrans",
     reference: method === "cash" ? null : `${order.code}-${attempt}`,
     amount: order.total,
     status: "pending" as const,
     status_label: "Menunggu pembayaran",
-    qr_string: method === "qris" ? `00020101021126610014COM.GO-JEK.WWW01189360091434${order.code}5204581253033605405${order.total}5802ID5913KAMEE COFFEE6009TANGERANG6304ABCD` : null,
+    // QRIS statis: pelanggan memindai QR toko & memasukkan nominal; admin mengonfirmasi manual.
+    qr_string: null,
     va_number: method === "bank_transfer" ? `${channel === "bni" ? "988" : channel === "bri" ? "262" : "127"}${String(order.id).padStart(10, "0")}` : null,
     bank: method === "bank_transfer" ? channel ?? "bca" : null,
     deeplink: method === "ewallet" ? `https://simulator.sandbox.midtrans.com/${channel ?? "gopay"}/ui/checkout?ref=${order.code}` : null,
     expires_at: method === "cash" ? null : deadline,
-    paid_at: null,
+    paid_at: null as string | null,
+    ...manualQrisFields(method, "pending"),
   };
   s.payments.push(payment);
   order.payment = { ...payment };
@@ -567,15 +561,31 @@ export const handlers = [
   http.post(`${API}/orders/:code/pay`, route<{ code: string }>(({ request, params }) => idempotent(request, (body) => {
     const { method, channel } = body as { method: PaymentMethod; channel?: string };
     if (!["qris", "ewallet", "bank_transfer", "cash"].includes(method)) return invalid("method", "Metode pembayaran yang dipilih tidak valid.");
+    if (!isPaymentMethodEnabled(method)) return invalid("method", "Metode pembayaran tidak tersedia.");
     const order = findOrder(params.code);
     const payment = pay(order, method, channel ?? null);
     const { order_code: _o, created_ms: _c, ...data } = payment as typeof payment & { order_code: string; created_ms: number };
     return ok({
       data,
-      message: method === "cash" ? "Pesanan diteruskan ke barista. Silakan bayar tunai di kasir." : "Transaksi pembayaran dibuat. Selesaikan sebelum batas waktu.",
+      message: method === "cash" ? "Pesanan diteruskan ke barista. Silakan bayar tunai di kasir." : method === "qris" ? "Pindai QRIS dan bayar sesuai total pesanan. Admin akan mengonfirmasi pembayaran Anda." : "Transaksi pembayaran dibuat. Selesaikan sebelum batas waktu.",
       order_status: order.status,
     }, 201);
   }))),
+
+  // KHUSUS MOCK: menyimulasikan admin menekan "Konfirmasi pembayaran" (mock admin memakai DB terpisah di server).
+  http.post(`${API}/__mock/orders/:code/confirm-payment`, route<{ code: string }>(({ params }) => {
+    const order = findOrder(params.code);
+    const payment = [...db().payments].reverse().find((p) => p.order_code === order.code && p.status === "pending" && p.method !== "cash");
+    if (order.status !== "pending" || !payment) return invalid("order", "Pesanan tidak dalam status menunggu pembayaran.");
+    payment.status = "paid";
+    payment.status_label = "Berhasil";
+    payment.paid_at = nowIso();
+    payment.requires_manual_confirmation = false;
+    setStatus(order, "paid", "Pembayaran QRIS dikonfirmasi oleh Admin (simulasi mode demo)");
+    order.payment = { ...payment };
+    persist();
+    return ok({ data: order, message: "Pembayaran dikonfirmasi." });
+  })),
 
   http.get(`${API}/orders/:code/payment-status`, route<{ code: string }>(({ params }) => {
     const order = findOrder(params.code);
@@ -587,7 +597,7 @@ export const handlers = [
         order_status: order.status,
         order_status_label: order.status_label,
         total: order.total,
-        payment_deadline: new Date(new Date(order.created_at).getTime() + 15 * 60000).toISOString(),
+        payment_deadline: new Date(new Date(order.created_at).getTime() + PAYMENT_TIMEOUT_MIN * 60000).toISOString(),
         payment: payment ? data : null,
       },
     });

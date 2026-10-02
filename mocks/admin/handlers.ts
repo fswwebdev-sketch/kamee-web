@@ -18,6 +18,7 @@ import {
 } from "@/lib/admin/types";
 import { tiers } from "../data";
 import { PAYMENT_LABEL, adminDb, nextAdminId, wib } from "./db";
+import { manualQrisFields } from "@/lib/payments";
 
 const A = "*/api/v1/admin";
 type Json = Record<string, unknown>;
@@ -441,16 +442,18 @@ export const adminHandlers = [
   })),
 
   /* ---------------- pesanan */
-  http.post(`${A}/__mock/simulate`, route(({ user }) => {
+  http.post(`${A}/__mock/simulate`, route(({ user, url }) => {
     const db = adminDb();
     const outlet = isSuper(user) ? db.outlets[Math.floor(Math.random() * db.outlets.length)]! : db.outlets.find((o) => o.id === user.outlet_id)!;
     const template = db.orders.find((o) => o.items && o.items.length > 0 && o.outlet_id === outlet.id) ?? db.orders[0]!;
-    const method: PaymentMethod = Math.random() < 0.35 ? "cash" : "qris";
+    const forced = url.searchParams.get("method");
+    const method: PaymentMethod = forced === "qris" || forced === "cash" ? forced : Math.random() < 0.35 ? "cash" : "qris";
     const now = wib(new Date());
     const id = Math.max(...db.orders.map((o) => o.id)) + 1;
     const customer = db.customers[Math.floor(Math.random() * db.customers.length)]!;
-    const status: OrderStatus = method === "cash" ? "pending" : "paid";
-    const payment = { ...template.payments!.at(-1)!, id: nextAdminId(), method, method_label: PAYMENT_LABEL[method], status: (status === "paid" ? "paid" : "pending") as "paid" | "pending", status_label: status === "paid" ? "Berhasil" : "Menunggu", paid_at: status === "paid" ? now : null, amount: template.total };
+    // Pesanan QRIS baru menunggu konfirmasi pembayaran manual oleh admin.
+    const status: OrderStatus = "pending";
+    const payment = { ...template.payments!.at(-1)!, id: nextAdminId(), method, method_label: PAYMENT_LABEL[method], provider: method === "cash" ? "cash" : "manual", status: "pending" as const, status_label: "Menunggu", paid_at: null, amount: template.total, ...manualQrisFields(method, "pending") };
     const order: AdminOrder = {
       ...template,
       id,
@@ -472,7 +475,6 @@ export const adminHandlers = [
       payments: [payment],
       status_logs: [
         { from_status: null, to_status: "pending", note: "Pesanan dibuat via Website", changed_by: null, at: now },
-        ...(status === "paid" ? [{ from_status: "pending" as OrderStatus, to_status: "paid" as OrderStatus, note: "Pembayaran berhasil", changed_by: null, at: now }] : []),
       ],
     };
     if (order.fulfillment === "delivery") order.address = customer.addresses[0]?.address ?? "Tangerang";
@@ -515,6 +517,30 @@ export const adminHandlers = [
     if (!ORDER_STATUS_LABEL[to]) throw invalid("status", "Status tidak valid.");
     transition(order, to, user, str(b.note));
     return ok({ data: serializeOrder(order, true), message: `Status pesanan diperbarui menjadi "${ORDER_STATUS_LABEL[to]}".` });
+  })),
+  http.post(`${A}/orders/:id/confirm-payment`, route<{ id: string }>(async ({ user, params, request }) => {
+    const order = scopedOrders(user).find((o) => o.id === Number(params.id));
+    if (!order) throw notFound();
+    if (order.status !== "pending") throw invalid("order", "Pesanan tidak dalam status menunggu pembayaran.");
+    const b = await body(request);
+    const note = str(b.note);
+    const at = wib(new Date());
+    let p = [...(order.payments ?? [])].reverse().find((x) => x.method !== "cash" && (x.status === "pending" || x.status === "expired"));
+    if (!p) {
+      p = { id: nextAdminId(), method: "qris", method_label: "QRIS", provider: "manual", reference: null, amount: order.total, status: "pending", status_label: "Menunggu", qr_string: null, va_number: null, bank: null, deeplink: null, expires_at: null, paid_at: null, ...manualQrisFields("qris", "pending") };
+      (order.payments ??= []).push(p);
+    }
+    p.status = "paid";
+    p.status_label = "Berhasil";
+    p.paid_at = at;
+    p.requires_manual_confirmation = false;
+    order.payment = p;
+    order.paid_at = at;
+    (order.status_logs ??= []).push({ from_status: "pending", to_status: "paid", note: `Pembayaran QRIS dikonfirmasi oleh ${user.name}${note ? ` — ${note}` : ""}`, changed_by: user.name, at });
+    order.status = "paid";
+    order.updated_at = at;
+    order.handled_by = { id: user.id, name: user.name };
+    return ok({ data: serializeOrder(order, true), message: 'Pembayaran dikonfirmasi. Pesanan berstatus "Sudah dibayar".' });
   })),
   http.post(`${A}/orders/:id/refund`, route<{ id: string }>(async ({ user, params, request }) => {
     requireSuper(user);
@@ -968,7 +994,7 @@ export const adminHandlers = [
       let o = creating ? undefined : db.outlets.find((x) => x.id === Number(params.id));
       if (!creating && !o) throw notFound();
       if (!o) {
-        o = { id: nextAdminId(), name: "", slug: "", address: "", city: "", lat: 0, lng: 0, phone_wa: "", open_time: "07:00", close_time: "22:00", is_open: true, is_open_now: true, delivery_radius_km: 5 };
+        o = { id: nextAdminId(), name: "", slug: "", address: "", city: "", lat: 0, lng: 0, phone_wa: "", open_time: "10:00", close_time: "17:00", is_open: true, is_open_now: true, delivery_radius_km: 5 };
         db.outlets.push(o);
       }
       if (has(b, "name")) o.name = String(b.name).trim();

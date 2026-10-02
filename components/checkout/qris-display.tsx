@@ -56,7 +56,7 @@ export function QrisDisplay({ value, fileName }: { value: string; fileName: stri
         ) : (
           <Skeleton className="size-[min(280px,72vw)] bg-neutral-100" />
         )}
-        <p className="mt-3 text-center text-[11px] text-neutral-600">Kamee Coffee · NMID ID1026XXXXXXXXX</p>
+        <p className="mt-3 text-center text-[11px] text-neutral-600">QRIS dinamis · Kamee Coffee</p>
       </div>
       <Button variant="outline" size="lg" onClick={save} loading={saving}>{!saving && <Download className="size-4" aria-hidden="true" />} Simpan QR</Button>
     </div>

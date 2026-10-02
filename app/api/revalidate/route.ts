@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * On-demand ISR dari Laravel (mis. observer Product/Blog/Banner):
  *   POST /api/revalidate
  *   Header: x-revalidate-secret: <REVALIDATE_SECRET>
- *   Body:   { "tags": ["products", "product:kopi-susu-aren"], "paths": ["/menu"] }
+ *   Body:   { "tags": ["products", "product:aren-kame"], "paths": ["/menu"] }
  * Tag yang tersedia: categories, products, product:{slug}, banners, promotions, outlets, testimonials, blogs, blog:{slug}
  */
 export async function POST(request: NextRequest) {

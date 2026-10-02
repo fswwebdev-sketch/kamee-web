@@ -4,6 +4,17 @@ Situs pemesanan **Kamee Coffee**, dibangun dengan Next.js 15 (App Router, RSC), 
 Situs ini mencakup landing, menu, detail produk, keranjang, checkout (QRIS/e-wallet/transfer/cash), lacak pesanan, blog, kontak, dan akun pelanggan (login OTP WhatsApp), plus **dashboard admin** di `/admin` (lihat [Dashboard admin](#dashboard-admin)).
 Semua data diambil dari `kamee-api` (`/api/v1`). Mock MSW bawaan membuat UI bisa jalan penuh **tanpa backend**.
 
+### Data bisnis Kamee Coffee
+
+| | |
+|---|---|
+| Outlet (satu-satunya) | **Kamee Coffee Taman Cibodas** — Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Sangiang Jaya, Kec. Periuk, Kota Tangerang. Koordinat perkiraan −6.1819, 106.5972 (ubah di Admin → Outlet bila pin kurang tepat). |
+| Jam buka | Setiap hari 10.00–17.00 WIB |
+| WhatsApp | 0812-8087-1630 (`NEXT_PUBLIC_WHATSAPP_NUMBER=6281280871630`) |
+| Warna brand | Biru navy Kame `#04338B` + putih (token di `app/globals.css`; ilustrasi & ikon hanya biru-putih) |
+| Menu | 19 menu sesuai daftar menu outlet: Based Coffee (Cup / Bottle 250 ml / Bottle 1 L), Manual Brew, Non Coffee. 👍 di menu = *Best Seller*. Mont Blanc & Cold Brew hanya akhir pekan. Rating, ulasan, jumlah terjual, komposisi, dan kalori sengaja kosong (disembunyikan) sampai ada data asli. |
+| Pembayaran | **QRIS statis GoPay Merchant** (`KAMEECOFFEE`, NMID `ID1026594722880`, gambar `public/payments/qris-kameecoffee.jpg`) + **Tunai** di kasir. Lihat [Alur QRIS statis](#alur-qris-statis). |
+
 | Kebutuhan | Pustaka |
 |---|---|
 | Server state & polling | TanStack Query 5 |
@@ -48,7 +59,7 @@ Skenario yang bisa dicoba:
 |---|---|
 | Login | Nomor apa pun. **OTP `123456`**. Nomor `081234567890` = akun demo *Dinda* (240 poin, tier Silver, 1 alamat). |
 | Voucher | `KAMEEHEMAT` (20%, min. Rp40.000), `GRATISONGKIR` (min. Rp50.000, delivery), `BELI1GRATIS1`, `NGOPI10K` (min. Rp75.000) |
-| Pembayaran | QRIS/e-wallet/VA otomatis **lunas setelah ±6 detik**, lalu status berjalan: diproses (15 dtk) → siap/diantar → selesai (45 dtk). Pesanan belum bayar batal otomatis setelah 15 menit. |
+| Pembayaran | QRIS statis: pesanan **tetap menunggu** sampai admin mengonfirmasi. Di mode demo, tombol *"Mode demo: simulasikan konfirmasi admin"* di halaman bayar menggantikan admin (DB mock admin terpisah di server). Setelah lunas status berjalan: diproses (15 dtk) → siap/diantar → selesai (45 dtk). Pesanan belum dibayar batal otomatis setelah 60 menit. |
 | Pesan via WhatsApp | `POST /orders/whatsapp` → tab `wa.me` berisi ringkasan pesanan |
 
 ### Menghubungkan ke kamee-api
@@ -60,12 +71,12 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 
 - **Gambar.** Gambar dari `{API host}/storage/**` otomatis diizinkan di `next.config.ts` (`images.remotePatterns` diturunkan dari `NEXT_PUBLIC_API_URL`). Tambahkan host CDN jika gambar dipindah.
 - **Rate limit (60 req/menit).** Build melakukan prerender (12 produk terlaris + blog), dan limit API bisa tersentuh. `serverApi()` sudah mencoba ulang 429 memakai header `Retry-After`. Untuk build di CI, naikkan limit untuk IP server web, atau reset limiter (`redis-cli FLUSHALL` di dev).
-- **Pembayaran lokal.** Tanpa Midtrans, jalankan API dengan `PAYMENT_GATEWAY=fake` dan `QUEUE_CONNECTION=sync`.
+- **Pembayaran.** Default `PAYMENT_GATEWAY=manual` (QRIS statis + konfirmasi admin) dan `KAMEE_PAYMENT_METHODS=qris,cash` di kamee-api; samakan `NEXT_PUBLIC_PAYMENT_METHODS` di kamee-web. E-wallet/VA hanya bila memakai `PAYMENT_GATEWAY=midtrans`.
 - **On-demand ISR.** Halaman publik memakai ISR (5 menit). Admin/Laravel dapat memanggil revalidate saat produk/promo/blog berubah:
   ```bash
   curl -X POST https://kamee.id/api/revalidate \
     -H "x-revalidate-secret: $REVALIDATE_SECRET" -H "Content-Type: application/json" \
-    -d '{"tags":["products","product:kopi-susu-aren"],"paths":["/menu"]}'
+    -d '{"tags":["products","product:aren-kame"],"paths":["/menu"]}'
   ```
   Tag yang dipakai: `products`, `product:{slug}`, `categories`, `outlets`, `promotions`, `banners`, `blogs`, `blog:{slug}`, `testimonials`.
 
@@ -117,7 +128,16 @@ Panel untuk pemilik & staf outlet di `/admin`, memakai endpoint `/api/v1/admin` 
 
 **Akun.** Seeder kamee-api dan mock memakai akun yang sama (sandi `password`):
 - `superadmin@kamee.id` (Super Admin)
-- `admin.cikokol@kamee.id` (Admin Outlet)
+- `admin.cibodas@kamee.id` (Admin Outlet Taman Cibodas)
+
+### Alur QRIS statis
+
+1. Pelanggan checkout memilih **QRIS** → halaman bayar menampilkan gambar QRIS toko, **nominal persis** (bisa disalin), kode pesanan, dan tombol **Simpan QR**.
+2. Pelanggan memindai QR dengan GoPay/OVO/DANA/ShopeePay/m-banking, memasukkan nominal, lalu menekan **Kirim bukti bayar via WhatsApp** (pesan otomatis berisi kode & nominal ke 0812-8087-1630).
+3. Admin mengecek dana di aplikasi **GoPay Merchant**, lalu di Kanban/detail pesanan menekan **Konfirmasi pembayaran** (kartu berlabel *Cek QRIS*). Endpoint: `POST /api/v1/admin/orders/{id}/confirm-payment`.
+4. Pesanan berubah *Sudah dibayar*; halaman bayar pelanggan otomatis berpindah ke pelacakan. Belum dikonfirmasi dalam 60 menit → batal otomatis.
+
+Refund pesanan QRIS dilakukan manual di luar sistem (transfer/GoPay), lalu tombol Refund hanya membatalkan pesanan.
 
 ### Keamanan & role
 
@@ -238,7 +258,7 @@ Hasil Lighthouse mobile (default throttling), build produksi terhadap `kamee-api
 |---|---|---|---|---|---|---|---|---|
 | `/` | 85 | 77–84 | 3,4 s | 320 ms | 0 | 100 | 100 | 100 |
 | `/menu` | 87 | 79–89 | 3,6 s | 210 ms | 0 | 100 | 100 | 100 |
-| `/menu/kopi-susu-aren` | 77 (74–92) | 73–83 | 4,2 s | 380 ms | 0 | 100 | 100 | 100 |
+| `/menu/kopi-susu-aren` (menu lama) | 77 (74–92) | 73–83 | 4,2 s | 380 ms | 0 | 100 | 100 | 100 |
 | `/promo` | 92 | 95 | 3,2 s | 130 ms | 0 | 100 | 100 | 100 |
 | `/blog` | 88 | 80–91 | 3,5 s | 180 ms | 0 | 100 | 100 | 100 |
 | `/kontak` | 89 | 89 | 3,0 s | 300 ms | 0 | 100 | 100 | 100 |

@@ -11,9 +11,9 @@ import type { Product } from "@/types/api";
 
 const TABS = [
   { id: "best", label: "Terlaris", params: { "filter[best_seller]": 1, per_page: 8, sort: "-sold_count" } },
-  { id: "featured", label: "Rekomendasi", params: { "filter[featured]": 1, per_page: 8, sort: "-rating" } },
-  { id: "signature", label: "Signature", params: { "filter[category]": "signature-drink", per_page: 8 } },
-  { id: "snack", label: "Camilan", params: { "filter[category]": "snack,dessert", per_page: 8 } },
+  { id: "featured", label: "Rekomendasi", params: { "filter[featured]": 1, per_page: 8 } },
+  { id: "manual", label: "Manual Brew", params: { "filter[category]": "manual-brew", per_page: 8 } },
+  { id: "noncoffee", label: "Non Coffee", params: { "filter[category]": "non-coffee", per_page: 8 } },
 ] as const;
 
 /** Produk unggulan bertab; tab pertama di-render dari server (SEO & LCP). */

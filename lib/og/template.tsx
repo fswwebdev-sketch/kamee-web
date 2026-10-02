@@ -21,7 +21,7 @@ async function fonts() {
 }
 
 /** Ilustrasi cangkir latte (SVG) untuk OG image. */
-export function CupArt({ size = 360, drink = "#96663F" }: { size?: number; drink?: string }) {
+export function CupArt({ size = 360, drink = "#2A5BB8" }: { size?: number; drink?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200">
       <circle cx="100" cy="100" r="96" fill="#FFFFFF" />
@@ -46,12 +46,12 @@ export async function renderOg(children: ReactNode, background?: string) {
   }
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#3E2723", fontFamily: "Inter" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#0B1B3F", fontFamily: "Inter" }}>
         {bg && (
           // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
           <img src={bg} width={1200} height={630} style={{ position: "absolute", inset: 0, objectFit: "cover" }} />
         )}
-        <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(62,39,35,.95) 0%, rgba(62,39,35,.75) 55%, rgba(62,39,35,.1) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(4,25,70,.95) 0%, rgba(4,25,70,.75) 55%, rgba(4,25,70,.1) 100%)" }} />
         <div style={{ position: "relative", display: "flex", width: "100%", height: "100%", padding: 64 }}>{children}</div>
       </div>
     ),
@@ -62,11 +62,11 @@ export async function renderOg(children: ReactNode, background?: string) {
 export function Brand() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-      <div style={{ width: 52, height: 52, borderRadius: 16, background: "#6F4E37", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 30, height: 30, borderRadius: 999, background: "#F5E6CA", display: "flex" }} />
+      <div style={{ width: 52, height: 52, borderRadius: 16, background: "#04338B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 30, height: 30, borderRadius: 999, background: "#E3EAF7", display: "flex" }} />
       </div>
       <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 30, color: "#FFFFFF", display: "flex" }}>
-        Kamee<span style={{ color: "#F5E6CA", marginLeft: 8 }}>Coffee</span>
+        Kamee<span style={{ color: "#E3EAF7", marginLeft: 8 }}>Coffee</span>
       </div>
     </div>
   );

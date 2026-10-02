@@ -85,11 +85,11 @@ export function VariantPicker({
         </fieldset>
       ))}
 
-      <Textarea label="Catatan untuk barista" placeholder="Contoh: less ice, pisahkan saus" maxLength={200} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
+      <Textarea label="Catatan untuk barista" placeholder="Contoh: less ice, less sugar" maxLength={200} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
 
       <div className="flex items-center gap-3">
         <QuantityStepper value={qty} onChange={(v) => setQty(Math.max(1, v))} label={product.name} />
-        <Button size="lg" className="flex-1" onClick={submit} aria-describedby={`total-${product.id}`}>
+        <Button size="lg" className="min-w-0 flex-1 px-4" onClick={submit} aria-describedby={`total-${product.id}`}>
           <ShoppingBag className="size-5" aria-hidden="true" />
           Tambah · <span id={`total-${product.id}`}>{formatRupiah(price * qty)}</span>
         </Button>

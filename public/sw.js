@@ -11,7 +11,7 @@
  *
  * URL API dikirim saat registrasi: /sw.js?api=<origin+path API>.
  */
-const VERSION = "kamee-v1";
+const VERSION = "kamee-v2"; // naikkan saat aset/brand berubah agar cache lama dibuang
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const IMAGES = `${VERSION}-images`;

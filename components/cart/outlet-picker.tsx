@@ -18,6 +18,17 @@ export function OutletPicker({ id = "outlet" }: { id?: string }) {
   }, [hydrated, outlets, outletId, setOutlet]);
 
   const selected = outlets.find((o) => o.id === outletId);
+  // Satu outlet: tampilkan sebagai info (tanpa dropdown).
+  if (outlets.length === 1 && selected) {
+    return (
+      <div className="flex flex-col gap-1.5" id={id}>
+        <p className="flex items-center gap-2 text-sm font-medium text-ink"><Store className="size-4 text-primary" aria-hidden="true" /> {selected.name}</p>
+        <p className="text-caption text-muted">
+          {selected.is_open_now ? "Buka" : "Tutup"} · {formatHour(selected.open_time)}–{formatHour(selected.close_time)} WIB · antar s.d. {selected.delivery_radius_km} km
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="flex items-center gap-2 text-sm font-medium text-ink"><Store className="size-4 text-primary" aria-hidden="true" /> Outlet</label>

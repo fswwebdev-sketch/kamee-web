@@ -5,7 +5,7 @@ import { env } from "./env";
 export const site = {
   name: "Kamee Coffee",
   tagline: "Nikmati Secangkir Kebahagiaan",
-  description: "Kopi berkualitas, suasana nyaman, dan camilan lezat di Tangerang. Pesan online untuk ambil di outlet, makan di tempat, atau diantar.",
+  description: "Kedai kopi di Perumahan Taman Cibodas, Tangerang — based coffee, manual brew & non coffee. Pesan online, bayar QRIS, ambil di outlet, makan di tempat, atau diantar.",
   locale: "id_ID",
   twitter: "@kameecoffee",
 };
@@ -66,8 +66,8 @@ export function cafeJsonLd(outlets: Outlet[]) {
     image: absoluteUrl("/hero/latte-og.jpg"),
     logo: absoluteUrl("/icons/icon-512.png"),
     telephone: `+${o.phone_wa}`,
-    priceRange: "Rp18.000–Rp35.000",
-    servesCuisine: ["Kopi", "Minuman", "Camilan"],
+    priceRange: "Rp15.000–Rp120.000",
+    servesCuisine: ["Kopi", "Minuman"],
     acceptsReservations: false,
     menu: absoluteUrl("/menu"),
     address: {

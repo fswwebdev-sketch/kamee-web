@@ -3,23 +3,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Copy, ExternalLink, RefreshCw, Smartphone, TimerOff } from "lucide-react";
+import { CheckCircle2, Copy, ExternalLink, MessageCircle, RefreshCw, Smartphone, TimerOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/misc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
-import { isApiError } from "@/lib/api";
+import { api, isApiError } from "@/lib/api";
 import { env } from "@/lib/env";
 import { formatCountdown, formatRupiah } from "@/lib/format";
 import { useCountdown } from "@/lib/hooks";
+import { enabledPaymentMethods, QRIS_IMAGE_PATH, QRIS_MERCHANT, QRIS_NMID } from "@/lib/payments";
+import { waLink } from "@/lib/whatsapp";
 import { usePaymentStatus, usePayOrder } from "@/lib/queries/orders";
 import type { PaymentMethod } from "@/types/api";
 import { PaymentMethodPicker } from "./payment-method-picker";
 import { QrisDisplay } from "./qris-display";
+import { StaticQris } from "./static-qris";
 
 /**
- * Halaman bayar: QRIS (countdown 15:00 + polling 3 detik), e-wallet (deeplink), VA.
+ * Halaman bayar. QRIS statis toko (provider "manual"): pelanggan memindai QR GoPay Merchant,
+ * memasukkan nominal persis, lalu admin mengonfirmasi di dashboard. Status dipoll tiap 3 detik
+ * selama batas bayar (60 menit). Gateway (Midtrans) tetap didukung: QR dinamis, e-wallet, VA.
  * Saat lunas otomatis diarahkan ke halaman lacak pesanan.
  */
 /** Nama e-wallet dari URL deeplink (gopay://, shopeeid://, atau URL simulator Midtrans). */
@@ -37,7 +42,8 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
   const started = useRef(Date.now());
   const { data, isLoading, isError, refetch, isFetching } = usePaymentStatus(code, started.current);
   const pay = usePayOrder();
-  const [method, setMethod] = useState<PaymentMethod>("qris");
+  const [method, setMethod] = useState<PaymentMethod>(enabledPaymentMethods[0] ?? "qris");
+  const [simulating, setSimulating] = useState(false);
   const [channel, setChannel] = useState<string | undefined>();
 
   const payment = data?.payment?.status === "pending" ? data.payment : null;
@@ -63,7 +69,7 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
     return (
       <div className="flex flex-col items-center gap-4 rounded-3xl border border-line bg-surface p-8 text-center" role="status">
         <CheckCircle2 className="size-16 text-success" aria-hidden="true" />
-        <h1 className="text-h2">Pembayaran berhasil!</h1>
+        <h1 className="text-h2">Pembayaran diterima!</h1>
         <p className="text-muted">Pesanan <b className="text-ink">{code}</b> sedang disiapkan barista. Mengarahkan ke halaman lacak pesanan…</p>
         <Link href={trackUrl} className={buttonClasses()}>Lacak Pesanan</Link>
       </div>
@@ -75,7 +81,7 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
       <div className="flex flex-col items-center gap-4 rounded-3xl border border-line bg-surface p-8 text-center" role="alert">
         <TimerOff className="size-14 text-danger" aria-hidden="true" />
         <h1 className="text-h2">Waktu pembayaran habis</h1>
-        <p className="text-muted">Pesanan {code} dibatalkan otomatis karena belum dibayar dalam 15 menit.</p>
+        <p className="text-muted">Pesanan {code} dibatalkan otomatis karena pembayaran belum dikonfirmasi sampai batas waktu. Jika Anda sudah membayar, hubungi kami via WhatsApp dengan bukti bayar.</p>
         <Link href="/menu" className={buttonClasses()}>Pesan Ulang</Link>
       </div>
     );
@@ -92,6 +98,17 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
         onError: (e) => toast.error(isApiError(e) ? e.message : "Gagal membuat pembayaran."),
       },
     );
+
+  /** Mode demo (MSW): menyimulasikan admin menekan "Konfirmasi pembayaran". */
+  const simulateConfirm = async () => {
+    setSimulating(true);
+    try {
+      await api(`/__mock/orders/${code}/confirm-payment`, { method: "POST" });
+      await refetch();
+    } finally {
+      setSimulating(false);
+    }
+  };
 
   const copy = async (text: string, label: string) => {
     await navigator.clipboard?.writeText(text).catch(() => undefined);
@@ -120,6 +137,42 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
       ) : (
         <section className="flex flex-col items-center gap-5 rounded-3xl border border-line bg-surface p-5 text-center md:p-8" aria-label={`Pembayaran ${payment.method_label}`}>
           <Badge tone="warning">{payment.status_label} · {payment.method_label}{payment.bank ? ` ${payment.bank.toUpperCase()}` : ""}</Badge>
+
+          {payment.method === "qris" && payment.provider === "manual" && (
+            <>
+              <StaticQris
+                src={payment.qris_image_url || QRIS_IMAGE_PATH}
+                merchant={payment.merchant_name || QRIS_MERCHANT}
+                nmid={payment.nmid || QRIS_NMID}
+                fileName={`QRIS-KameeCoffee-${code}`}
+              />
+              <div className="w-full max-w-sm rounded-2xl bg-cream/60 p-4">
+                <p className="text-sm text-muted">Nominal yang harus dibayar</p>
+                <p className="font-heading text-2xl font-bold text-ink" data-testid="qris-amount">{formatRupiah(payment.amount)}</p>
+                <Button variant="outline" size="sm" className="mt-2" onClick={() => copy(String(payment.amount), "Nominal")}><Copy className="size-4" aria-hidden="true" /> Salin nominal</Button>
+              </div>
+              <ol className="max-w-sm list-decimal pl-5 text-left text-sm text-muted">
+                <li>Buka GoPay, OVO, DANA, ShopeePay, atau m-banking yang mendukung QRIS.</li>
+                <li>
+                  <span className="md:hidden">Bayar dari HP ini? Ketuk <b className="text-ink">Simpan QR</b>, lalu di aplikasi pilih Scan → ikon galeri.</span>
+                  <span className="hidden md:inline">Scan kode QR di atas (atau simpan lalu unggah dari galeri).</span>
+                </li>
+                <li>Masukkan nominal <b className="text-ink">persis {formatRupiah(payment.amount)}</b>. Bila ada kolom catatan, tulis kode <b className="text-ink">{code}</b>.</li>
+                <li>Kirim bukti bayar via WhatsApp agar admin segera mengonfirmasi.</li>
+              </ol>
+              <a
+                href={waLink(`Halo Kamee Coffee, saya sudah membayar QRIS untuk pesanan *${code}* sebesar *${formatRupiah(payment.amount)}*. Berikut bukti pembayarannya.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClasses("whatsapp", "lg", "w-full max-w-sm")}
+              >
+                <MessageCircle className="size-5" aria-hidden="true" /> Kirim bukti bayar via WhatsApp
+              </a>
+              <p className="max-w-sm text-caption text-muted" role="note">
+                Pesanan diproses setelah admin mengonfirmasi pembayaran (jam buka 10.00–17.00 WIB). Halaman ini berubah otomatis begitu dikonfirmasi.
+              </p>
+            </>
+          )}
 
           {payment.method === "qris" && payment.qr_string && (
             <>
@@ -159,10 +212,16 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
 
           <div className="flex w-full max-w-sm flex-col gap-2">
             <Button variant="secondary" size="lg" onClick={() => refetch()} loading={isFetching}>
-              {!isFetching && <RefreshCw className="size-4" aria-hidden="true" />} Saya sudah bayar
+              {!isFetching && <RefreshCw className="size-4" aria-hidden="true" />} Cek status pembayaran
             </Button>
-            <p className="text-caption text-muted" aria-live="polite">Status diperbarui otomatis setiap 3 detik.</p>
-            {env.mocking && <p className="text-caption text-muted">Mode demo: pembayaran dianggap lunas ±6 detik setelah transaksi dibuat.</p>}
+            <p className="text-caption text-muted" aria-live="polite">
+              {payment.requires_manual_confirmation ? "Menunggu konfirmasi admin — status diperbarui otomatis." : "Status diperbarui otomatis setiap 3 detik."}
+            </p>
+            {env.mocking && payment.method !== "cash" && (
+              <Button variant="ghost" size="sm" loading={simulating} onClick={simulateConfirm} data-testid="mock-confirm">
+                Mode demo: simulasikan konfirmasi admin
+              </Button>
+            )}
           </div>
         </section>
       )}

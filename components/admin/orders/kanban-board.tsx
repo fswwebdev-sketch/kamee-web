@@ -26,14 +26,14 @@ import { ORDER_STATUS_LABEL } from "@/lib/admin/types";
 import { formatRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "./order-columns";
-import { orderTransitions, useOrderTransition } from "./order-actions";
+import { needsPaymentConfirmation, orderTransitions, useConfirmPaymentAction, useOrderTransition } from "./order-actions";
 
 const FULFILLMENT_ICON = { pickup: Package, delivery: Bike, dine_in: Utensils } as const;
 
 const COLUMN_STYLE: Record<KanbanColumnId, string> = {
   pending: "before:bg-warning",
   processing: "before:bg-primary",
-  shipped: "before:bg-[#5B7DB1]",
+  shipped: "before:bg-[#7C5CC4]",
   completed: "before:bg-success",
   cancelled: "before:bg-danger",
 };
@@ -70,7 +70,7 @@ function CardBody({ order, dragging }: { order: AdminOrder; dragging?: boolean }
         {fresh && <Badge tone="primary">Baru</Badge>}
         {order.status === "paid" && <Badge tone="success">Lunas</Badge>}
         {order.status === "pending" && order.payment?.method === "cash" && <Badge tone="warning">Bayar di kasir</Badge>}
-        {order.status === "pending" && order.payment?.method !== "cash" && <Badge>Menunggu bayar</Badge>}
+        {order.status === "pending" && order.payment?.method !== "cash" && <Badge tone="warning">Cek QRIS</Badge>}
         <span className="inline-flex items-center gap-1 text-caption text-muted"><Icon className="size-3.5" aria-hidden="true" />{order.fulfillment_label}</span>
         <span className={cn("ml-auto inline-flex items-center gap-1 text-caption", late ? "font-semibold text-danger" : "text-muted")}>
           <Clock className="size-3.5" aria-hidden="true" />
@@ -85,6 +85,7 @@ function CardBody({ order, dragging }: { order: AdminOrder; dragging?: boolean }
 function OrderCard({ order, onOpen, onAdvance, busy }: { order: AdminOrder; onOpen: (o: AdminOrder) => void; onAdvance: (o: AdminOrder, to: OrderStatus) => void; busy: boolean }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: order.id, data: { order } });
   const next = orderTransitions(order).filter((s) => s !== "cancelled");
+  const confirmPay = useConfirmPaymentAction();
   return (
     <li ref={setNodeRef} className={cn("group relative", isDragging && "opacity-40")}>
       <button type="button" onClick={() => onOpen(order)} className="block w-full rounded-xl text-left" aria-label={`Buka detail pesanan ${order.code}, ${order.customer_name}, ${formatRupiah(order.total)}`}>
@@ -100,6 +101,16 @@ function OrderCard({ order, onOpen, onAdvance, busy }: { order: AdminOrder; onOp
       >
         <GripVertical className="size-4" aria-hidden="true" />
       </button>
+      {needsPaymentConfirmation(order) && (
+        <button
+          type="button"
+          disabled={confirmPay.pending}
+          onClick={() => confirmPay.run(order)}
+          className="mt-1.5 h-9 w-full rounded-lg bg-primary px-2 text-xs font-semibold text-on-primary transition hover:bg-primary-hover disabled:opacity-50"
+        >
+          Konfirmasi pembayaran
+        </button>
+      )}
       {next[0] && (
         <button
           type="button"

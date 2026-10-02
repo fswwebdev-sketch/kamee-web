@@ -34,6 +34,7 @@ import type { OrderPayload } from "@/types/api";
 import { AddressMap } from "./address-map";
 import { FulfillmentPicker } from "./fulfillment-picker";
 import { PaymentMethodPicker } from "./payment-method-picker";
+import { enabledPaymentMethods } from "@/lib/payments";
 
 const FIELD_MAP: Record<string, keyof CheckoutValues> = {
   "customer.name": "name",
@@ -86,7 +87,7 @@ export function CheckoutForm() {
       phone: customer?.phone_wa ? `0${customer.phone_wa.slice(2)}` : "",
       fulfillment: "pickup",
       schedule: "now",
-      paymentMethod: "qris",
+      paymentMethod: enabledPaymentMethods[0] ?? "qris",
       lat: null,
       lng: null,
     },
@@ -362,7 +363,7 @@ export function CheckoutForm() {
             onChannel={(c) => setValue("paymentChannel", c, { shouldValidate: true })}
             channelError={errors.paymentChannel?.message}
           />
-          <Textarea className="mt-4" label="Catatan pesanan (opsional)" rows={2} maxLength={500} placeholder="Contoh: tolong sedotan kertas" error={errors.note?.message} {...register("note")} />
+          <Textarea className="mt-4" label="Catatan pesanan (opsional)" rows={2} maxLength={500} placeholder="Contoh: es dipisah" error={errors.note?.message} {...register("note")} />
         </Section>
         <div className="flex flex-col gap-3 lg:hidden">
           {quoteError && isApiError(quoteError) && !quoteError.field("promo_code") && !quoteError.field("redeem_points") && (
@@ -371,7 +372,7 @@ export function CheckoutForm() {
           <Button type="button" variant="whatsapp" size="lg" className="w-full" onClick={onWhatsApp} loading={waOrder.isPending}>
             <WhatsAppIcon className="size-5" /> Pesan via WhatsApp
           </Button>
-          <p className="text-center text-caption text-muted">Total final dihitung ulang oleh sistem Kamee. Pesanan non-tunai otomatis batal bila tidak dibayar dalam 15 menit.</p>
+          <p className="text-center text-caption text-muted">Total final dihitung ulang oleh sistem Kamee. Pembayaran QRIS dikonfirmasi admin; pesanan batal otomatis bila belum dibayar dalam 60 menit.</p>
         </div>
       </div>
 
@@ -422,7 +423,7 @@ export function CheckoutForm() {
           <Button type="button" variant="whatsapp" size="lg" className="w-full" onClick={onWhatsApp} loading={waOrder.isPending}>
             <WhatsAppIcon className="size-5" /> Pesan via WhatsApp
           </Button>
-          <p className="text-center text-caption text-muted">Total final dihitung ulang oleh sistem Kamee. Pesanan non-tunai otomatis batal bila tidak dibayar dalam 15 menit.</p>
+          <p className="text-center text-caption text-muted">Total final dihitung ulang oleh sistem Kamee. Pembayaran QRIS dikonfirmasi admin; pesanan batal otomatis bila belum dibayar dalam 60 menit.</p>
         </CartSummary>
       </div>
     </form>

@@ -1,7 +1,7 @@
 """
 Ilustrasi placeholder Kamee Coffee (hero, produk, banner, blog, ikon).
 
-Ganti dengan foto asli di path yang sama: rasio 1:1 untuk produk, latar cream polos,
+Ganti dengan foto asli di path yang sama: rasio 1:1 untuk produk, latar polos terang,
 AVIF/WebP, maks 1200 px (lihat bagian 6 spesifikasi).
 
     python3 scripts/generate-placeholder-images.py
@@ -15,10 +15,10 @@ from PIL import Image, ImageDraw, ImageFilter
 ROOT = Path(__file__).resolve().parent.parent / "public"
 S = 2  # supersampling untuk anti-aliasing
 
-CREAM = (245, 230, 202)
-CREAM_LIGHT = (251, 244, 232)
-INK = (62, 39, 35)
-PRIMARY = (111, 78, 55)
+CREAM = (227, 234, 247)
+CREAM_LIGHT = (244, 246, 251)
+INK = (11, 27, 63)
+PRIMARY = (4, 51, 139)
 
 
 def hexc(h):
@@ -66,12 +66,12 @@ def shadow(base, box, blur, opacity=90, offset=(0, 18)):
     layer = Image.new("RGBA", base.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     x0, y0, x1, y1 = box
-    d.ellipse((x0 + offset[0], y0 + offset[1], x1 + offset[0], y1 + offset[1]), fill=(40, 22, 15, opacity))
+    d.ellipse((x0 + offset[0], y0 + offset[1], x1 + offset[0], y1 + offset[1]), fill=(4, 25, 70, opacity))
     layer = layer.filter(ImageFilter.GaussianBlur(blur))
     base.alpha_composite(layer)
 
 
-def bean(d, cx, cy, r, angle, color=(74, 44, 28)):
+def bean(d, cx, cy, r, angle, color=(169, 189, 226)):
     pts = []
     for i in range(40):
         a = 2 * math.pi * i / 40
@@ -101,16 +101,16 @@ def cup_topdown(img, cx, cy, r, drink, style, seed=0):
     d = ImageDraw.Draw(img)
     # piring
     d.ellipse((cx - r * 1.45, cy - r * 1.45, cx + r * 1.45, cy + r * 1.45), fill=(255, 255, 255))
-    d.ellipse((cx - r * 1.3, cy - r * 1.3, cx + r * 1.3, cy + r * 1.3), fill=(246, 241, 234))
+    d.ellipse((cx - r * 1.3, cy - r * 1.3, cx + r * 1.3, cy + r * 1.3), fill=(238, 242, 250))
     # gagang
     d.rounded_rectangle((cx + r * .95, cy - r * .16, cx + r * 1.5, cy + r * .16), radius=r * .16, fill=(250, 250, 248))
     # cangkir
     d.ellipse((cx - r * 1.05, cy - r * 1.05, cx + r * 1.05, cy + r * 1.05), fill=(255, 255, 255))
     d.ellipse((cx - r * .9, cy - r * .9, cx + r * .9, cy + r * .9), fill=drink)
     if style == "latte":
-        rim = mix(drink, (40, 20, 10), .25)
+        rim = mix(drink, (2, 14, 44), .25)
         d.ellipse((cx - r * .9, cy - r * .9, cx + r * .9, cy + r * .9), outline=rim, width=int(r * .08))
-        latte_art(d, cx, cy, r * .9, foam=(250, 240, 222), crema=drink)
+        latte_art(d, cx, cy, r * .9, foam=(255, 255, 255), crema=drink)
     elif style == "iced":
         for _ in range(6):
             a = rnd.uniform(0, 2 * math.pi)
@@ -131,7 +131,7 @@ def cup_topdown(img, cx, cy, r, drink, style, seed=0):
             a = rnd.uniform(0, 2 * math.pi)
             x, y = cx + math.cos(a) * r * .35, cy + math.sin(a) * r * .35
             s = r * .22
-            d.ellipse((x - s, y - s, x + s, y + s), fill=mix(drink, (255, 235, 120), .45), outline=(255, 255, 255), width=3)
+            d.ellipse((x - s, y - s, x + s, y + s), fill=mix(drink, (255, 255, 255), .45), outline=(255, 255, 255), width=3)
 
 
 def plate(img, cx, cy, r, food, kind, seed=0):
@@ -187,44 +187,33 @@ def plate(img, cx, cy, r, food, kind, seed=0):
 
 # nama → (warna, gaya, kategori minuman/makanan)
 PRODUCTS = {
-    "americano": ("#3B2418", "tea", "drink"),
-    "cafe-latte": ("#B98A62", "latte", "drink"),
-    "cappuccino": ("#A57A55", "latte", "drink"),
-    "es-kopi-susu-kamee": ("#A87B55", "iced", "drink"),
-    "kopi-susu-aren": ("#8C5E3C", "iced", "drink"),
-    "caramel-macchiato": ("#C6925C", "latte", "drink"),
-    "vietnamese-drip": ("#4A2C1C", "iced", "drink"),
-    "chocolate": ("#5C3A2A", "foam", "drink"),
-    "matcha-latte": ("#7FA35A", "latte", "drink"),
-    "red-velvet-latte": ("#B5485A", "latte", "drink"),
-    "taro-latte": ("#9C7FB8", "iced", "drink"),
-    "strawberry-milk": ("#E79AAE", "iced", "drink"),
-    "kamee-butterscotch": ("#C8924E", "foam", "drink"),
-    "pandan-latte": ("#86A965", "iced", "drink"),
-    "klepon-latte": ("#6E9A57", "foam", "drink"),
-    "salted-caramel-cold-brew": ("#6B4226", "foam", "drink"),
-    "kopi-rempah": ("#6E3F24", "latte", "drink"),
-    "lychee-tea": ("#E3B77A", "tea", "drink"),
-    "lemon-tea": ("#D9A441", "tea", "drink"),
-    "thai-tea": ("#D98A45", "iced", "drink"),
-    "peach-oolong": ("#E8A77C", "tea", "drink"),
-    "croissant-butter": ("#D9A45A", "croissant", "food"),
-    "pisang-goreng-keju": ("#E0B155", "sticks", "food"),
-    "kentang-goreng": ("#E8C15E", "sticks", "food"),
-    "roti-bakar-cokelat": ("#C98F55", "squares", "food"),
-    "cireng-rujak": ("#EAD9B8", "balls", "food"),
-    "tiramisu-cup": ("#B89272", "bowl", "food"),
-    "fudgy-brownies": ("#4B2E22", "squares", "food"),
-    "cheesecake": ("#F2DDB0", "slice", "food"),
-    "affogato": ("#F4EBDD", "latte", "drink"),
+    "americano": ("#04338B", "tea", "drink"),
+    "kame-orangecano": ("#0B3FA3", "tea", "drink"),
+    "kame-manucano": ("#1E4A9E", "iced", "drink"),
+    "caramel-latte-kame": ("#2A5BB8", "latte", "drink"),
+    "aren-kame": ("#3A6CC8", "iced", "drink"),
+    "pandan-latte-kame": ("#16264A", "iced", "drink"),
+    "spanish-latte-kame": ("#03286D", "iced", "drink"),
+    "butterscotch-sea-salt-latte": ("#4A78C9", "foam", "drink"),
+    "mont-blanc": ("#04338B", "foam", "drink"),
+    "local-beans": ("#0B3FA3", "tea", "drink"),
+    "cold-brew": ("#1E4A9E", "iced", "drink"),
+    "iced-matcha-latte": ("#2A5BB8", "iced", "drink"),
+    "iced-strawberry-matcha-latte": ("#3A6CC8", "iced", "drink"),
+    "iced-matcha-sea-salt-cloud": ("#16264A", "foam", "drink"),
+    "regular-chocolate": ("#03286D", "latte", "drink"),
+    "premium-dark-chocolate": ("#4A78C9", "latte", "drink"),
+    "iced-chocolate-sea-salt-cloud": ("#04338B", "foam", "drink"),
+    "iced-strawberry-choco": ("#0B3FA3", "iced", "drink"),
+    "iced-strawberry-choco-sea-salt-cloud": ("#1E4A9E", "foam", "drink"),
 }
 
-BG_TINTS = [CREAM, (243, 226, 200), (247, 234, 212)]
+BG_TINTS = [(239, 240, 245), CREAM, (232, 237, 247)]  # #EFF0F5 = latar menu Kame
 
 
 def product_image(slug, color, style, kind, variant, size=800):
     W = size * S
-    bg = radial((W, W), CREAM_LIGHT if variant != 2 else (240, 222, 196), BG_TINTS[variant % 3]).convert("RGBA")
+    bg = radial((W, W), CREAM_LIGHT if variant != 2 else (236, 240, 248), BG_TINTS[variant % 3]).convert("RGBA")
     noise(bg, 3, seed=hash(slug) % 1000 + variant)
     rnd = random.Random(hash(slug) + variant)
     zoom = [1.0, 1.35, .82][variant]
@@ -243,16 +232,16 @@ def product_image(slug, color, style, kind, variant, size=800):
 
 def hero(size=(1920, 1280)):
     W, H = size[0] * S, size[1] * S
-    img = radial((W, H), (122, 84, 58), (38, 24, 18), center=(W * .68, H * .5), radius=W * .75).convert("RGBA")
+    img = radial((W, H), (32, 84, 176), (3, 22, 64), center=(W * .68, H * .5), radius=W * .75).convert("RGBA")
     noise(img, 7, seed=7)
     d = ImageDraw.Draw(img)
     rnd = random.Random(3)
     # papan kayu
     for i in range(0, H, int(H / 7)):
-        d.line([(0, i), (W, i + rnd.randint(-20, 20))], fill=(30, 18, 12, 90), width=6)
+        d.line([(0, i), (W, i + rnd.randint(-20, 20))], fill=(2, 14, 44, 90), width=6)
     for _ in range(26):
         bean(d, rnd.uniform(.45, 1) * W, rnd.uniform(0, 1) * H, W * .012, rnd.uniform(0, math.pi))
-    cup_topdown(img, W * .7, H * .52, H * .27, (150, 102, 66), "latte", seed=11)
+    cup_topdown(img, W * .7, H * .52, H * .27, (42, 91, 184), "latte", seed=11)
     img = img.convert("RGB").resize(size, Image.LANCZOS)
     return img
 
@@ -266,19 +255,8 @@ def banner(seed, base, size=(1600, 900)):
     for _ in range(14):
         bean(d, rnd.uniform(.4, 1) * W, rnd.uniform(0, 1) * H, W * .012, rnd.uniform(0, math.pi))
     styles = ["latte", "iced", "foam"]
-    cup_topdown(img, W * .74, H * .5, H * .26, hexc(["#A87B55", "#6E9A57", "#C8924E", "#8C5E3C"][seed % 4]), styles[seed % 3], seed=seed)
+    cup_topdown(img, W * .74, H * .5, H * .26, hexc(["#2A5BB8", "#1E4A9E", "#3A6CC8", "#0B3FA3"][seed % 4]), styles[seed % 3], seed=seed)
     return img.convert("RGB").resize(size, Image.LANCZOS)
-
-
-def logo(size):
-    W = size * S
-    img = Image.new("RGBA", (W, W), PRIMARY + (255,))
-    d = ImageDraw.Draw(img)
-    c = W / 2
-    d.ellipse((c - W * .3, c - W * .3, c + W * .3, c + W * .3), fill=CREAM)
-    d.ellipse((c - W * .22, c - W * .22, c + W * .22, c + W * .22), fill=(150, 102, 66))
-    latte_art(d, c, c, W * .22, foam=CREAM, crema=(150, 102, 66))
-    return img.resize((size, size), Image.LANCZOS)
 
 
 def save(img, path, quality=62):
@@ -293,19 +271,14 @@ def main():
         for v in range(3):
             name = f"{slug}.avif" if v == 0 else f"{slug}-{v + 1}.avif"
             save(product_image(slug, color, style, kind, v), ROOT / "images/products" / name)
-    for i, base in enumerate(["#6F4E37", "#3E2723", "#8C5E3C", "#5A3E2B", "#7A5236", "#4B3226"]):
+    for i, base in enumerate(["#04338B", "#0B1B3F", "#2A5BB8", "#03286D", "#1E4A9E", "#16264A"]):
         save(banner(i, base), ROOT / f"images/banners/banner-{i + 1}.avif", quality=58)
         save(banner(i + 10, base, (1200, 630)), ROOT / f"images/blog/blog-{i + 1}.avif", quality=58)
-    for i in range(2):
-        save(banner(20 + i, ["#5A3E2B", "#3E2723"][i], (1200, 800)), ROOT / f"images/outlets/outlet-{i + 1}.avif", quality=58)
-    save(banner(30, "#6F4E37", (1200, 900)), ROOT / "images/about/barista.avif", quality=58)
-    for s in (192, 512):
-        logo(s).save(ROOT / f"icons/icon-{s}.png")
-    logo(180).save(ROOT / "icons/apple-touch-icon.png")
-    logo(512).save(ROOT / "icons/maskable-512.png")
+    save(banner(20, "#03286D", (1200, 800)), ROOT / "images/outlets/outlet-1.avif", quality=58)
+    save(banner(30, "#04338B", (1200, 900)), ROOT / "images/about/barista.avif", quality=58)
+    # Ikon aplikasi dibuat oleh scripts/generate-pwa-assets.py
 
 
 if __name__ == "__main__":
-    (ROOT / "icons").mkdir(parents=True, exist_ok=True)
     main()
     print("selesai")

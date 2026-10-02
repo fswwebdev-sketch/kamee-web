@@ -18,7 +18,7 @@ export function OutletMap({ outlets, headingLevel = "h2" }: { outlets: Outlet[];
     <section className="section-y" aria-labelledby="lokasi-title">
       <div className="container-page">
         <p className="text-caption font-semibold tracking-[.14em] text-primary uppercase">Lokasi</p>
-        <Heading id="lokasi-title" className={cn("mt-2", headingLevel === "h1" ? "text-h1" : "text-h2")}>Mampir ke outlet terdekat</Heading>
+        <Heading id="lokasi-title" className={cn("mt-2", headingLevel === "h1" ? "text-h1" : "text-h2")}>Mampir ke Kamee Coffee</Heading>
         <div className="mt-8 grid gap-6 lg:grid-cols-[380px_1fr]">
           <ul className="flex flex-col gap-3" aria-label="Daftar outlet">
             {outlets.map((o) => {

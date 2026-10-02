@@ -2,15 +2,16 @@
 
 import { Banknote, Landmark, QrCode, Wallet } from "lucide-react";
 import { ChoiceCard } from "@/components/ui/choice-card";
+import { enabledPaymentMethods } from "@/lib/payments";
 import { PAYMENT_CHANNELS } from "@/lib/schemas/checkout";
 import type { PaymentMethod } from "@/types/api";
 import { cn } from "@/lib/utils";
 
 const METHODS: { value: PaymentMethod; title: string; description: string; icon: typeof QrCode }[] = [
-  { value: "qris", title: "QRIS", description: "Scan dari semua e-wallet & m-banking", icon: QrCode },
+  { value: "qris", title: "QRIS", description: "GoPay, OVO, DANA, ShopeePay & m-banking — dicek admin", icon: QrCode },
   { value: "ewallet", title: "E-Wallet", description: "GoPay, ShopeePay", icon: Wallet },
   { value: "bank_transfer", title: "Transfer Bank (VA)", description: "BCA, BNI, BRI, Permata", icon: Landmark },
-  { value: "cash", title: "Tunai", description: "Bayar di kasir / ke kurir", icon: Banknote },
+  { value: "cash", title: "Tunai", description: "Bayar di kasir saat ambil pesanan", icon: Banknote },
 ];
 
 export function PaymentMethodPicker({
@@ -34,7 +35,7 @@ export function PaymentMethodPicker({
       <fieldset>
         <legend className="sr-only">Metode pembayaran</legend>
         <div className="grid gap-2 sm:grid-cols-2">
-          {METHODS.filter((m) => allowCash || m.value !== "cash").map(({ value, title, description, icon: Icon }) => (
+          {METHODS.filter((m) => enabledPaymentMethods.includes(m.value) && (allowCash || m.value !== "cash")).map(({ value, title, description, icon: Icon }) => (
             <ChoiceCard key={value} name="payment-method" value={value} checked={method === value} onChange={() => onMethod(value)} title={title} description={description} icon={<Icon className="size-5" aria-hidden="true" />} />
           ))}
         </div>

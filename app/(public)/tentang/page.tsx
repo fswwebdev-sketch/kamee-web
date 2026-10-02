@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Award, Coffee, HeartHandshake, Leaf, Users } from "lucide-react";
+import { Coffee, HeartHandshake, Leaf, Users } from "lucide-react";
 import { CtaBanner } from "@/components/home/cta-banner";
 import { buttonClasses } from "@/components/ui/button";
 import { Breadcrumb, JsonLd } from "@/components/ui/misc";
@@ -13,22 +13,23 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
   title: "Tentang Kami",
-  description: "Cerita Kamee Coffee: kedai kopi lokal di Tangerang dengan biji kopi pilihan petani Jawa Barat, barista ramah, dan suasana hangat.",
+  description: "Kamee Coffee — kedai kopi di Perumahan Taman Cibodas, Tangerang. Based coffee, manual brew biji lokal, dan non coffee; tersedia juga dalam botol 250 ml & 1 L.",
   path: "/tentang",
 });
 
+/* Isi halaman ini hanya memuat fakta dari menu & info outlet. Lengkapi cerita, tahun berdiri, dll. sesuai data asli. */
 const VALUES = [
-  { icon: Coffee, title: "Kualitas di setiap cangkir", text: "Biji disangrai mingguan, resep distandarkan, dan setiap minuman dicicipi sebelum disajikan." },
-  { icon: HeartHandshake, title: "Hangat seperti rumah", text: "Barista yang mengingat nama dan pesanan favoritmu." },
-  { icon: Leaf, title: "Peduli lingkungan", text: "Sedotan kertas, ampas kopi untuk kompos, dan diskon tumbler." },
-  { icon: Users, title: "Tumbuh bersama petani", text: "Membeli langsung dari petani lokal dengan harga yang adil." },
+  { icon: Coffee, title: "Based Coffee", text: "Americano, Orangecano, Manucano, dan latte racikan Kame — Aren, Pandan, Spanish, Caramel." },
+  { icon: Leaf, title: "Manual Brew biji lokal", text: "Local Beans dengan pilihan Hot atau Japanese, proses Natural, Washed, atau Honey." },
+  { icon: HeartHandshake, title: "Non Coffee", text: "Matcha, cokelat, dan varian Sea Salt Cloud untuk yang tidak minum kopi." },
+  { icon: Users, title: "Botol untuk dibagi", text: "Banyak menu tersedia dalam Bottle 250 ml dan Bottle 1 L." },
 ];
 
 const STATS = [
-  { value: "2021", label: "Tahun berdiri" },
-  { value: "2", label: "Outlet di Tangerang" },
-  { value: "30+", label: "Menu racikan" },
-  { value: "4,9★", label: "Rating pelanggan" },
+  { value: "1", label: "Outlet di Taman Cibodas" },
+  { value: "19", label: "Menu di daftar" },
+  { value: "10–17", label: "Jam buka (WIB)" },
+  { value: "1 L", label: "Ukuran botol terbesar" },
 ];
 
 export default async function AboutPage() {
@@ -41,10 +42,11 @@ export default async function AboutPage() {
         <div className="mt-6 grid items-center gap-10 lg:grid-cols-2">
           <div>
             <p className="text-caption font-semibold tracking-[.14em] text-primary uppercase">Tentang Kamee</p>
-            <h1 className="mt-2 text-display">Secangkir cerita dari Tangerang</h1>
+            <h1 className="mt-2 text-display">Kedai kopi di Taman Cibodas</h1>
             <p className="mt-5 text-body-lg text-muted">
-              Kamee lahir dari mimpi sederhana: menghadirkan kopi lokal berkualitas dengan harga bersahabat, di tempat yang membuat
-              siapa pun betah berlama-lama. &ldquo;Kamee&rdquo; berarti <em>kami</em> — karena kedai ini milik semua yang singgah.
+              Kamee Coffee menyajikan based coffee, manual brew, dan minuman non coffee dari outlet kami di Jl. Cempaka Raya
+              Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang. Buka setiap hari pukul 10.00–17.00 WIB — pesan online untuk
+              ambil sendiri, makan di tempat, atau diantar.
             </p>
             <Link href="/menu" className={buttonClasses("primary", "lg", "mt-8")}>Lihat Menu</Link>
           </div>
@@ -80,24 +82,14 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="section-y bg-cream/50" aria-labelledby="perjalanan-title">
+      <section className="section-y bg-cream/50" aria-labelledby="pesan-title">
         <div className="container-page max-w-3xl">
-          <h2 id="perjalanan-title" className="text-h2">Perjalanan kami</h2>
-          <ol className="mt-8 border-l-2 border-line pl-6">
-            {[
-              ["2021", "Gerobak kopi pertama di Cikokol dengan tiga menu andalan."],
-              ["2022", "Membuka kedai permanen dan meluncurkan Es Kopi Susu Kamee."],
-              ["2024", "Outlet kedua di Karawaci & program poin loyalitas."],
-              ["2026", "Pesan online, antar ke rumah, dan pembayaran QRIS."],
-            ].map(([year, text]) => (
-              <li key={year} className="relative pb-8 last:pb-0">
-                <span className="absolute -left-[33px] top-1 grid size-4 place-items-center rounded-full bg-primary ring-4 ring-bg" aria-hidden="true" />
-                <p className="font-heading font-semibold text-primary">{year}</p>
-                <p className="mt-1 text-ink">{text}</p>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-10 flex items-center gap-2 text-sm text-muted"><Award className="size-5 text-primary" aria-hidden="true" /> Juara 2 Latte Art Kota Tangerang 2025.</p>
+          <h2 id="pesan-title" className="text-h2">Cara memesan</h2>
+          <ul className="mt-6 grid gap-3 text-ink">
+            <li>• Pesan di situs ini, lalu bayar dengan QRIS (GoPay, OVO, DANA, ShopeePay, m-banking) atau tunai di kasir.</li>
+            <li>• Pesan via WhatsApp <a className="font-semibold text-primary hover:underline" href="https://wa.me/6281280871630">0812-8087-1630</a>.</li>
+            <li>• Tersedia juga di GoFood, GrabFood, dan ShopeeFood.</li>
+          </ul>
         </div>
       </section>
       <div className="pt-16"><CtaBanner /></div>

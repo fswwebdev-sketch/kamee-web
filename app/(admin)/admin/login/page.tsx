@@ -11,10 +11,10 @@ export default function AdminLoginPage() {
     <main id="konten" className="grid min-h-svh bg-bg lg:grid-cols-[1.1fr_1fr]">
       <div className="relative hidden overflow-hidden lg:block">
         <Image src="/hero/latte.avif" alt="" fill priority sizes="55vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1210]/85 via-[#1A1210]/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1020]/85 via-[#0A1020]/35 to-transparent" />
         <div className="absolute inset-x-10 bottom-10 text-white">
           <p className="font-heading text-3xl font-bold leading-tight">Setiap cangkir,<br />tercatat rapi.</p>
-          <p className="mt-3 max-w-md text-white/85">Pantau pesanan masuk secara realtime, kelola menu dan promo, dan lihat performa semua outlet dari satu tempat.</p>
+          <p className="mt-3 max-w-md text-white/85">Pantau pesanan masuk secara realtime, kelola menu dan promo, dan konfirmasi pembayaran QRIS, dan lihat performa penjualan dari satu tempat.</p>
         </div>
       </div>
       <div className="flex items-center justify-center px-5 py-10">

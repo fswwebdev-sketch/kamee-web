@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "@/lib/hooks";
 
 /** Input pencarian dengan debounce 300 ms. */
-export function SearchBar({ value, onChange, placeholder = "Cari kopi, teh, camilan…" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+export function SearchBar({ value, onChange, placeholder = "Cari kopi, matcha, cokelat…" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   const [text, setText] = useState(value);
   const debounced = useDebounce(text, 300);
 

@@ -11,7 +11,7 @@ export interface ChartColors {
   ink: string;
 }
 
-const LIGHT: ChartColors = { series: "#6F4E37", grid: "#EADBC4", axis: "#7A6558", surface: "#FFFBF5", ink: "#3E2723" };
+const LIGHT: ChartColors = { series: "#04338B", grid: "#DCE3F0", axis: "#55627E", surface: "#F4F6FB", ink: "#0B1B3F" };
 
 /**
  * Warna grafik dibaca dari token CSS (bagian 5) agar mode gelap memakai langkah warnanya sendiri.

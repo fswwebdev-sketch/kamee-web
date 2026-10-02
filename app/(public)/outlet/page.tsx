@@ -10,7 +10,7 @@ export const revalidate = 600;
 
 export const metadata: Metadata = buildMetadata({
   title: "Outlet",
-  description: "Lokasi, jam buka, dan jangkauan antar outlet Kamee Coffee di Cikokol dan Karawaci, Tangerang.",
+  description: "Lokasi & jam buka Kamee Coffee: Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang. Buka setiap hari 10.00–17.00 WIB.",
   path: "/outlet",
 });
 
@@ -21,11 +21,11 @@ export default async function OutletPage() {
       <JsonLd data={cafeJsonLd(outlets)} />
       <div className="container-page pt-24 md:pt-28">
         <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Outlet" }]} />
-        <ul className="mt-6 grid gap-5 md:grid-cols-2">
+        <ul className={`mt-6 grid gap-5 ${outlets.length > 1 ? "md:grid-cols-2" : "max-w-3xl"}`}>
           {outlets.map((o, i) => (
             <li key={o.id} id={o.slug} className="overflow-hidden rounded-3xl border border-line bg-surface">
               <div className="relative aspect-[16/9]">
-                <Image src={`/images/outlets/outlet-${(i % 2) + 1}.avif`} alt={`Suasana ${o.name}`} fill priority={i === 0} sizes="(min-width:768px) 50vw, 100vw" className="object-cover" />
+                <Image src={`/images/outlets/outlet-${(i % 2) + 1}.avif`} alt={`Ilustrasi ${o.name}`} fill priority={i === 0} sizes="(min-width:768px) 50vw, 100vw" className="object-cover" />
               </div>
               <div className="p-5">
                 <h2 className="font-heading text-xl font-semibold">{o.name}</h2>

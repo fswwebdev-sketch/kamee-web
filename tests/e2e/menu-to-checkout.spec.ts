@@ -1,19 +1,20 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Alur utama: cari menu → pilih varian → keranjang + voucher → checkout → halaman QRIS →
- * (mock menandai lunas setelah ±6 detik) → otomatis ke halaman lacak pesanan.
+ * Alur utama: cari menu → pilih varian → keranjang + voucher → checkout → halaman QRIS statis
+ * (nominal + kirim bukti via WhatsApp) → admin mengonfirmasi (disimulasikan di mode demo) →
+ * otomatis ke halaman lacak pesanan.
  */
 
-async function addKopiSusuAren(page: Page) {
+async function addArenKame(page: Page) {
   await page.goto("/menu");
   await page.getByLabel("Cari menu").fill("aren");
   // debounce 300 ms → URL ikut berubah (?q=aren)
   await expect(page).toHaveURL(/q=aren/);
-  const card = page.getByRole("article").filter({ has: page.getByRole("link", { name: "Kopi Susu Aren", exact: true }) });
+  const card = page.getByRole("article").filter({ has: page.getByRole("link", { name: "Aren Kame", exact: true }) });
   await expect(card).toBeVisible();
 
-  await card.getByRole("button", { name: /Tambah Kopi Susu Aren ke keranjang/ }).click();
+  await card.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet).toBeVisible();
   await sheet.getByRole("button", { name: /^Tambah ·/ }).click();
@@ -25,13 +26,15 @@ test.describe("menu → checkout", () => {
     const pageErrors: string[] = [];
     page.on("pageerror", (e) => pageErrors.push(e.message));
 
-    await addKopiSusuAren(page);
+    await addArenKame(page);
 
-    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp40.000)
+    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp40.000 → 3 × Rp17.000)
     await page.goto("/keranjang");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await page.getByRole("button", { name: "Tambah Kopi Susu Aren", exact: true }).click();
-    await expect(page.getByRole("group", { name: "Jumlah Kopi Susu Aren" })).toContainText("2");
+    await page.getByRole("button", { name: "Tambah Aren Kame", exact: true }).click();
+    await expect(page.getByRole("group", { name: "Jumlah Aren Kame" })).toContainText("2");
+    await page.getByRole("button", { name: "Tambah Aren Kame", exact: true }).click();
+    await expect(page.getByRole("group", { name: "Jumlah Aren Kame" })).toContainText("3");
 
     await page.getByLabel("Kode voucher").fill("KAMEEHEMAT");
     await page.getByRole("button", { name: "Pakai" }).click();
@@ -46,12 +49,23 @@ test.describe("menu → checkout", () => {
     await page.getByLabel("Nomor WhatsApp").blur(); // tutup keyboard: bar bayar sticky tampil lagi
     await page.getByTestId("submit-order").filter({ visible: true }).click();
 
-    // Halaman pembayaran QRIS dengan countdown
+    // Halaman pembayaran: QRIS statis toko + nominal persis + bukti via WhatsApp
     await expect(page).toHaveURL(/\/pesanan\/[A-Z0-9]+\/bayar/, { timeout: 20_000 });
-    await expect(page.getByRole("img", { name: /QRIS/i })).toBeVisible();
+    await expect(page.getByTestId("static-qris")).toBeVisible();
+    await expect(page.getByTestId("static-qris")).toHaveAttribute("src", /qris-kameecoffee/);
+    await expect(page.getByText("ID1026594722880").first()).toBeVisible();
+    await expect(page.getByTestId("qris-amount")).toHaveText(/Rp\s?4\d\.\d{3}/); // 51.000 − diskon 20%
+    await expect(page.getByRole("link", { name: /Kirim bukti bayar via WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/6281280871630\?text=.*KM/);
     await expect(page.getByText(/\d{1,2}:\d{2}/).first()).toBeVisible();
+    await expect(page.getByText(/Menunggu konfirmasi admin/)).toBeVisible();
 
-    // Polling status → lunas → diarahkan ke pelacakan
+    // Pesanan tetap menunggu sampai admin mengonfirmasi (tidak ada auto-lunas)
+    await page.waitForTimeout(4000);
+    await expect(page).toHaveURL(/\/bayar/);
+
+    // Mode demo: simulasikan admin menekan "Konfirmasi pembayaran" → polling → pelacakan
+    await page.getByTestId("mock-confirm").click();
+    await expect(page.getByRole("heading", { name: "Pembayaran diterima!" })).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveURL(/\/pesanan\/[A-Z0-9]+\?phone=/, { timeout: 30_000 });
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^KM/);
 
@@ -59,7 +73,7 @@ test.describe("menu → checkout", () => {
   });
 
   test("validasi checkout menolak nomor WhatsApp tidak valid", async ({ page }) => {
-    await addKopiSusuAren(page);
+    await addArenKame(page);
     await page.goto("/checkout");
     await page.getByLabel("Nama").fill("Dinda");
     await page.getByLabel("Nomor WhatsApp").fill("12345");
@@ -70,7 +84,7 @@ test.describe("menu → checkout", () => {
   });
 
   test("Pesan via WhatsApp: POST /orders/whatsapp lalu membuka wa.me", async ({ page, context }) => {
-    await addKopiSusuAren(page);
+    await addArenKame(page);
     await page.goto("/keranjang");
     await page.getByRole("button", { name: /Pesan via WhatsApp/ }).first().click();
 

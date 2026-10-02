@@ -45,7 +45,7 @@ export function ProductCard({ product: p, priority = false, variant = "compact" 
           <Link href={`/menu/${p.slug}`} prefetch={false} data-stretched className="rounded after:absolute after:inset-0 after:z-[1] after:content-[''] focus-visible:outline-offset-4">{p.name}</Link>
         </h3>
         <p className="line-clamp-2 text-sm text-muted">{p.short_description}</p>
-        <Rating value={p.rating_avg} count={p.review_count} />
+        {p.review_count > 0 && <Rating value={p.rating_avg} count={p.review_count} />}
         <div className="mt-auto flex items-center justify-between pt-2">
           <Price value={p.base_price} className="font-heading text-lg font-semibold text-primary" />
           <button

@@ -93,7 +93,7 @@ function Row({ label, value, accent }: { label: string; value: string; accent?: 
 /** Bar bayar sticky di bawah layar (ponsel). Tersembunyi saat keyboard terbuka. */
 export function MobilePayBar({ total, label, busy, onShowSummary, children }: { total: number; label: string; busy: boolean; onShowSummary: () => void; children: ReactNode }) {
   return (
-    <div className="hide-on-keyboard fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgb(62_39_35/.25)] backdrop-blur-md lg:hidden">
+    <div className="hide-on-keyboard fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgb(4_25_70/.25)] backdrop-blur-md lg:hidden">
       <div className="mx-auto flex max-w-md items-center gap-3">
         <button type="button" onClick={onShowSummary} className="flex min-h-11 flex-col items-start justify-center text-left" aria-label={`Total ${label}. Lihat rincian`}>
           <span className="text-caption text-muted">Total</span>

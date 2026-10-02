@@ -29,7 +29,12 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={cafeJsonLd(outlets)} />
-      <Hero rating={4.9} reviewCount={2000} open={first?.open_time ?? "07:00"} close={first?.close_time ?? "22:00"} />
+      <Hero
+        open={first?.open_time ?? "10:00"}
+        close={first?.close_time ?? "17:00"}
+        address={first?.address ?? "Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang"}
+        mapsUrl={first ? `https://www.google.com/maps/search/?api=1&query=${first.lat},${first.lng}` : "https://www.google.com/maps/search/?api=1&query=Kamee+Coffee+Taman+Cibodas"}
+      />
       <AboutTeaser />
       <FeaturedProducts initial={featured.data} />
       <PromoSection banners={banners} promotions={promotions} />

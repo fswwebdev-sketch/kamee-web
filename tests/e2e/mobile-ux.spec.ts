@@ -39,9 +39,9 @@ async function expectNoHorizontalScroll(page: Page) {
   expect(overflow, "halaman tidak boleh bisa digeser ke samping").toBeLessThanOrEqual(0);
 }
 
-async function addKopiSusuAren(page: Page) {
+async function addArenKame(page: Page) {
   await page.goto("/menu?q=aren");
-  await page.getByRole("button", { name: /Tambah Kopi Susu Aren ke keranjang/ }).first().click();
+  await page.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).first().click();
   const sheet = page.getByRole("dialog");
   await sheet.getByRole("button", { name: /^Tambah ·/ }).click();
   await expect(sheet).toBeHidden();
@@ -49,7 +49,7 @@ async function addKopiSusuAren(page: Page) {
 
 test.describe("UX ponsel", () => {
   test("tanpa scroll horizontal & target sentuh ≥ 44 px di halaman utama", async ({ page }) => {
-    const pages = ["/", "/menu", "/menu/kopi-susu-aren", "/promo", "/blog", "/kontak", "/masuk", "/pesanan"];
+    const pages = ["/", "/menu", "/menu/aren-kame", "/promo", "/blog", "/kontak", "/masuk", "/pesanan"];
     const report: Record<string, string[]> = {};
     for (const path of pages) {
       await page.goto(path);
@@ -58,7 +58,7 @@ test.describe("UX ponsel", () => {
       const small = await smallTargets(page);
       if (small.length) report[path] = small;
     }
-    await addKopiSusuAren(page);
+    await addArenKame(page);
     for (const path of ["/keranjang", "/checkout"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
@@ -83,7 +83,7 @@ test.describe("UX ponsel", () => {
     await expect(nav).toBeVisible();
 
     // Sticky cart bar di atas tab bar
-    await addKopiSusuAren(page);
+    await addArenKame(page);
     await page.goto("/menu");
     const cartBar = page.getByRole("link", { name: /Lihat Keranjang/ });
     await expect(cartBar).toBeVisible();
@@ -96,7 +96,7 @@ test.describe("UX ponsel", () => {
 
   test("varian dalam bottom sheet dapat ditutup dengan swipe ke bawah", async ({ page }) => {
     await page.goto("/menu?q=aren");
-    await page.getByRole("button", { name: /Tambah Kopi Susu Aren ke keranjang/ }).first().click();
+    await page.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).first().click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible();
     await page.waitForTimeout(500); // tunggu animasi masuk selesai sebelum mengukur pegangan
@@ -124,21 +124,21 @@ test.describe("UX ponsel", () => {
     await page.getByRole("button", { name: /Filter & urutkan/ }).click();
     const sheet = page.getByRole("dialog", { name: "Filter & urutkan" });
     await sheet.getByRole("radio", { name: "Harga terendah" }).click();
-    await sheet.getByRole("radio", { name: "Coffee", exact: true }).click();
+    await sheet.getByRole("radio", { name: "Based Coffee", exact: true }).click();
     await sheet.getByRole("button", { name: "Terapkan" }).click();
-    await expect(page).toHaveURL(/kategori=coffee/);
+    await expect(page).toHaveURL(/kategori=based-coffee/);
     await expect(page).toHaveURL(/urut=price/);
     await expect(page.getByRole("button", { name: /Filter & urutkan/ })).toContainText("2");
   });
 
   test("checkout satu kolom: ringkasan dapat dilipat & tombol bayar sticky", async ({ page }) => {
-    await addKopiSusuAren(page);
+    await addArenKame(page);
     await page.goto("/checkout");
     const toggle = page.getByRole("button", { name: /Ringkasan pesanan/ });
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(page.locator("#ringkasan-pesanan").getByText("1× Kopi Susu Aren")).toBeVisible();
+    await expect(page.locator("#ringkasan-pesanan").getByText("1× Aren Kame")).toBeVisible();
 
     const pay = page.getByTestId("submit-order").filter({ visible: true });
     await expect(pay).toBeInViewport();
@@ -154,9 +154,13 @@ test.describe("UX ponsel", () => {
     expect(fontSize, "≥ 16 px agar iOS tidak zoom saat fokus").toBeGreaterThanOrEqual(16);
   });
 
-  test("QRIS: tombol Simpan QR; e-wallet: deeplink aplikasi", async ({ page }) => {
-    await addKopiSusuAren(page);
+  test("QRIS statis: Simpan QR, nominal & bukti WhatsApp; hanya QRIS + Tunai", async ({ page }) => {
+    await addArenKame(page);
     await page.goto("/checkout");
+    // Metode yang aktif: QRIS & Tunai (e-wallet/VA hanya bila memakai payment gateway)
+    await expect(page.getByRole("radio", { name: /QRIS/ })).toBeChecked();
+    await expect(page.getByRole("radio", { name: /Tunai/ })).toHaveCount(1);
+    await expect(page.getByRole("radio", { name: /E-Wallet|Transfer Bank/ })).toHaveCount(0);
     await page.getByLabel("Nama").fill("Dinda Putri");
     await page.getByLabel("Nomor WhatsApp").fill("081234567890");
     // Tombol bayar sticky disembunyikan selama keyboard terbuka → tutup keyboard dulu
@@ -165,21 +169,10 @@ test.describe("UX ponsel", () => {
     await expect(pay).toBeInViewport();
     await pay.click();
     await expect(page).toHaveURL(/\/bayar/, { timeout: 20_000 });
-    await expect(page.getByRole("img", { name: /QRIS/ })).toBeVisible();
+    await expect(page.getByTestId("static-qris")).toBeVisible();
     await expect(page.getByRole("button", { name: "Simpan QR" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Kirim bukti bayar via WhatsApp/ })).toBeVisible();
     await expectNoHorizontalScroll(page);
-
-    await addKopiSusuAren(page);
-    await page.goto("/checkout");
-    await page.getByLabel("Nama").fill("Dinda Putri");
-    await page.getByLabel("Nomor WhatsApp").fill("081234567890");
-    await page.getByLabel("Nomor WhatsApp").blur();
-    await page.getByRole("radio", { name: /E-Wallet/ }).check({ force: true });
-    await page.getByTestId("submit-order").filter({ visible: true }).click();
-    await expect(page).toHaveURL(/\/bayar/, { timeout: 20_000 });
-    const deeplink = page.getByTestId("ewallet-deeplink");
-    await expect(deeplink).toBeVisible();
-    await expect(deeplink).toHaveAttribute("href", /gopay|shopee|midtrans/);
   });
 
   test("tarik untuk memuat ulang riwayat pesanan", async ({ page, browserName }) => {
@@ -238,7 +231,7 @@ test.describe("UX ponsel", () => {
     await page.goto("/");
     const href = await page.locator('link[rel="manifest"]').getAttribute("href");
     const manifest = await (await request.get(href!)).json();
-    expect(manifest).toMatchObject({ display: "standalone", start_url: expect.stringContaining("/"), theme_color: "#6F4E37", lang: "id" });
+    expect(manifest).toMatchObject({ display: "standalone", start_url: expect.stringContaining("/"), theme_color: "#04338B", lang: "id" });
     expect(manifest.icons.some((i: { purpose?: string }) => i.purpose === "maskable")).toBe(true);
     for (const icon of [...manifest.icons, ...manifest.shortcuts.flatMap((s: { icons: unknown[] }) => s.icons), ...manifest.screenshots]) {
       expect((await request.get((icon as { src: string }).src)).status(), (icon as { src: string }).src).toBe(200);

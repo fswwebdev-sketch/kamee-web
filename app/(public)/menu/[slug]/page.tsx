@@ -68,24 +68,32 @@ export default async function ProductPage({ params }: { params: Params }) {
               <h1 className="text-h1">{product.name}</h1>
               <FavoriteButton product={product} className="shrink-0 border border-line" />
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <Rating value={product.rating_avg} count={product.review_count} />
-              <span className="flex items-center gap-1 text-caption text-muted"><ShoppingBag className="size-3.5" aria-hidden="true" /> {formatNumber(product.sold_count)} terjual</span>
-            </div>
+            {(product.review_count > 0 || product.sold_count > 0) && (
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                {product.review_count > 0 && <Rating value={product.rating_avg} count={product.review_count} />}
+                {product.sold_count > 0 && <span className="flex items-center gap-1 text-caption text-muted"><ShoppingBag className="size-3.5" aria-hidden="true" /> {formatNumber(product.sold_count)} terjual</span>}
+              </div>
+            )}
             <p className="mt-4 text-price text-primary md:text-3xl">{formatRupiah(product.base_price)}</p>
             <p className="mt-4 text-body-lg text-muted">{product.description ?? product.short_description}</p>
           </div>
 
-          <dl className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-line bg-surface p-4">
-              <dt className="flex items-center gap-2 text-caption text-muted"><Leaf className="size-4 text-primary" aria-hidden="true" />Komposisi</dt>
-              <dd className="mt-1 text-sm font-medium text-ink">{product.composition ?? "-"}</dd>
-            </div>
-            <div className="rounded-2xl border border-line bg-surface p-4">
-              <dt className="flex items-center gap-2 text-caption text-muted"><Flame className="size-4 text-primary" aria-hidden="true" />Kalori</dt>
-              <dd className="mt-1 text-sm font-medium text-ink">{product.calories ? `± ${product.calories} kkal` : "-"} <span className="text-muted">/ porsi regular</span></dd>
-            </div>
-          </dl>
+          {(product.composition || product.calories) && (
+            <dl className="grid grid-cols-2 gap-3">
+              {product.composition && (
+                <div className="rounded-2xl border border-line bg-surface p-4">
+                  <dt className="flex items-center gap-2 text-caption text-muted"><Leaf className="size-4 text-primary" aria-hidden="true" />Komposisi</dt>
+                  <dd className="mt-1 text-sm font-medium text-ink">{product.composition}</dd>
+                </div>
+              )}
+              {product.calories && (
+                <div className="rounded-2xl border border-line bg-surface p-4">
+                  <dt className="flex items-center gap-2 text-caption text-muted"><Flame className="size-4 text-primary" aria-hidden="true" />Kalori</dt>
+                  <dd className="mt-1 text-sm font-medium text-ink">± {product.calories} kkal <span className="text-muted">/ porsi cup</span></dd>
+                </div>
+              )}
+            </dl>
+          )}
 
           <div className="rounded-3xl border border-line bg-surface p-5 shadow-soft md:p-6">
             <h2 className="mb-4 font-heading text-lg font-semibold text-ink">Sesuaikan pesananmu</h2>

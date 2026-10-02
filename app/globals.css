@@ -8,16 +8,16 @@
  * sehingga dark mode & rebranding cukup mengganti nilai di sini.
  * ------------------------------------------------------------------ */
 @theme {
-  --color-primary: #6F4E37;
-  --color-primary-hover: #5A3E2B;
-  --color-cream: #F5E6CA;            /* = --color-secondary */
-  --color-secondary: #F5E6CA;
-  --color-ink: #3E2723;
-  --color-muted: #7A6558;
+  --color-primary: #04338B;           /* biru navy Kame (dari menu) */
+  --color-primary-hover: #03286D;
+  --color-cream: #E3EAF7;            /* biru pucat lembut, = --color-secondary */
+  --color-secondary: #E3EAF7;
+  --color-ink: #0B1B3F;
+  --color-muted: #55627E;
   --color-bg: #FFFFFF;
-  --color-surface: #FFFBF5;
-  --color-line: #EADBC4;             /* = --color-border */
-  --color-border: #EADBC4;
+  --color-surface: #F4F6FB;
+  --color-line: #DCE3F0;             /* = --color-border */
+  --color-border: #DCE3F0;
   --color-success: #2E7D32;
   --color-warning: #ED8B00;
   --color-danger: #C62828;
@@ -28,8 +28,8 @@
   --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: 1rem;
-  --shadow-soft: 0 4px 20px rgb(62 39 35 / .08);
-  --shadow-lift: 0 12px 32px rgb(62 39 35 / .14);
+  --shadow-soft: 0 4px 20px rgb(4 25 70 / .08);
+  --shadow-lift: 0 12px 32px rgb(4 25 70 / .14);
   --ease-out-soft: cubic-bezier(.22, 1, .36, 1);
 
   --breakpoint-sm: 40rem;
@@ -43,20 +43,20 @@
 }
 
 .dark {
-  --color-primary: #C8A27A;
-  --color-primary-hover: #D9B892;
-  --color-cream: #3A2A20;
-  --color-secondary: #3A2A20;
-  --color-ink: #F5E6CA;
-  --color-muted: #B8A596;
-  --color-bg: #1A1210;
-  --color-surface: #241915;
-  --color-line: #3B2C24;
-  --color-border: #3B2C24;
+  --color-primary: #A9BDE2;
+  --color-primary-hover: #C3D2EE;
+  --color-cream: #16264A;
+  --color-secondary: #16264A;
+  --color-ink: #E8EEF9;
+  --color-muted: #9AA8C4;
+  --color-bg: #0A1020;
+  --color-surface: #111A2E;
+  --color-line: #1F2D4A;
+  --color-border: #1F2D4A;
   --color-success: #66BB6A;
   --color-warning: #FFB74D;
   --color-danger: #EF5350;
-  --color-on-primary: #1A1210;       /* teks di atas primary terang tetap ≥ 7:1 */
+  --color-on-primary: #0A1020;       /* teks di atas primary terang ≈ 10:1 */
   --shadow-soft: 0 4px 20px rgb(0 0 0 / .35);
   --shadow-lift: 0 12px 32px rgb(0 0 0 / .45);
   color-scheme: dark;
@@ -114,7 +114,7 @@
   background-color: rgb(255 255 255 / .7);
   backdrop-filter: blur(12px);
   border-color: rgb(255 255 255 / .4);
-  &:where(.dark, .dark *) { background-color: rgb(36 25 21 / .7); border-color: rgb(59 44 36 / .6); }
+  &:where(.dark, .dark *) { background-color: rgb(17 26 46 / .7); border-color: rgb(31 45 74 / .6); }
 }
 @utility stars {
   background: linear-gradient(90deg, #E0A526 var(--star-fill, 0%), var(--color-line) var(--star-fill, 0%));

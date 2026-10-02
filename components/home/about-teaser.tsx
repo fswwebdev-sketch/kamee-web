@@ -5,9 +5,9 @@ import { buttonClasses } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 
 const POINTS = [
-  { icon: Coffee, title: "Biji kopi pilihan", text: "Arabika & robusta dari petani lokal Jawa Barat, disangrai mingguan." },
-  { icon: Sofa, title: "Suasana nyaman", text: "Sudut kerja tenang, colokan di tiap meja, dan Wi-Fi cepat." },
-  { icon: Leaf, title: "Ramah lingkungan", text: "Sedotan kertas dan diskon untuk yang membawa tumbler sendiri." },
+  { icon: Coffee, title: "Based Coffee & Manual Brew", text: "Dari Americano hingga Local Beans dengan proses Natural, Washed, atau Honey." },
+  { icon: Leaf, title: "Non Coffee", text: "Matcha, cokelat, dan varian Sea Salt Cloud." },
+  { icon: Sofa, title: "Ukuran botol", text: "Banyak menu tersedia dalam Bottle 250 ml dan 1 L — pas untuk dibagi." },
 ];
 
 export function AboutTeaser() {
@@ -19,16 +19,16 @@ export function AboutTeaser() {
             <Image src="/images/about/barista.avif" alt="Barista Kamee Coffee meracik kopi" fill sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
           </div>
           <div className="glass absolute -bottom-6 left-6 rounded-2xl border px-5 py-4 shadow-soft">
-            <p className="font-heading text-2xl font-bold text-ink">Sejak 2021</p>
-            <p className="text-sm text-muted">menyeduh cerita di Tangerang</p>
+            <p className="font-heading text-2xl font-bold text-ink">10.00–17.00</p>
+            <p className="text-sm text-muted">buka setiap hari di Taman Cibodas</p>
           </div>
         </Reveal>
         <Reveal delay={0.1}>
           <p className="text-caption font-semibold tracking-[.14em] text-primary uppercase">Tentang Kamee</p>
           <h2 id="tentang-title" className="mt-2 text-h2">Tempat singgah untuk setiap cerita</h2>
           <p className="mt-4 text-body-lg text-muted">
-            Kamee berarti &ldquo;kami&rdquo; — ruang hangat tempat teman, keluarga, dan rekan kerja berkumpul. Setiap cangkir diseduh
-            dengan teliti oleh barista yang mencintai kopi sama seperti kamu.
+            Kamee Coffee hadir di Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang. Mampir, pesan untuk dibawa
+            pulang, atau pesan online dan bayar dengan QRIS.
           </p>
           <ul className="mt-8 grid gap-5">
             {POINTS.map(({ icon: Icon, title, text }) => (

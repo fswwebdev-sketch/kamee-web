@@ -18,7 +18,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
     title: cat ? `Menu ${cat.name}` : "Menu",
     description: cat
       ? `Pilihan ${cat.name.toLowerCase()} Kamee Coffee. Pesan online untuk ambil di outlet, dine-in, atau diantar di Tangerang.`
-      : "Menu lengkap Kamee Coffee: kopi, non coffee, signature drink, teh, camilan, dan dessert. Pesan online sekarang.",
+      : "Menu Kamee Coffee: based coffee, manual brew, dan non coffee — cup, Bottle 250 ml, dan 1 L. Pesan online sekarang.",
     path: cat ? `/menu?kategori=${cat.slug}` : "/menu",
     noIndex: Boolean(q),
   });
@@ -34,7 +34,7 @@ export default async function MenuPage({ searchParams }: { searchParams: SearchP
   return (
     <div className="container-page pt-24 pb-16 md:pt-28">
       <Breadcrumb items={[{ label: "Beranda", href: "/" }, { label: "Menu" }]} />
-      <SectionHeader as="h1" className="mt-3" title="Menu Kamee" description="Diseduh segar setiap pesanan. Pilih ukuran, tingkat gula, es, dan topping favoritmu." />
+      <SectionHeader as="h1" className="mt-3" title="Menu Kamee" description="Based coffee, manual brew, dan non coffee. Banyak menu tersedia dalam cup, Bottle 250 ml, dan Bottle 1 L." />
       <div className="mt-6">
         <Suspense fallback={<ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, i) => <li key={i}><ProductCardSkeleton /></li>)}</ul>}>
           <MenuView categories={categories} initialPage={firstPage} initialFilters={{ search: q, category: kategori, sort: urut }} />

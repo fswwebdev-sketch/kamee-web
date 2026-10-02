@@ -88,7 +88,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         onToggleCollapse={() => setCollapsed(!collapsed)}
       />
       {!isDesktop && overlayOpen && (
-        <div className="fixed inset-0 z-40 animate-fade-in bg-[#1A1210]/45 backdrop-blur-[1px]" onClick={() => setOverlayOpen(false)} aria-hidden="true" />
+        <div className="fixed inset-0 z-40 animate-fade-in bg-[#0A1020]/45 backdrop-blur-[1px]" onClick={() => setOverlayOpen(false)} aria-hidden="true" />
       )}
       <div className={cn("flex min-h-svh flex-col transition-[padding] duration-200 motion-reduce:transition-none", "md:pl-[72px]", !collapsed && "lg:pl-64")}>
         <Topbar user={user} onMenu={() => setOverlayOpen((v) => !v)} />

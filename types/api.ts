@@ -191,6 +191,11 @@ export interface Payment {
   deeplink: string | null;
   expires_at: string | null;
   paid_at: string | null;
+  /** QRIS statis (provider "manual"): gambar QR toko, dikonfirmasi admin. Null untuk provider lain. */
+  qris_image_url?: string | null;
+  merchant_name?: string | null;
+  nmid?: string | null;
+  requires_manual_confirmation?: boolean;
 }
 
 export interface OrderItem {
