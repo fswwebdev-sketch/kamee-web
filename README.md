@@ -130,6 +130,25 @@ Panel untuk pemilik & staf outlet di `/admin`, memakai endpoint `/api/v1/admin` 
 - `superadmin@kamee.id` (Super Admin)
 - `admin.cibodas@kamee.id` (Admin Outlet Taman Cibodas)
 
+### Keuangan (Kasir, Bahan & Stok, Resep & HPP, Buku Kas, Ringkasan)
+
+Menu **Keuangan** di admin (Super Admin & Admin Outlet):
+
+| Halaman | Isi |
+|---|---|
+| Kasir `/admin/kasir` | Catat penjualan langsung di outlet: pilih menu + ukuran + qty, metode **Tunai / QRIS / Transfer** (bank, mis. BCA/BJB), uang diterima & kembalian, cetak struk. Pesanan langsung *Selesai* dan stok terpotong sesuai resep. |
+| Bahan & Stok `/admin/bahan` | Bahan & kemasan: isi kemasan, harga kemasan → **harga per unit** (Sirup Gula Aren 1 liter Rp60.000 → Rp60/gr), stok sekarang, batas minimum, stok opname, riwayat mutasi, **Catat belanja stok** (otomatis masuk Buku Kas). |
+| Resep & HPP `/admin/resep` | Takaran bahan per menu & ukuran → **HPP**, margin (Rp & %), dan **"cukup untuk N cup"** beserta bahan yang habis duluan. Resep bertanda *Contoh* masih perkiraan. |
+| Buku Kas `/admin/keuangan/kas` | Uang masuk/keluar di luar pesanan (belanja, ongkir, gaji, penjualan dari catatan, modal) per metode bayar, dengan saldo periode. |
+| Ringkasan Keuangan `/admin/keuangan` | Pemasukan per metode, pengeluaran per kategori, HPP, laba kotor, perkiraan laba bersih, arus kas, grafik harian, dan **menu terlaris** (qty per ukuran, omzet, HPP, laba) per periode. |
+
+Aturan hitung:
+- **HPP per sajian** = Σ (takaran × harga per unit bahan). Konversi espresso → biji kopi diasumsikan 1:2 (40 ml espresso ≈ 20 gr kopi). Es batu tidak dihitung di HPP (dicatat sebagai pengeluaran).
+- **Stok** berkurang otomatis saat pesanan pertama kali terbayar/diproses (termasuk Kasir) dan kembali bila pesanan dibatalkan/refund. 1 cup/botol terjual = 1 kemasan berkurang.
+- **Konfirmasi pembayaran** pesanan online kini mencatat metode sebenarnya: QRIS, Transfer (bank), atau Tunai.
+
+Data awal diambil dari buku catatan pemilik 20–29 Sep 2026: belanja 20/9 Rp2.346.000 (termasuk es batu Rp25.000), pengeluaran lain Rp388.150 (pengeluaran pribadi tidak dicatat), dan pemasukan Rp1.111.000 (Transfer BCA/BJB & Tunai). Resep **Aren Kame** (Cup 12 oz & 1 L) adalah resep asli; resep menu lain masih contoh. Di mode mock, pesanan demo hanya dibuat mulai 1 Okt 2026 agar periode 20–29 Sep hanya berisi data asli.
+
 ### Alur QRIS statis
 
 1. Pelanggan checkout memilih **QRIS** → halaman bayar menampilkan gambar QRIS toko, **nominal persis** (bisa disalin), kode pesanan, dan tombol **Simpan QR**.

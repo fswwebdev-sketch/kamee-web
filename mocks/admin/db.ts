@@ -34,8 +34,15 @@ import {
   tiers,
 } from "../data";
 import { manualQrisFields } from "@/lib/payments";
+import { seedFinance, type FinanceState } from "./finance";
 
-export interface MockAdminState {
+/** Pesanan mock + penanda pemotongan stok (tidak dikirim ke klien). */
+export type MockOrder = AdminOrder & {
+  /** deducted = stok sudah dipotong; reversed = sudah dikembalikan; skipped = pesanan seed lama (tidak memotong stok). */
+  stock_status?: "deducted" | "reversed" | "skipped";
+};
+
+export interface MockAdminState extends FinanceState {
   users: (AdminUser & { password: string; token: string })[];
   outlets: Outlet[];
   categories: Category[];
@@ -49,7 +56,7 @@ export interface MockAdminState {
   blogs: (AdminBlog & { content: string })[];
   customers: (AdminCustomer & { addresses: CustomerAddress[] })[];
   loyalty: Record<number, LoyaltyTransaction[]>;
-  orders: AdminOrder[];
+  orders: MockOrder[];
   contacts: Contact[];
   settings: Settings;
   seq: number;
@@ -69,6 +76,7 @@ function rng(seed: number) {
 }
 
 const TZ_OFFSET = 7 * 60; // WIB
+const DEMO_START = Date.parse("2026-10-01T00:00:00+07:00");
 /** ISO dengan offset +07:00 (format backend). */
 export function wib(d: Date): string {
   const local = new Date(d.getTime() + TZ_OFFSET * 60_000);
@@ -172,7 +180,7 @@ function seed(): MockAdminState {
   });
 
   // Pesanan 150 hari terakhir
-  const orders: AdminOrder[] = [];
+  const orders: MockOrder[] = [];
   const loyalty: Record<number, LoyaltyTransaction[]> = {};
   let orderId = 1;
   let itemId = 1;
@@ -201,6 +209,8 @@ function seed(): MockAdminState {
   const slots: Slot[] = [];
   for (let day = 150; day >= 0; day--) {
     const date = new Date(now - day * 86_400_000);
+    // Pesanan demo hanya mulai 1 Okt 2026: periode 20–29 Sep berisi data asli dari buku catatan pemilik.
+    if (date.getTime() < DEMO_START) continue;
     const dow = new Date(date.getTime() + TZ_OFFSET * 60_000).getUTCDay();
     const growth = 1 + (150 - day) / 300; // tren naik perlahan
     for (const outlet of outlets) {
@@ -308,7 +318,7 @@ function seed(): MockAdminState {
       ...manualQrisFields(method, isPaid || status === "cancelled" ? "done" : "pending"),
     };
     const code = `KM${wib(at).slice(2, 10).replace(/-/g, "")}${(orderId * 2654435761 >>> 0).toString(36).toUpperCase().slice(0, 5).padEnd(5, "X")}`;
-    const order: AdminOrder = {
+    const order: MockOrder = {
       id: orderId++,
       code,
       status,
@@ -343,6 +353,9 @@ function seed(): MockAdminState {
       created_at: wib(at),
       updated_at: status_logs[status_logs.length - 1]!.at,
       handled_by: null,
+      // Pesanan demo yang sudah terbayar/dibatalkan tidak memotong stok secara retroaktif
+      // (stok awal = jumlah belanja 20/9). Pesanan pending akan memotong stok saat dibayar.
+      stock_status: status === "pending" ? undefined : "skipped",
     };
     orders.push(order);
 
@@ -382,6 +395,7 @@ function seed(): MockAdminState {
   const blogs = seedBlogs.map((b) => ({ ...b, content: b.content ?? "", blog_category_id: b.category?.id ?? null }));
 
   return {
+    ...seedFinance({ products, outlets }),
     users,
     outlets,
     categories,
@@ -420,6 +434,8 @@ const g = globalThis as unknown as { __kameeAdminDb?: MockAdminState };
 /** Satu instance per proses server (bertahan antar hot-reload dev). */
 export function adminDb(): MockAdminState {
   g.__kameeAdminDb ??= seed();
+  // Instance lama (hot-reload sebelum fitur Keuangan) belum punya state keuangan
+  if (!g.__kameeAdminDb.ingredients) Object.assign(g.__kameeAdminDb, seedFinance(g.__kameeAdminDb));
   return g.__kameeAdminDb;
 }
 

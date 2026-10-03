@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
+import { ConfirmPaymentHost } from "@/components/admin/orders/order-actions";
 import { OrderRealtime } from "@/components/admin/orders/order-realtime";
 import { ConfirmHost } from "@/components/admin/ui/confirm";
 import { buttonClasses } from "@/components/ui/button";
@@ -98,6 +99,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </div>
       <OrderRealtime user={user} />
       <ConfirmHost />
+      <ConfirmPaymentHost />
     </div>
   );
 }

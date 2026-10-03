@@ -1,5 +1,10 @@
 import {
   BarChart3,
+  BookOpenText,
+  Calculator,
+  ChefHat,
+  PackageOpen,
+  PiggyBank,
   GalleryHorizontalEnd,
   Inbox,
   LayoutDashboard,
@@ -33,6 +38,16 @@ export const ADMIN_NAV: { group: string; items: NavItem[] }[] = [
       { href: "/admin", label: "Ringkasan", icon: LayoutDashboard, ability: "dashboard.view", exact: true },
       { href: "/admin/pesanan", label: "Pesanan", icon: ReceiptText, ability: "orders.view", badge: "orders" },
       { href: "/admin/laporan", label: "Laporan", icon: BarChart3, ability: "reports.view" },
+    ],
+  },
+  {
+    group: "Keuangan",
+    items: [
+      { href: "/admin/kasir", label: "Kasir", icon: Calculator, ability: "pos.use" },
+      { href: "/admin/keuangan", label: "Ringkasan Keuangan", icon: PiggyBank, ability: "finance.view", exact: true },
+      { href: "/admin/keuangan/kas", label: "Buku Kas", icon: BookOpenText, ability: "finance.view" },
+      { href: "/admin/bahan", label: "Bahan & Stok", icon: PackageOpen, ability: "finance.view" },
+      { href: "/admin/resep", label: "Resep & HPP", icon: ChefHat, ability: "finance.view" },
     ],
   },
   {

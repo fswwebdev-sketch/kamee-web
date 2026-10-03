@@ -17,21 +17,39 @@ import {
   type ReportGroup,
 } from "@/lib/admin/types";
 import { tiers } from "../data";
-import { PAYMENT_LABEL, adminDb, nextAdminId, wib } from "./db";
+import { PAYMENT_LABEL, adminDb, nextAdminId, wib, type MockOrder } from "./db";
 import { manualQrisFields } from "@/lib/payments";
+import {
+  Fail,
+  adjustIngredient,
+  createCashEntry,
+  createIngredient,
+  createPosOrder,
+  createStockPurchase,
+  deleteCashEntry,
+  deleteIngredient,
+  deleteStockPurchase,
+  filterCashEntries,
+  financeSummary,
+  ingredientMovements,
+  invalid,
+  listIngredients,
+  listRecipes,
+  listStockPurchases,
+  notFound,
+  paymentLabel,
+  saveRecipe,
+  syncOrderStock,
+  updateCashEntry,
+  updateIngredient,
+} from "./finance";
+import type { BookMethod } from "@/lib/admin/finance-types";
 
 const A = "*/api/v1/admin";
 type Json = Record<string, unknown>;
 type Body = Record<string, unknown> & { __files?: Record<string, File[]> };
 
-class Fail extends Error {
-  constructor(public status: number, message: string, public errors?: Record<string, string[]>) {
-    super(message);
-  }
-}
-const invalid = (field: string, message: string) => new Fail(422, message, { [field]: [message] });
 const forbidden = () => new Fail(403, "Anda tidak memiliki akses untuk tindakan ini.");
-const notFound = () => new Fail(404, "Data tidak ditemukan.");
 
 const ok = (data: unknown, status = 200) => HttpResponse.json(data as Json, { status });
 
@@ -167,7 +185,7 @@ function outletFilter(user: AdminUser, url: URL): number | null {
   return isSuper(user) ? Number(url.searchParams.get("outlet_id")) || null : user.outlet_id;
 }
 
-function serializeOrder(o: AdminOrder, detail = false) {
+function serializeOrder({ stock_status: _stock, ...o }: MockOrder, detail = false) {
   const base = {
     ...o,
     status_label: ORDER_STATUS_LABEL[o.status],
@@ -201,7 +219,7 @@ function toEvent(o: AdminOrder): OrderEvent {
   };
 }
 
-function transition(order: AdminOrder, to: OrderStatus, user: AdminUser, note: string | null) {
+function transition(order: MockOrder, to: OrderStatus, user: AdminUser, note: string | null) {
   const method = order.payments?.at(-1)?.method;
   const allowed = allowedTransitions({
     status: order.status,
@@ -234,6 +252,8 @@ function transition(order: AdminOrder, to: OrderStatus, user: AdminUser, note: s
   order.status = to;
   order.updated_at = at;
   order.handled_by = { id: user.id, name: user.name };
+  // Potong stok saat pertama kali terbayar / kembalikan saat dibatalkan (idempoten)
+  syncOrderStock(adminDb(), order, user);
 }
 
 /* ------------------------------------------------------------------ produk */
@@ -441,6 +461,48 @@ export const adminHandlers = [
     return new HttpResponse(`﻿${csv}`, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${name}"` } });
   })),
 
+  /* ---------------- keuangan: bahan & stok */
+  http.get(`${A}/ingredients`, route(({ user, url }) => ok({ data: listIngredients(adminDb(), user, url) }))),
+  http.post(`${A}/ingredients`, route(async ({ user, url, request }) => ok({ data: createIngredient(adminDb(), user, await body(request), url), message: "Bahan berhasil ditambahkan." }, 201))),
+  http.get(`${A}/ingredients/:id/movements`, route<{ id: string }>(({ user, params, url }) => ok(paginate(ingredientMovements(adminDb(), user, params.id), url)))),
+  http.post(`${A}/ingredients/:id/adjust`, route<{ id: string }>(async ({ user, params, request }) => ok({ data: adjustIngredient(adminDb(), user, params.id, await body(request)), message: "Stok berhasil disesuaikan." }, 201))),
+  http.put(`${A}/ingredients/:id`, route<{ id: string }>(async ({ user, params, request }) => ok({ data: updateIngredient(adminDb(), user, params.id, await body(request)), message: "Bahan berhasil diperbarui." }))),
+  http.delete(`${A}/ingredients/:id`, route<{ id: string }>(({ user, params }) => {
+    deleteIngredient(adminDb(), user, params.id);
+    return ok({ message: "Bahan berhasil dihapus." });
+  })),
+  http.get(`${A}/stock-purchases`, route(({ user, url }) => ok(paginate(listStockPurchases(adminDb(), user, url), url)))),
+  http.post(`${A}/stock-purchases`, route(async ({ user, url, request }) => ok({ data: createStockPurchase(adminDb(), user, await body(request), url), message: "Belanja stok berhasil dicatat." }, 201))),
+  http.delete(`${A}/stock-purchases/:id`, route<{ id: string }>(({ user, params }) => {
+    deleteStockPurchase(adminDb(), user, params.id);
+    return ok({ message: "Belanja stok dibatalkan. Stok dan catatan kas terkait dihapus." });
+  })),
+
+  /* ---------------- keuangan: resep & HPP */
+  http.get(`${A}/recipes`, route(() => ok({ data: listRecipes(adminDb()) }))),
+  http.put(`${A}/recipes/:productId`, route<{ productId: string }>(async ({ params, request }) => ok({ data: saveRecipe(adminDb(), params.productId, await body(request)), message: "Resep berhasil disimpan." }))),
+
+  /* ---------------- keuangan: buku kas */
+  http.get(`${A}/cash-entries`, route(({ user, url }) => {
+    const { list, summary } = filterCashEntries(adminDb(), user, url);
+    return ok({ ...paginate(list, url), summary });
+  })),
+  http.post(`${A}/cash-entries`, route(async ({ user, url, request }) => ok({ data: createCashEntry(adminDb(), user, await body(request), url), message: "Catatan kas berhasil ditambahkan." }, 201))),
+  http.put(`${A}/cash-entries/:id`, route<{ id: string }>(async ({ user, params, request }) => ok({ data: updateCashEntry(adminDb(), user, params.id, await body(request)), message: "Catatan kas berhasil diperbarui." }))),
+  http.delete(`${A}/cash-entries/:id`, route<{ id: string }>(({ user, params }) => {
+    deleteCashEntry(adminDb(), user, params.id);
+    return ok({ message: "Catatan kas berhasil dihapus." });
+  })),
+
+  /* ---------------- keuangan: ringkasan */
+  http.get(`${A}/finance/summary`, route(({ user, url }) => ok({ data: financeSummary(adminDb(), user, url) }))),
+
+  /* ---------------- kasir (harus sebelum rute orders/:id) */
+  http.post(`${A}/orders/pos`, route(async ({ user, url, request }) => {
+    const { order, change } = createPosOrder(adminDb(), user, await body(request), url);
+    return ok({ data: serializeOrder(order, true), message: "Pesanan kasir tersimpan.", change }, 201);
+  })),
+
   /* ---------------- pesanan */
   http.post(`${A}/__mock/simulate`, route(({ user, url }) => {
     const db = adminDb();
@@ -454,8 +516,9 @@ export const adminHandlers = [
     // Pesanan QRIS baru menunggu konfirmasi pembayaran manual oleh admin.
     const status: OrderStatus = "pending";
     const payment = { ...template.payments!.at(-1)!, id: nextAdminId(), method, method_label: PAYMENT_LABEL[method], provider: method === "cash" ? "cash" : "manual", status: "pending" as const, status_label: "Menunggu", paid_at: null, amount: template.total, ...manualQrisFields(method, "pending") };
-    const order: AdminOrder = {
+    const order: MockOrder = {
       ...template,
+      stock_status: undefined,
       id,
       code: `KM${now.slice(2, 10).replace(/-/g, "")}${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
       status,
@@ -524,22 +587,30 @@ export const adminHandlers = [
     if (order.status !== "pending") throw invalid("order", "Pesanan tidak dalam status menunggu pembayaran.");
     const b = await body(request);
     const note = str(b.note);
+    const method = (b.method ?? "qris") as BookMethod;
+    if (!["qris", "bank_transfer", "cash"].includes(method)) throw invalid("method", "Metode bayar harus QRIS, Transfer, atau Tunai.");
+    const bank = method === "bank_transfer" ? str(b.bank) : null;
+    const label = paymentLabel(method, bank);
     const at = wib(new Date());
-    let p = [...(order.payments ?? [])].reverse().find((x) => x.method !== "cash" && (x.status === "pending" || x.status === "expired"));
+    let p = [...(order.payments ?? [])].reverse().find((x) => x.status === "pending" || x.status === "expired");
     if (!p) {
-      p = { id: nextAdminId(), method: "qris", method_label: "QRIS", provider: "manual", reference: null, amount: order.total, status: "pending", status_label: "Menunggu", qr_string: null, va_number: null, bank: null, deeplink: null, expires_at: null, paid_at: null, ...manualQrisFields("qris", "pending") };
+      p = { id: nextAdminId(), method, method_label: label, provider: "manual", reference: null, amount: order.total, status: "pending", status_label: "Menunggu", qr_string: null, va_number: null, bank: null, deeplink: null, expires_at: null, paid_at: null, ...manualQrisFields(method, "pending") };
       (order.payments ??= []).push(p);
     }
+    p.method = method;
+    p.method_label = label;
+    p.bank = bank;
     p.status = "paid";
     p.status_label = "Berhasil";
     p.paid_at = at;
-    p.requires_manual_confirmation = false;
+    Object.assign(p, manualQrisFields(method, "done"));
     order.payment = p;
     order.paid_at = at;
-    (order.status_logs ??= []).push({ from_status: "pending", to_status: "paid", note: `Pembayaran QRIS dikonfirmasi oleh ${user.name}${note ? ` — ${note}` : ""}`, changed_by: user.name, at });
+    (order.status_logs ??= []).push({ from_status: "pending", to_status: "paid", note: `Pembayaran ${label} dikonfirmasi oleh ${user.name}${note ? ` — ${note}` : ""}`, changed_by: user.name, at });
     order.status = "paid";
     order.updated_at = at;
     order.handled_by = { id: user.id, name: user.name };
+    syncOrderStock(adminDb(), order, user);
     return ok({ data: serializeOrder(order, true), message: 'Pembayaran dikonfirmasi. Pesanan berstatus "Sudah dibayar".' });
   })),
   http.post(`${A}/orders/:id/refund`, route<{ id: string }>(async ({ user, params, request }) => {
@@ -559,6 +630,7 @@ export const adminHandlers = [
     order.status = "cancelled";
     order.cancelled_reason = `Refund: ${reason}`;
     order.updated_at = at;
+    syncOrderStock(adminDb(), order, user);
     return ok({ data: serializeOrder(order, true), message: "Refund berhasil diproses dan pesanan dibatalkan." });
   })),
 

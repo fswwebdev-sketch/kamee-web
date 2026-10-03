@@ -1,8 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { create } from "zustand";
 import { Ban, BadgeCheck, Bike, CheckCircle2, ChefHat, Printer, RotateCcw } from "lucide-react";
 import { confirm } from "@/components/admin/ui/confirm";
+import { MethodPicker } from "@/components/admin/finance/shared";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { allowedTransitions, can, transitionLabel } from "@/lib/admin/permissions";
 import { errorMessage, useConfirmPayment, useOrderStatus, useRefundOrder } from "@/lib/admin/queries";
@@ -62,19 +67,105 @@ export function needsPaymentConfirmation(order: Pick<AdminOrder, "status" | "pay
   return order.status === "pending" && !!order.payment && order.payment.method !== "cash";
 }
 
-/** Konfirmasi pembayaran QRIS manual dengan dialog pengecekan nominal. */
+type PayOrder = Pick<AdminOrder, "id" | "code" | "total"> & { payment?: AdminOrder["payment"] };
+type ConfirmMethod = "qris" | "bank_transfer" | "cash";
+interface PayAnswer {
+  method: ConfirmMethod;
+  bank: string;
+  note: string;
+}
+
+interface PayDialogState {
+  order: PayOrder | null;
+  resolve: ((v: PayAnswer | null) => void) | null;
+  ask: (order: PayOrder) => Promise<PayAnswer | null>;
+  settle: (v: PayAnswer | null) => void;
+}
+
+const usePayDialog = create<PayDialogState>((set, get) => ({
+  order: null,
+  resolve: null,
+  ask: (order) =>
+    new Promise((resolve) => {
+      get().resolve?.(null);
+      set({ order, resolve });
+    }),
+  settle: (v) => {
+    get().resolve?.(v);
+    set({ order: null, resolve: null });
+  },
+}));
+
+/** Dialog konfirmasi pembayaran: cek nominal + pilih metode yang sebenarnya dipakai (untuk pembukuan). */
+export function ConfirmPaymentHost() {
+  const { order, settle } = usePayDialog();
+  const [last, setLast] = useState<PayOrder | null>(null);
+  const [method, setMethod] = useState<ConfirmMethod>("qris");
+  const [bank, setBank] = useState("");
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    if (!order) return;
+    setLast(order);
+    setMethod(order.payment?.method === "bank_transfer" ? "bank_transfer" : "qris");
+    setBank("");
+    setNote("");
+  }, [order]);
+
+  const shown = order ?? last;
+  if (!shown) return null;
+  const submit = () => settle({ method, bank: bank.trim(), note: note.trim() });
+
+  return (
+    <Dialog
+      open={Boolean(order)}
+      onClose={() => settle(null)}
+      size="sm"
+      title={`Konfirmasi pembayaran ${shown.code}?`}
+      description={`Pastikan dana ${formatRupiah(shown.total)} sudah masuk (QRIS di aplikasi GoPay Merchant KAMEECOFFEE, atau mutasi rekening untuk transfer) sebelum mengonfirmasi. Pesanan akan berstatus "Sudah dibayar".`}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => settle(null)}>Batal</Button>
+          <Button onClick={submit}>Ya, dana sudah masuk</Button>
+        </div>
+      }
+    >
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+      >
+        <MethodPicker
+          label="Dibayar lewat"
+          method={method}
+          bank={bank}
+          onMethod={(m) => setMethod(m as ConfirmMethod)}
+          onBank={setBank}
+          methods={["qris", "bank_transfer", "cash"]}
+        />
+        <Input
+          label="Catatan (opsional)"
+          placeholder="mis. ref. transaksi GoPay / nama pengirim"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          maxLength={255}
+        />
+        <button type="submit" hidden />
+      </form>
+    </Dialog>
+  );
+}
+
+/** Konfirmasi pembayaran manual (QRIS/Transfer/Tunai) dengan dialog pengecekan nominal. */
 export function useConfirmPaymentAction() {
   const mutation = useConfirmPayment();
-  const run = async (order: Pick<AdminOrder, "id" | "code" | "total">) => {
-    const res = await confirm({
-      title: `Konfirmasi pembayaran ${order.code}?`,
-      description: `Pastikan dana ${formatRupiah(order.total)} sudah masuk di aplikasi GoPay Merchant (KAMEECOFFEE) sebelum mengonfirmasi. Pesanan akan berstatus "Sudah dibayar".`,
-      confirmLabel: "Ya, dana sudah masuk",
-      input: { label: "Catatan (opsional)", placeholder: "mis. ref. transaksi GoPay / nama pengirim", required: false },
-    });
-    if (!res.ok) return false;
+  const run = async (order: PayOrder) => {
+    const res = await usePayDialog.getState().ask(order);
+    if (!res) return false;
     try {
-      await mutation.mutateAsync({ id: order.id, note: res.value });
+      await mutation.mutateAsync({ id: order.id, note: res.note, method: res.method, bank: res.method === "bank_transfer" ? res.bank || null : null });
       return true;
     } catch (e) {
       toast.error("Pembayaran tidak dapat dikonfirmasi", { description: errorMessage(e) });

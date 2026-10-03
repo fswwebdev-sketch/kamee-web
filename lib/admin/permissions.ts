@@ -24,7 +24,10 @@ export type Ability =
   | "users.manage"
   | "settings.manage"
   | "reports.view"
-  | "outlets.switch";
+  | "outlets.switch"
+  | "finance.view"
+  | "finance.manage"
+  | "pos.use";
 
 const SUPER_ONLY: ReadonlySet<Ability> = new Set<Ability>([
   "orders.refund",

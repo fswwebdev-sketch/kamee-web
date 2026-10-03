@@ -182,16 +182,24 @@ export function useOrderStatus() {
   });
 }
 
-/** QRIS statis: admin mengonfirmasi dana sudah masuk (pending → paid). */
+/**
+ * Admin mengonfirmasi dana sudah masuk (pending → paid), sekaligus mencatat metode yang
+ * sebenarnya dipakai pelanggan (QRIS / Transfer + bank / Tunai) untuk pembukuan.
+ */
 export function useConfirmPayment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, note }: { id: number; note?: string | null }) =>
-      adminApi<{ data: AdminOrder; message: string }>(`orders/${id}/confirm-payment`, { method: "POST", body: { note: note || null } }),
+    mutationFn: ({ id, note, method = "qris", bank }: { id: number; note?: string | null; method?: "qris" | "bank_transfer" | "cash"; bank?: string | null }) =>
+      adminApi<{ data: AdminOrder; message: string }>(`orders/${id}/confirm-payment`, {
+        method: "POST",
+        body: { note: note || null, method, bank: method === "bank_transfer" ? bank?.trim() || null : null },
+      }),
     onSuccess: (res) => {
       qc.setQueryData(adminKeys.item("orders", res.data.id), res.data);
       qc.invalidateQueries({ queryKey: adminKeys.resource("orders") });
       qc.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      // Pembayaran masuk ke ringkasan keuangan & memotong stok bahan
+      ["finance", "ingredients", "recipes"].forEach((k) => qc.invalidateQueries({ queryKey: ["admin", k] }));
       toast.success(res.message);
     },
   });
