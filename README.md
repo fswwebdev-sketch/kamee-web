@@ -19,6 +19,7 @@ REST API untuk **Kamee Coffee** (`/api/v1`): katalog, pesanan (web, WhatsApp, PO
 9. [Pengujian](#9-pengujian)
 10. [Skema database](#10-skema-database)
 11. [Catatan & keputusan desain](#11-catatan--keputusan-desain)
+12. [Keuangan (pembukuan admin)](#12-keuangan-pembukuan-admin)
 
 ---
 
@@ -83,6 +84,7 @@ Di produksi, ganti `schedule:work` dengan cron `* * * * * php artisan schedule:r
 | Pelanggan | 20 pelanggan + alamat, tier Bronze/Silver/Gold |
 | Pesanan | 100 pesanan acak 60 hari terakhir, dibuat lewat service yang sama dengan API (harga, promo, poin, log status, pembayaran QRIS manual / tunai). Tidak ada ulasan produk palsu |
 | Konten | 3 banner, 6 artikel blog, 3 pesan kontak |
+| Keuangan | `BookkeepingSeeder`: data buku catatan pemilik 20–29 Sep 2026 — 11 bahan & kemasan, belanja stok 20/9 (Rp2.321.000) + es batu, pengeluaran lain, 13 pemasukan penjualan, dan resep 19 menu. Lihat [§12](#12-keuangan-pembukuan-admin) |
 
 Login pelanggan memakai OTP WhatsApp. Dengan `WHATSAPP_DRIVER=log`, kode OTP tertulis di `storage/logs/laravel.log`.
 
@@ -232,10 +234,13 @@ Gateway dipilih lewat `PAYMENT_GATEWAY` (default **`manual`**). Metode yang bole
      -H 'Authorization: Bearer <token admin>' -H 'Content-Type: application/json' -d '{"note":"Mutasi GoPay ref 8841"}'
    ```
 
+   Body opsional `method` (`qris` default | `bank_transfer` | `cash`) dan `bank` (mis. `"BCA"`, untuk transfer) mencatat cara
+   pelanggan membayar; bank disimpan di `raw_payload.bank` dan tampil sebagai `payment.bank`.
+
    - Hanya untuk pesanan **pending** (selain itu 422 `errors.order`: "Pesanan tidak dalam status menunggu pembayaran.").
    - Tagihan QRIS manual terakhir (pending/kedaluwarsa) ditandai `paid`, `paid_at` diisi, dan `raw_payload` ditambah
      `confirmed_by {id, name}`, `confirmed_at`, `note`. Bila belum ada tagihan, dibuatkan otomatis sebesar total pesanan.
-   - Pesanan `pending → paid` lewat state machine (log status "Pembayaran QRIS dikonfirmasi oleh {nama admin}", siaran realtime, WhatsApp pelanggan).
+   - Pesanan `pending → paid` lewat state machine (log status "Pembayaran {QRIS | Transfer BCA | Tunai} dikonfirmasi oleh {nama admin}", siaran realtime, WhatsApp pelanggan).
    - Otorisasi sama dengan ubah status: Admin Outlet hanya untuk outletnya (pesanan outlet lain 404), Super Admin semua outlet; tanpa token 401.
    - Respons: `AdminOrderResource` (sama seperti `PATCH /admin/orders/{order}/status`) + `message`.
 3. Pesanan yang tidak dikonfirmasi dalam `payment_timeout_minutes` (default 60) dibatalkan otomatis oleh `orders:cancel-unpaid`.
@@ -304,17 +309,17 @@ Tes berjalan di SQLite in-memory (lihat `phpunit.xml`; gateway `manual`, metode 
 DB_CONNECTION=mysql DB_DATABASE=kamee_test DB_USERNAME=... DB_PASSWORD=... php artisan test
 ```
 
-**Hasil saat ini: 204 tes, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
+**Hasil saat ini: 216 tes, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
 
-Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 19 produk, 3 kategori), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
+Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 19 produk, 3 kategori, total buku catatan & HPP Aren Kame), keuangan (bahan, stok opname, belanja stok, resep/HPP, kasir, pemotongan & pembalikan stok, buku kas, ringkasan, isolasi outlet), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
 
 ## 10. Skema database
 
-28 tabel domain (+ tabel bawaan Laravel: `sessions`, `password_reset_tokens`, `cache`, `jobs`, `personal_access_tokens`).
+35 tabel domain (+ tabel bawaan Laravel: `sessions`, `password_reset_tokens`, `cache`, `jobs`, `personal_access_tokens`).
 
 24 tabel sesuai spesifikasi: `users`, `outlets`, `categories`, `products`, `product_images`, `option_groups`, `options`, `customers`, `customer_addresses`, `orders`, `order_items`, `order_item_options`, `payments`, `order_status_logs`, `promotions`, `promotion_usages`, `loyalty_tiers`, `loyalty_transactions`, `favorites`, `reviews`, `banners`, `blog_categories`, `blogs`, `contacts`.
 
-4 tabel tambahan yang dibutuhkan endpoint:
+11 tabel tambahan yang dibutuhkan endpoint (7 di antaranya untuk pembukuan, lihat §12):
 
 | Tabel | Alasan |
 |---|---|
@@ -322,6 +327,10 @@ Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas
 | `outlet_product` | Ketersediaan produk per outlet (`PATCH /admin/outlets/{id}/products/{pid}`) |
 | `settings` | Pengaturan ongkir, biaya, rasio poin, nomor WA (`GET/PUT /admin/settings`) |
 | `otp_codes` | Kode OTP login pelanggan (di-hash, masa berlaku, jumlah percobaan) |
+| `ingredients`, `stock_movements` | Bahan & kemasan per outlet (soft delete) dan mutasi stoknya |
+| `stock_purchases`, `stock_purchase_items` | Belanja stok |
+| `recipes`, `recipe_items` | Resep per produk/outlet (`is_sample`, `note`) dan takaran per varian Ukuran |
+| `cash_entries` | Buku kas pemasukan/pengeluaran |
 
 ## 11. Catatan & keputusan desain
 
@@ -338,3 +347,45 @@ Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas
   - **Detail pelanggan.** `recent_orders` menyertakan outlet, dan `stats.last_order_at` dikirim dalam format ISO 8601.
   - **Batas unggah.** `docker/php/php.ini` memakai `post_max_size=32M`, supaya galeri 8 × 3 MB muat dalam satu unggahan.
 - **Belum diimplementasikan:** 2FA admin (disebut opsional di spesifikasi, perlu kolom tambahan di `users`) dan driver Xendit (arsitektur `PaymentGateway` sudah siap; cukup tambah kelas driver dan daftarkan di `PaymentGatewayManager`).
+
+## 12. Keuangan (pembukuan admin)
+
+Semua endpoint di `/api/v1/admin` (Sanctum admin). **Super Admin dan Admin Outlet sama-sama boleh** memakai seluruh fitur ini.
+Data dibatasi outlet: Admin Outlet selalu outletnya sendiri (data outlet lain 404, `outlet_id` di body/query diabaikan);
+Super Admin melihat semua outlet atau memfilter dengan `?outlet_id=`, dan data baru/resep tanpa `outlet_id` masuk ke outlet pertama.
+Uang = integer rupiah, takaran/stok = desimal (3 angka), tanggal `YYYY-MM-DD`, zona waktu Asia/Jakarta.
+
+| Endpoint | Keterangan |
+|---|---|
+| `GET ingredients?kind=&q=` | Bahan & kemasan (tanpa paginasi, maks. 500): `cost_per_unit` = `pack_price / pack_size` (2 desimal), `stock_qty`, `low_stock` |
+| `POST ingredients` · `GET/PUT/DELETE ingredients/{id}` | `opening_stock` (hanya POST) → mutasi `opening`. Hapus = soft delete + baris resep yang memakainya ikut dihapus |
+| `GET ingredients/{id}/movements` | Mutasi stok (paginasi): `opening`, `purchase`, `sale`, `sale_reversal`, `adjustment` |
+| `POST ingredients/{id}/adjust` | Stok opname `{counted_qty, note?}` → mutasi `adjustment` sebesar selisih |
+| `GET/POST stock-purchases` · `GET/DELETE stock-purchases/{id}` | Belanja stok: mutasi `purchase` (packs × pack_size), `pack_price` bahan diperbarui, pengeluaran kas otomatis (`source=stock_purchase`, kategori `kemasan` bila semua item kemasan, selain itu `bahan_baku`). Hapus = mutasi & entri kas ikut dihapus |
+| `GET recipes` · `GET/PUT recipes/{product_id}` | Resep per varian Ukuran + HPP, margin, `cups_possible`, `limiting_ingredient`. PUT mengganti seluruh resep (`is_sample` default false, `note` opsional) |
+| `GET/POST cash-entries` · `GET/PUT/DELETE cash-entries/{id}` | Buku kas; filter `from,to,type,method,category,q`; `summary {income, expense, balance}` untuk seluruh filter. Entri dari belanja stok → 422 "Ubah lewat menu Belanja stok." |
+| `POST orders/pos` | Kasir: harga dihitung server (dasar + opsi, opsi wajib divalidasi; tanpa promo/poin/ongkir), channel `pos`, status langsung `completed` (log pending → paid → completed), pembayaran `paid` provider `pos`. Respons `{data, message, change}`; `cash_received` < total → 422 |
+| `POST orders/{id}/confirm-payment` | Kini menerima `method` & `bank` (lihat §7) |
+| `GET finance/summary?from&to` | Ringkasan (default bulan berjalan): penjualan per metode & channel, pemasukan lain, HPP, laba kotor, pengeluaran, arus kas, menu terlaris, harian, `missing_recipes` |
+
+**Pemotongan stok otomatis** (`StockService`, dipanggil `OrderStateMachine` di dalam transaksi transisi):
+- Saat pesanan pertama kali masuk status terbayar/berjalan (`paid`, `processing` — termasuk tunai `pending → processing` —, `shipped`, `completed`; pesanan kasir) → tiap item dicari varian resepnya: opsi item `"Ukuran: Cup"` dicocokkan (tanpa membedakan huruf besar/kecil) dengan `option_name` resep; bila tidak ada → varian `option_name = null`; produk tanpa resep dilewati. Dibuat mutasi `sale` = −(qty item × takaran), `reference` = kode pesanan. Idempoten lewat `orders.stock_deducted_at`.
+- Pesanan yang sudah dipotong lalu dibatalkan/refund → mutasi `sale_reversal` sebesar mutasi `sale` yang tercatat, sekali (`orders.stock_reversed_at`).
+- Stok boleh minus; penjualan tidak pernah ditolak karena stok.
+- Resep yang dibuat belakangan tidak memotong stok pesanan lama secara mundur.
+
+**HPP:** biaya baris = takaran × `cost_per_unit` (harga kemasan terbaru ÷ isi kemasan); HPP varian = Σ biaya baris dibulatkan ke rupiah;
+margin = harga (harga dasar + selisih opsi Ukuran) − HPP; `margin_pct` 1 desimal. `cups_possible` = min ⌊stok ÷ takaran⌋ (stok ≤ 0 → 0).
+Di ringkasan, `hpp_total` = Σ qty terjual × HPP varian **resep saat ini** (item tanpa resep = 0 dan namanya masuk `missing_recipes`);
+`net_profit_estimate` = laba kotor + pemasukan lain (selain `modal`) − pengeluaran operasional (selain `bahan_baku` & `kemasan`).
+Penjualan di buku kas (kategori `penjualan`) tidak punya rincian menu sehingga tidak masuk `products`/HPP.
+
+**Asumsi resep:** takaran kopi ditulis dalam gram biji — espresso diekstraksi 1:2, sehingga **40 ml espresso ≈ 20 gram kopi**.
+Es batu (±100 gr per cup) tidak dihitung di HPP karena belanjanya tidak tercatat per gram; dicatat sebagai pengeluaran kas.
+
+**Data awal (`BookkeepingSeeder`)** berasal dari buku catatan pemilik periode **20–29 Sep 2026** dan dijalankan setelah `DemoOrderSeeder`
+(pesanan demo tidak memotong stok). Idempoten; `created_by` = Super Admin.
+- 11 bahan & kemasan (harga nota 20/9/2026). Stok awal = satu belanja stok 2026-09-20 "Belanja 10 hari pertama" (9 item, **Rp2.321.000**) yang dibuat lewat `StockPurchaseService` (mutasi + entri kas), ditambah pengeluaran **Es batu Rp25.000**. Matcha & Botol 250 ml belum punya stok/harga.
+- Pengeluaran lain Rp388.150 (tanggal & metode tidak tertulis → 2026-09-20, tunai, diberi catatan) dan 13 pemasukan penjualan Rp1.111.000 (transfer BCA/BJB & tunai; baris yang bacaan tulisan tangannya ragu diberi catatan "mohon cek").
+- **Resep Aren Kame adalah resep asli pemilik (`is_sample = false`)** — Cup: aren 30, creamer 20, susu 120, kopi 20, cup 1 → HPP Rp12.580, margin Rp4.420 (26%), cukup 110 cup (dibatasi stok Cup 12 oz + tutup). Resep menu lain adalah **contoh perkiraan (`is_sample = true`)** yang akan diubah pemilik.
+- Pengeluaran pribadi pemilik (kaos kaki, pilates) sengaja tidak dicatat.

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\FulfillmentType;
+use App\Enums\OrderChannel;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -13,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderStatusLog;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Finance\StockService;
 use App\Services\WhatsApp\OrderMessages;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +32,7 @@ class OrderStateMachine
         private readonly PromotionService $promotions,
         private readonly LoyaltyService $loyalty,
         private readonly OrderMessages $messages,
+        private readonly StockService $stock,
     ) {}
 
     public function canTransition(Order $order, OrderStatus $to, bool $viaRefund = false): bool
@@ -83,12 +86,31 @@ class OrderStateMachine
      */
     public function transition(Order $order, OrderStatus $to, ?User $actor = null, ?string $note = null, bool $viaRefund = false): Order
     {
-        return DB::transaction(function () use ($order, $to, $actor, $note, $viaRefund) {
+        return $this->apply($order, $to, $actor, $note, fn (Order $locked) => $this->assertTransition($locked, $to, $viaRefund));
+    }
+
+    /**
+     * Pesanan kasir (POS) yang sudah dibayar langsung diselesaikan (paid → completed),
+     * tanpa melewati status diproses.
+     */
+    public function completeAtCounter(Order $order, ?User $actor = null, ?string $note = null): Order
+    {
+        return $this->apply($order, OrderStatus::Completed, $actor, $note, function (Order $locked) {
+            if ($locked->status !== OrderStatus::Paid || $locked->channel !== OrderChannel::Pos) {
+                throw InvalidOrderTransition::between($locked->status, OrderStatus::Completed, 'Hanya pesanan kasir yang sudah dibayar yang dapat langsung diselesaikan.');
+            }
+        });
+    }
+
+    /** @param \Closure(Order): void $guard */
+    private function apply(Order $order, OrderStatus $to, ?User $actor, ?string $note, \Closure $guard): Order
+    {
+        return DB::transaction(function () use ($order, $to, $actor, $note, $guard) {
             /** @var Order $locked */
             $locked = Order::query()->withoutGlobalScopes()->lockForUpdate()->findOrFail($order->id);
             $from = $locked->status;
 
-            $this->assertTransition($locked, $to, $viaRefund);
+            $guard($locked);
 
             $locked->status = $to;
             if ($actor !== null) {
@@ -102,6 +124,9 @@ class OrderStateMachine
                 default => null,
             };
 
+            // Potong stok bahan saat pesanan terbayar/berjalan; kembalikan saat dibatalkan (idempoten).
+            $this->stock->syncOrder($locked, $to, $actor);
+
             $locked->save();
 
             OrderStatusLog::create([
@@ -114,7 +139,7 @@ class OrderStateMachine
 
             OrderStatusUpdated::dispatch($locked, $from, $note);
 
-            if ($text = $this->messages->statusUpdated($locked)) {
+            if (filled($locked->customer_phone) && $text = $this->messages->statusUpdated($locked)) {
                 SendWhatsAppMessage::dispatch($locked->customer_phone, $text);
             }
 

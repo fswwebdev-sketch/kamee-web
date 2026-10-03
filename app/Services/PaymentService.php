@@ -188,10 +188,12 @@ class PaymentService
      * Memakai tagihan QRIS manual terakhir (pending/expired); bila belum ada, dibuatkan tagihan baru
      * sebesar total pesanan agar laporan pembayaran tetap lengkap.
      */
-    public function confirmManual(Order $order, User $actor, ?string $note = null): Order
+    public function confirmManual(Order $order, User $actor, ?string $note = null, PaymentMethod $method = PaymentMethod::Qris, ?string $bank = null): Order
     {
-        return Cache::lock("payment:create:{$order->id}", 20)->block(10, function () use ($order, $actor, $note) {
-            return DB::transaction(function () use ($order, $actor, $note) {
+        $bank = $method === PaymentMethod::BankTransfer && filled($bank) ? trim($bank) : null;
+
+        return Cache::lock("payment:create:{$order->id}", 20)->block(10, function () use ($order, $actor, $note, $method, $bank) {
+            return DB::transaction(function () use ($order, $actor, $note, $method, $bank) {
                 /** @var Order $locked */
                 $locked = Order::query()->withoutGlobalScopes()->lockForUpdate()->findOrFail($order->id);
 
@@ -210,7 +212,7 @@ class PaymentService
                 if ($payment === null) {
                     $attempt = $locked->payments()->count() + 1;
                     $payment = $locked->payments()->create([
-                        'method' => PaymentMethod::Qris,
+                        'method' => $method,
                         'provider' => 'manual',
                         'provider_ref' => "{$locked->code}-{$attempt}",
                         'amount' => $locked->total,
@@ -226,12 +228,14 @@ class PaymentService
                 }
 
                 $confirmedAt = now();
+                $payment->method = $method;
                 $payment->status = PaymentStatus::Paid;
                 $payment->paid_at = $confirmedAt;
                 $payment->raw_payload = array_merge($payment->raw_payload ?? [], [
                     'confirmed_by' => ['id' => $actor->id, 'name' => $actor->name],
                     'confirmed_at' => $confirmedAt->toIso8601String(),
                     'note' => $note,
+                    'bank' => $bank,
                 ]);
                 $payment->save();
 
@@ -239,10 +243,11 @@ class PaymentService
                 $locked->payments()->whereKeyNot($payment->id)->where('status', PaymentStatus::Pending)
                     ->update(['status' => PaymentStatus::Expired]);
 
-                $this->stateMachine->transition($order, OrderStatus::Paid, $actor, "Pembayaran QRIS dikonfirmasi oleh {$actor->name}");
+                $label = $method->bookLabelWithBank($bank);
+                $this->stateMachine->transition($order, OrderStatus::Paid, $actor, "Pembayaran {$label} dikonfirmasi oleh {$actor->name}");
 
-                Log::info('Pembayaran QRIS manual dikonfirmasi', [
-                    'order' => $locked->code, 'payment' => $payment->id, 'amount' => $payment->amount,
+                Log::info('Pembayaran manual dikonfirmasi', [
+                    'order' => $locked->code, 'payment' => $payment->id, 'amount' => $payment->amount, 'method' => $method->value, 'bank' => $bank,
                     'admin_id' => $actor->id, 'note' => $note,
                 ]);
 

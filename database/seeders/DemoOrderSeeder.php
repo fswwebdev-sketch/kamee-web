@@ -63,7 +63,8 @@ class DemoOrderSeeder extends Seeder
         // Urutkan waktu agar poin & tier terakumulasi secara kronologis.
         $this->realNow = now()->copy();
         $times = collect(range(1, self::TOTAL))
-            ->map(fn () => now()->subDays(mt_rand(0, 59))->setTime(mt_rand(10, 15), mt_rand(0, 59)))
+            // Demo hanya mulai 1 Okt 2026: periode 20–29 Sep berisi data asli buku catatan (BookkeepingSeeder).
+            ->map(fn () => now()->subDays(mt_rand(0, $this->demoDays()))->setTime(mt_rand(10, 15), mt_rand(0, 59)))
             ->map(fn (Carbon $t) => $t->greaterThan($this->realNow->copy()->subHour()) ? $t->subDay() : $t)
             ->sort()->values();
 
@@ -182,5 +183,13 @@ class DemoOrderSeeder extends Seeder
 
         Carbon::setTestNow($time->copy()->addMinutes(45));
         $this->stateMachine->transition($order->refresh(), OrderStatus::Completed, null, 'Pesanan selesai');
+    }
+
+    /** Rentang hari pesanan demo: maks 59 hari, tidak sebelum 1 Okt 2026. */
+    private function demoDays(): int
+    {
+        $start = Carbon::parse('2026-10-01', config('app.timezone'))->startOfDay();
+
+        return (int) max(0, min(59, $start->diffInDays(now()->startOfDay(), false)));
     }
 }

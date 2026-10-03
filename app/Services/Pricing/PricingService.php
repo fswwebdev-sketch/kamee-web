@@ -81,10 +81,13 @@ class PricingService
     }
 
     /**
+     * Harga per baris (harga dasar + selisih opsi) beserta validasi produk & opsi.
+     * Dipakai juga oleh kasir (POS) yang tidak memakai promo/poin/ongkir.
+     *
      * @param  list<CartItem>  $items
      * @return list<PricedLine>
      */
-    private function priceLines(Outlet $outlet, array $items): array
+    public function priceLines(Outlet $outlet, array $items): array
     {
         $products = Product::query()
             ->with('optionGroups.options.group')

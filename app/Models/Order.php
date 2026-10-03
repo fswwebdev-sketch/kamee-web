@@ -46,6 +46,8 @@ class Order extends Model
             'scheduled_at' => 'datetime',
             'paid_at' => 'datetime',
             'completed_at' => 'datetime',
+            'stock_deducted_at' => 'datetime',
+            'stock_reversed_at' => 'datetime',
         ];
     }
 

@@ -89,6 +89,7 @@ Route::middleware('throttle:public')->group(function () {
             Route::get('dashboard/top-products', [Admin\DashboardController::class, 'topProducts'])->name('dashboard.top-products');
 
             Route::get('orders', [Admin\OrderController::class, 'index'])->name('orders.index');
+            Route::post('orders/pos', [Admin\OrderController::class, 'pos'])->name('orders.pos');
             Route::get('orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
             Route::patch('orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.status');
             Route::post('orders/{order}/confirm-payment', [Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
@@ -119,6 +120,17 @@ Route::middleware('throttle:public')->group(function () {
 
             Route::apiResource('outlets', Admin\OutletController::class);
             Route::apiResource('users', Admin\UserController::class);
+
+            // Keuangan (pembukuan): Super Admin & Admin Outlet, dibatasi outlet.
+            Route::get('ingredients/{ingredient}/movements', [Admin\IngredientController::class, 'movements'])->name('ingredients.movements');
+            Route::post('ingredients/{ingredient}/adjust', [Admin\IngredientController::class, 'adjust'])->name('ingredients.adjust');
+            Route::apiResource('ingredients', Admin\IngredientController::class);
+            Route::apiResource('stock-purchases', Admin\StockPurchaseController::class)->except('update');
+            Route::get('recipes', [Admin\RecipeController::class, 'index'])->name('recipes.index');
+            Route::get('recipes/{product}', [Admin\RecipeController::class, 'show'])->name('recipes.show');
+            Route::put('recipes/{product}', [Admin\RecipeController::class, 'update'])->name('recipes.update');
+            Route::apiResource('cash-entries', Admin\CashEntryController::class);
+            Route::get('finance/summary', [Admin\FinanceController::class, 'summary'])->name('finance.summary');
 
             Route::get('reports/sales', [Admin\ReportController::class, 'summary'])->name('reports.summary');
             Route::get('reports/sales.xlsx', [Admin\ReportController::class, 'sales'])->name('reports.sales');

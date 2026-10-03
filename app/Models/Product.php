@@ -62,7 +62,7 @@ class Product extends Model
 
     public function scopeActive(Builder $query): void
     {
-        $query->where('is_active', true);
+        $query->where($query->qualifyColumn('is_active'), true);
     }
 
     /** Produk yang tidak ditandai habis di outlet tertentu. */

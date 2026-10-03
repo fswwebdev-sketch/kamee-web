@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Enums\FulfillmentType;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ConfirmPaymentRequest;
+use App\Http\Requests\Admin\Finance\PosOrderRequest;
 use App\Http\Requests\Admin\RefundOrderRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\Admin\AdminOrderResource;
 use App\Models\Order;
+use App\Models\Outlet;
+use App\Services\OrderService;
 use App\Services\OrderStateMachine;
 use App\Services\PaymentService;
+use App\Support\AdminOutlet;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Carbon;
@@ -96,10 +103,39 @@ class OrderController extends Controller
     {
         $this->authorize('updateStatus', $order);
 
-        $payments->confirmManual($order, $request->user(), $request->input('note'));
+        $payments->confirmManual($order, $request->user(), $request->input('note'), $request->paymentMethod(), $request->input('bank'));
 
         return (new AdminOrderResource($order->fresh()->load('items.options', 'outlet', 'payments', 'latestPayment', 'statusLogs.user', 'handler')))
             ->additional(['message' => 'Pembayaran dikonfirmasi. Pesanan berstatus "'.$order->status->label().'".']);
+    }
+
+    /**
+     * Pesanan kasir (POS).
+     *
+     * Harga dihitung server (harga dasar + selisih opsi, validasi opsi wajib), tanpa promo/poin/ongkir.
+     * Pesanan channel "pos" langsung lunas & selesai (log pending → paid → completed) dan stok bahan dipotong.
+     * `cash_received` kurang dari total → 422. Respons menyertakan `change` (kembalian, 0 bila non-tunai).
+     */
+    public function pos(PosOrderRequest $request, OrderService $orders): JsonResponse
+    {
+        $outlet = Outlet::query()->findOrFail(AdminOutlet::resolve($request));
+
+        [$order, $change] = $orders->createPos(
+            $outlet,
+            $request->cartItems(),
+            $request->user(),
+            PaymentMethod::from($request->input('payment_method')),
+            $request->input('bank'),
+            $request->filled('cash_received') ? $request->integer('cash_received') : null,
+            $request->input('customer_name'),
+            $request->input('customer_phone'),
+            FulfillmentType::tryFrom((string) $request->input('fulfillment')) ?? FulfillmentType::DineIn,
+            $request->input('note'),
+        );
+
+        return (new AdminOrderResource($order->fresh()->load('items.options', 'outlet', 'payments', 'latestPayment', 'statusLogs.user', 'handler')))
+            ->additional(['message' => 'Pesanan kasir tersimpan.', 'change' => $change])
+            ->response()->setStatusCode(201);
     }
 
     /**

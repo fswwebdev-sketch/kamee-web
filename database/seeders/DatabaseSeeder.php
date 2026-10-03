@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             ContentSeeder::class,
             CustomerSeeder::class,
             DemoOrderSeeder::class,
+            BookkeepingSeeder::class, // setelah pesanan demo: stok tidak dipotong mundur
         ]);
     }
 }

@@ -17,7 +17,10 @@ class PaymentResource extends JsonResource
         return [
             'id' => $this->id,
             'method' => $this->method->value,
-            'method_label' => $this->method->label(),
+            // Pembayaran yang dicatat admin (konfirmasi manual / kasir) memakai label pembukuan: QRIS / Transfer BCA / Tunai.
+            'method_label' => in_array($this->provider, ['manual', 'pos'], true)
+                ? $this->method->bookLabelWithBank($this->raw_payload['bank'] ?? null)
+                : $this->method->label(),
             'provider' => $this->provider,
             'reference' => $this->provider_ref,
             'amount' => $this->amount,
