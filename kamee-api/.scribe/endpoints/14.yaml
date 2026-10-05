@@ -1,0 +1,94 @@
+name: 'Pelanggan: Ulasan'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/me/reviews
+    metadata:
+      custom: []
+      groupName: 'Pelanggan: Ulasan'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Beri ulasan.'
+      description: 'Hanya untuk produk dari pesanan yang sudah selesai.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      order_code:
+        custom: []
+        name: order_code
+        description: ':Attribute maksimal 20 karakter.'
+        required: true
+        example: KM260928ABCDE
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      product_id:
+        custom: []
+        name: product_id
+        description: ''
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      rating:
+        custom: []
+        name: rating
+        description: ':Attribute harus bernilai antara 1 dan 5.'
+        required: true
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      comment:
+        custom: []
+        name: comment
+        description: ':Attribute maksimal 1000 karakter.'
+        required: false
+        example: 'Kopinya enak, pas manisnya!'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      photo:
+        custom: []
+        name: photo
+        description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 3072 kilobyte.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      order_code: KM260928ABCDE
+      product_id: 1
+      rating: 5
+      comment: 'Kopinya enak, pas manisnya!'
+    fileParameters:
+      photo: null
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

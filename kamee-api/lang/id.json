@@ -1,0 +1,10 @@
+{
+    "The given data was invalid.": "Data yang dikirim tidak valid.",
+    "(and :count more error)": "(dan :count kesalahan lainnya)",
+    "(and :count more errors)": "(dan :count kesalahan lainnya)",
+    ":message (and :count more error)": ":message (dan :count kesalahan lainnya)",
+    ":message (and :count more errors)": ":message (dan :count kesalahan lainnya)",
+    "Unauthenticated.": "Sesi tidak valid atau Anda belum masuk.",
+    "This action is unauthorized.": "Anda tidak memiliki akses untuk tindakan ini.",
+    "Too Many Attempts.": "Terlalu banyak percobaan."
+}

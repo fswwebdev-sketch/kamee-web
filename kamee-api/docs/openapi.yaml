@@ -1,0 +1,3846 @@
+openapi: 3.0.3
+info:
+  title: 'Dokumentasi API Kamee Coffee'
+  description: 'REST API Kamee Coffee (v1) untuk web Next.js, dashboard admin, dan aplikasi mobile/POS.'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8000'
+tags:
+  -
+    name: Katalog
+    description: ''
+  -
+    name: Promo
+    description: ''
+  -
+    name: 'Outlet & Pengantaran'
+    description: ''
+  -
+    name: Konten
+    description: ''
+  -
+    name: Blog
+    description: ''
+  -
+    name: 'Pesanan & Pembayaran'
+    description: ''
+  -
+    name: Webhook
+    description: ''
+  -
+    name: 'Pelanggan: Autentikasi'
+    description: ''
+  -
+    name: 'Pelanggan: Profil'
+    description: ''
+  -
+    name: 'Pelanggan: Pesanan'
+    description: ''
+  -
+    name: 'Pelanggan: Poin'
+    description: ''
+  -
+    name: 'Pelanggan: Favorit'
+    description: ''
+  -
+    name: 'Pelanggan: Alamat'
+    description: ''
+  -
+    name: 'Pelanggan: Voucher'
+    description: ''
+  -
+    name: 'Pelanggan: Ulasan'
+    description: ''
+  -
+    name: 'Admin: Autentikasi'
+    description: ''
+  -
+    name: 'Admin: Dashboard'
+    description: ''
+  -
+    name: 'Admin: Pesanan'
+    description: ''
+  -
+    name: 'Admin: Katalog'
+    description: ''
+  -
+    name: 'Admin: Promo & Banner'
+    description: ''
+  -
+    name: 'Admin: Pelanggan'
+    description: ''
+  -
+    name: 'Admin: Blog'
+    description: ''
+  -
+    name: 'Admin: Kontak'
+    description: ''
+  -
+    name: 'Admin: Outlet & Pengguna'
+    description: ''
+  -
+    name: 'Admin: Laporan'
+    description: ''
+  -
+    name: 'Admin: Pengaturan'
+    description: ''
+paths:
+  /api/v1/categories:
+    get:
+      summary: 'Daftar kategori aktif.'
+      operationId: daftarKategoriAktif
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Katalog
+      security: []
+  /api/v1/products:
+    get:
+      summary: 'Menu produk.'
+      operationId: menuProduk
+      description: ''
+      parameters:
+        -
+          in: query
+          name: search
+          description: 'Cari nama produk.'
+          example: aren
+          required: false
+          schema:
+            type: string
+            description: 'Cari nama produk.'
+            example: aren
+        -
+          in: query
+          name: 'filter[category]'
+          description: 'Slug kategori.'
+          example: coffee
+          required: false
+          schema:
+            type: string
+            description: 'Slug kategori.'
+            example: coffee
+        -
+          in: query
+          name: 'filter[outlet]'
+          description: 'Hanya produk yang tersedia di outlet ini.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Hanya produk yang tersedia di outlet ini.'
+            example: 1
+        -
+          in: query
+          name: 'filter[featured]'
+          description: 'Produk unggulan.'
+          example: true
+          required: false
+          schema:
+            type: boolean
+            description: 'Produk unggulan.'
+            example: true
+        -
+          in: query
+          name: 'filter[best_seller]'
+          description: 'Produk terlaris.'
+          example: true
+          required: false
+          schema:
+            type: boolean
+            description: 'Produk terlaris.'
+            example: true
+        -
+          in: query
+          name: sort
+          description: 'price, -price, -sold_count, -rating, name.'
+          example: '-sold_count'
+          required: false
+          schema:
+            type: string
+            description: 'price, -price, -sold_count, -rating, name.'
+            example: '-sold_count'
+        -
+          in: query
+          name: include
+          description: 'images, options, category.'
+          example: category
+          required: false
+          schema:
+            type: string
+            description: 'images, options, category.'
+            example: category
+        -
+          in: query
+          name: page
+          description: Halaman.
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: Halaman.
+            example: 1
+        -
+          in: query
+          name: per_page
+          description: 'Maks 50.'
+          example: 12
+          required: false
+          schema:
+            type: integer
+            description: 'Maks 50.'
+            example: 12
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Katalog
+      security: []
+  '/api/v1/products/{slug}':
+    get:
+      summary: 'Detail produk + galeri + opsi + ringkasan rating.'
+      operationId: detailProduk+Galeri+Opsi+RingkasanRating
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Katalog
+      security: []
+    parameters:
+      -
+        in: path
+        name: slug
+        description: 'The slug of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/products/{product_slug}/reviews':
+    get:
+      summary: 'Ulasan produk.'
+      operationId: ulasanProduk
+      description: ''
+      parameters:
+        -
+          in: query
+          name: rating
+          description: 'Filter bintang (1-5).'
+          example: 5
+          required: false
+          schema:
+            type: integer
+            description: 'Filter bintang (1-5).'
+            example: 5
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Katalog
+      security: []
+    parameters:
+      -
+        in: path
+        name: product_slug
+        description: 'The slug of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/products/{product_slug}/related':
+    get:
+      summary: 'Produk serupa (kategori sama, terlaris).'
+      operationId: produkSerupakategoriSamaTerlaris
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Katalog
+      security: []
+    parameters:
+      -
+        in: path
+        name: product_slug
+        description: 'The slug of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/promotions:
+    get:
+      summary: 'Promo aktif yang sedang berjalan.'
+      operationId: promoAktifYangSedangBerjalan
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Promo
+      security: []
+  /api/v1/promotions/validate:
+    post:
+      summary: 'Cek voucher.'
+      operationId: cekVoucher
+      description: 'Rate limit 10 permintaan/menit. Diskon final tetap dihitung ulang saat membuat pesanan.'
+      parameters: []
+      responses: {  }
+      tags:
+        - Promo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 'Kode voucher. :Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                subtotal:
+                  type: integer
+                  description: 'Subtotal keranjang (rupiah). :Attribute minimal bernilai 0.'
+                  example: 56000
+                outlet_id:
+                  type: integer
+                  description: 'ID outlet. Must match an existing stored value.'
+                  example: 1
+                  nullable: true
+                delivery_fee:
+                  type: integer
+                  description: 'Ongkir (untuk voucher gratis ongkir). :Attribute minimal bernilai 0.'
+                  example: 10500
+                  nullable: true
+              required:
+                - code
+                - subtotal
+      security: []
+  /api/v1/outlets:
+    get:
+      summary: 'Outlet beserta jam buka dan koordinat.'
+      operationId: outletBesertaJamBukaDanKoordinat
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - 'Outlet & Pengantaran'
+      security: []
+  /api/v1/delivery/quote:
+    post:
+      summary: 'Hitung ongkir.'
+      operationId: hitungOngkir
+      description: 'Jarak dihitung dengan rumus Haversine dari koordinat outlet. Di luar radius → 422.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Outlet & Pengantaran'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                lat:
+                  type: number
+                  description: 'Latitude tujuan. :Attribute harus bernilai antara -90 dan 90.'
+                  example: -6.178
+                lng:
+                  type: number
+                  description: 'Longitude tujuan. :Attribute harus bernilai antara -180 dan 180.'
+                  example: 106.631
+              required:
+                - outlet_id
+                - lat
+                - lng
+      security: []
+  /api/v1/banners:
+    get:
+      summary: 'Banner aktif.'
+      operationId: bannerAktif
+      description: ''
+      parameters:
+        -
+          in: query
+          name: placement
+          description: 'Posisi banner.'
+          example: home
+          required: false
+          schema:
+            type: string
+            description: 'Posisi banner.'
+            example: home
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Konten
+      security: []
+  /api/v1/contacts:
+    post:
+      summary: 'Kirim form kontak (dilindungi captcha Turnstile).'
+      operationId: kirimFormKontakdilindungiCaptchaTurnstile
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Konten
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: Dinda
+                email:
+                  type: string
+                  description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+                  example: dinda@example.com
+                phone:
+                  type: string
+                  description: ''
+                  example: '081234567890'
+                  nullable: true
+                subject:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Kerja sama event'
+                message:
+                  type: string
+                  description: ':Attribute maksimal 3000 karakter.'
+                  example: 'Halo Kamee, kami ingin memesan 100 cup untuk acara kantor.'
+                turnstile_token:
+                  type: string
+                  description: 'Token Cloudflare Turnstile (wajib di produksi).'
+                  example: XXXX.DUMMY.TOKEN
+                  nullable: true
+              required:
+                - name
+                - email
+                - subject
+                - message
+      security: []
+  /api/v1/testimonials:
+    get:
+      summary: 'Ulasan unggulan untuk homepage (rating ≥ 4 dengan komentar).'
+      operationId: ulasanUnggulanUntukHomepagerating4DenganKomentar
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Konten
+      security: []
+  /api/v1/blogs:
+    get:
+      summary: 'Daftar artikel terbit.'
+      operationId: daftarArtikelTerbit
+      description: ''
+      parameters:
+        -
+          in: query
+          name: 'filter[category]'
+          description: 'Slug kategori blog.'
+          example: tips-kopi
+          required: false
+          schema:
+            type: string
+            description: 'Slug kategori blog.'
+            example: tips-kopi
+        -
+          in: query
+          name: search
+          description: 'Cari judul.'
+          example: kopi
+          required: false
+          schema:
+            type: string
+            description: 'Cari judul.'
+            example: kopi
+        -
+          in: query
+          name: sort
+          description: '-published_at, -views.'
+          example: '-published_at'
+          required: false
+          schema:
+            type: string
+            description: '-published_at, -views.'
+            example: '-published_at'
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Blog
+      security: []
+  '/api/v1/blogs/{slug}':
+    get:
+      summary: 'Detail artikel + artikel terkait.'
+      operationId: detailArtikel+ArtikelTerkait
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Blog
+      security: []
+    parameters:
+      -
+        in: path
+        name: slug
+        description: 'The slug of the blog.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/blog-categories:
+    get:
+      summary: 'Kategori blog.'
+      operationId: kategoriBlog
+      description: ''
+      parameters: []
+      responses:
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                properties:
+                  message:
+                    type: string
+                    example: 'Terjadi kesalahan pada server. Silakan coba lagi.'
+      tags:
+        - Blog
+      security: []
+  /api/v1/orders/quote:
+    post:
+      summary: 'Simulasi harga keranjang.'
+      operationId: simulasiHargaKeranjang
+      description: 'Menghitung total (subtotal, ongkir, promo, poin) tanpa menyimpan pesanan.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                customer:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    name:
+                      type: string
+                      description: ':Attribute maksimal 100 karakter.'
+                      example: Dinda
+                    phone:
+                      type: string
+                      description: ''
+                      example: '6281234567890'
+                  required:
+                    - name
+                    - phone
+                fulfillment:
+                  type: string
+                  description: 'pickup | delivery | dine_in.'
+                  example: delivery
+                  enum:
+                    - pickup
+                    - delivery
+                    - dine_in
+                address:
+                  type: object
+                  description: ''
+                  example: null
+                  properties:
+                    text:
+                      type: string
+                      description: ':Attribute maksimal 500 karakter.'
+                      example: 'Jl. Merdeka 10'
+                      nullable: true
+                    lat:
+                      type: number
+                      description: ':Attribute harus bernilai antara -90 dan 90.'
+                      example: -6.178
+                      nullable: true
+                    lng:
+                      type: number
+                      description: ':Attribute harus bernilai antara -180 dan 180.'
+                      example: 106.631
+                      nullable: true
+                    note:
+                      type: string
+                      description: ':Attribute maksimal 200 karakter.'
+                      example: 'Pagar hitam'
+                      nullable: true
+                  nullable: true
+                scheduled_at:
+                  type: string
+                  description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+                  example: null
+                  nullable: true
+                items:
+                  type: array
+                  description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        description: ''
+                        example: 1
+                      qty:
+                        type: integer
+                        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+                        example: 2
+                      option_ids:
+                        type: array
+                        description: ''
+                        example:
+                          - 16
+                        items:
+                          type: integer
+                      note:
+                        type: string
+                        description: ':Attribute maksimal 200 karakter.'
+                        example: 'less ice'
+                        nullable: true
+                    required:
+                      - product_id
+                      - qty
+                promo_code:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                  nullable: true
+                redeem_points:
+                  type: integer
+                  description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+                  example: 0
+                  nullable: true
+                note:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Tolong sedotan kertas'
+                  nullable: true
+              required:
+                - outlet_id
+                - customer
+                - fulfillment
+                - items
+      security: []
+  /api/v1/orders/whatsapp:
+    post:
+      summary: 'Pesan via WhatsApp.'
+      operationId: pesanViaWhatsApp
+      description: 'Menyimpan pesanan berstatus pending (kanal whatsapp) dan mengembalikan tautan wa.me berisi ringkasan pesanan.'
+      parameters:
+        -
+          in: header
+          name: Idempotency-Key
+          description: ''
+          example: 5f0c9f5e-1a2b-4c3d-8e9f-001122334456
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                customer:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    name:
+                      type: string
+                      description: ':Attribute maksimal 100 karakter.'
+                      example: Dinda
+                    phone:
+                      type: string
+                      description: ''
+                      example: '6281234567890'
+                  required:
+                    - name
+                    - phone
+                fulfillment:
+                  type: string
+                  description: 'pickup | delivery | dine_in.'
+                  example: delivery
+                  enum:
+                    - pickup
+                    - delivery
+                    - dine_in
+                address:
+                  type: object
+                  description: ''
+                  example: null
+                  properties:
+                    text:
+                      type: string
+                      description: ':Attribute maksimal 500 karakter.'
+                      example: 'Jl. Merdeka 10'
+                      nullable: true
+                    lat:
+                      type: number
+                      description: ':Attribute harus bernilai antara -90 dan 90.'
+                      example: -6.178
+                      nullable: true
+                    lng:
+                      type: number
+                      description: ':Attribute harus bernilai antara -180 dan 180.'
+                      example: 106.631
+                      nullable: true
+                    note:
+                      type: string
+                      description: ':Attribute maksimal 200 karakter.'
+                      example: 'Pagar hitam'
+                      nullable: true
+                  nullable: true
+                scheduled_at:
+                  type: string
+                  description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+                  example: null
+                  nullable: true
+                items:
+                  type: array
+                  description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        description: ''
+                        example: 1
+                      qty:
+                        type: integer
+                        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+                        example: 2
+                      option_ids:
+                        type: array
+                        description: ''
+                        example:
+                          - 16
+                        items:
+                          type: integer
+                      note:
+                        type: string
+                        description: ':Attribute maksimal 200 karakter.'
+                        example: 'less ice'
+                        nullable: true
+                    required:
+                      - product_id
+                      - qty
+                promo_code:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                  nullable: true
+                redeem_points:
+                  type: integer
+                  description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+                  example: 0
+                  nullable: true
+                note:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Tolong sedotan kertas'
+                  nullable: true
+              required:
+                - outlet_id
+                - customer
+                - fulfillment
+                - items
+      security: []
+  /api/v1/orders:
+    post:
+      summary: 'Buat pesanan.'
+      operationId: buatPesanan
+      description: "Tamu maupun member (kirim Bearer token pelanggan untuk menukar poin). Server menghitung ulang\nseluruh harga, opsi, ongkir, promo, dan poin. Header `Idempotency-Key` wajib."
+      parameters:
+        -
+          in: header
+          name: Idempotency-Key
+          description: ''
+          example: 5f0c9f5e-1a2b-4c3d-8e9f-001122334455
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                customer:
+                  type: object
+                  description: ''
+                  example: []
+                  properties:
+                    name:
+                      type: string
+                      description: ':Attribute maksimal 100 karakter.'
+                      example: Dinda
+                    phone:
+                      type: string
+                      description: ''
+                      example: '6281234567890'
+                  required:
+                    - name
+                    - phone
+                fulfillment:
+                  type: string
+                  description: 'pickup | delivery | dine_in.'
+                  example: delivery
+                  enum:
+                    - pickup
+                    - delivery
+                    - dine_in
+                address:
+                  type: object
+                  description: ''
+                  example: null
+                  properties:
+                    text:
+                      type: string
+                      description: ':Attribute maksimal 500 karakter.'
+                      example: 'Jl. Merdeka 10'
+                      nullable: true
+                    lat:
+                      type: number
+                      description: ':Attribute harus bernilai antara -90 dan 90.'
+                      example: -6.178
+                      nullable: true
+                    lng:
+                      type: number
+                      description: ':Attribute harus bernilai antara -180 dan 180.'
+                      example: 106.631
+                      nullable: true
+                    note:
+                      type: string
+                      description: ':Attribute maksimal 200 karakter.'
+                      example: 'Pagar hitam'
+                      nullable: true
+                  nullable: true
+                scheduled_at:
+                  type: string
+                  description: 'Opsional, pesanan terjadwal (ISO 8601). :Attribute bukan tanggal yang valid.'
+                  example: null
+                  nullable: true
+                items:
+                  type: array
+                  description: 'Daftar item keranjang. :Attribute minimal berisi 1 item. :Attribute maksimal berisi 30 item.'
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        description: ''
+                        example: 1
+                      qty:
+                        type: integer
+                        description: ':Attribute minimal bernilai 1. :Attribute maksimal bernilai 50.'
+                        example: 2
+                      option_ids:
+                        type: array
+                        description: ''
+                        example:
+                          - 16
+                        items:
+                          type: integer
+                      note:
+                        type: string
+                        description: ':Attribute maksimal 200 karakter.'
+                        example: 'less ice'
+                        nullable: true
+                    required:
+                      - product_id
+                      - qty
+                promo_code:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                  nullable: true
+                redeem_points:
+                  type: integer
+                  description: 'Poin yang ditukar (khusus member login). :Attribute minimal bernilai 0.'
+                  example: 0
+                  nullable: true
+                note:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Tolong sedotan kertas'
+                  nullable: true
+              required:
+                - outlet_id
+                - customer
+                - fulfillment
+                - items
+      security: []
+  '/api/v1/orders/{code}':
+    get:
+      summary: 'Lacak pesanan.'
+      operationId: lacakPesanan
+      description: 'Wajib menyertakan 4 digit terakhir nomor WhatsApp pemesan.'
+      parameters:
+        -
+          in: query
+          name: phone
+          description: '4 digit terakhir (atau nomor lengkap) WhatsApp pemesan. Must match the regex /\d{4,}/.'
+          example: '7890'
+          required: true
+          schema:
+            type: string
+            description: '4 digit terakhir (atau nomor lengkap) WhatsApp pemesan. Must match the regex /\d{4,}/.'
+            example: '7890'
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      security: []
+    parameters:
+      -
+        in: path
+        name: code
+        description: 'Optional parameter. Kode pesanan.'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: KM260928ABCDE
+  '/api/v1/orders/{code}/pay':
+    post:
+      summary: 'Bayar pesanan.'
+      operationId: bayarPesanan
+      description: "Membuat transaksi QRIS / e-wallet / VA di Midtrans dan mengembalikan qr_string, va_number, deeplink,\ndan expires_at. Metode `cash` langsung memproses pesanan (bayar di kasir). Header `Idempotency-Key` wajib."
+      parameters:
+        -
+          in: header
+          name: Idempotency-Key
+          description: ''
+          example: 9a1b2c3d-0000-4000-8000-000000000001
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  description: 'qris | ewallet | bank_transfer | cash.'
+                  example: qris
+                  enum:
+                    - qris
+                    - ewallet
+                    - bank_transfer
+                    - cash
+                channel:
+                  type: string
+                  description: 'E-wallet: gopay|shopeepay. VA: bca|bni|bri|cimb|permata.'
+                  example: null
+                  enum:
+                    - null
+              required:
+                - method
+      security: []
+    parameters:
+      -
+        in: path
+        name: code
+        description: 'Optional parameter. Kode pesanan.'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: KM260928ABCDE
+  '/api/v1/orders/{code}/payment-status':
+    get:
+      summary: 'Status pembayaran (polling).'
+      operationId: statusPembayaranpolling
+      description: 'Disarankan dipanggil tiap 3 detik, maksimal 15 menit.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pesanan & Pembayaran'
+      security: []
+    parameters:
+      -
+        in: path
+        name: code
+        description: 'Optional parameter. Kode pesanan.'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: KM260928ABCDE
+  '/api/v1/webhooks/payments/{provider}':
+    post:
+      summary: 'Callback pembayaran.'
+      operationId: callbackPembayaran
+      description: "Signature diverifikasi (Midtrans: SHA512 order_id+status_code+gross_amount+server_key).\nIdempoten: notifikasi berulang tidak mengubah data."
+      parameters: []
+      responses: {  }
+      tags:
+        - Webhook
+      security: []
+    parameters:
+      -
+        in: path
+        name: provider
+        description: 'Optional parameter. midtrans | fake.'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: midtrans
+  /api/v1/auth/otp/request:
+    post:
+      summary: 'Minta OTP.'
+      operationId: mintaOTP
+      description: 'Kode 6 digit dikirim ke WhatsApp. Maksimal 3 permintaan per nomor dalam 10 menit.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Autentikasi'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  description: 'Nomor WhatsApp.'
+                  example: '081234567890'
+              required:
+                - phone
+      security: []
+  /api/v1/auth/otp/verify:
+    post:
+      summary: 'Verifikasi OTP.'
+      operationId: verifikasiOTP
+      description: 'Mengembalikan Bearer token pelanggan. Pelanggan baru otomatis terdaftar.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Autentikasi'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  description: ''
+                  example: '081234567890'
+                code:
+                  type: string
+                  description: 'Kode OTP 6 digit dari WhatsApp. :Attribute harus terdiri dari 6 angka.'
+                  example: '123456'
+                name:
+                  type: string
+                  description: 'Nama (dipakai saat pendaftaran pertama). :Attribute maksimal 100 karakter.'
+                  example: Dinda
+                  nullable: true
+              required:
+                - phone
+                - code
+      security: []
+  /api/v1/auth/logout:
+    post:
+      summary: Keluar.
+      operationId: keluar
+      description: 'Mencabut token yang sedang dipakai.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Autentikasi'
+  /api/v1/me:
+    get:
+      summary: 'Profil saya.'
+      operationId: profilSaya
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Profil'
+    patch:
+      summary: 'Ubah profil.'
+      operationId: ubahProfil
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Profil'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Dinda Putri'
+                email:
+                  type: string
+                  description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+                  example: dinda@example.com
+                  nullable: true
+                birth_date:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal sebelum <code>today</code>.'
+                  example: '1998-05-17'
+                  nullable: true
+  /api/v1/me/orders:
+    get:
+      summary: 'Riwayat pesanan.'
+      operationId: riwayatPesanan
+      description: ''
+      parameters:
+        -
+          in: query
+          name: status
+          description: 'Filter status.'
+          example: completed
+          required: false
+          schema:
+            type: string
+            description: 'Filter status.'
+            example: completed
+      responses: {  }
+      tags:
+        - 'Pelanggan: Pesanan'
+  '/api/v1/me/orders/{code}':
+    get:
+      summary: 'Detail pesanan.'
+      operationId: detailPesanan
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Pesanan'
+    parameters:
+      -
+        in: path
+        name: code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  '/api/v1/me/orders/{code}/reorder':
+    post:
+      summary: 'Pesan lagi.'
+      operationId: pesanLagi
+      description: 'Mengembalikan isi keranjang dari pesanan lama dengan harga terkini (tidak membuat pesanan).'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Pesanan'
+    parameters:
+      -
+        in: path
+        name: code
+        description: ''
+        example: architecto
+        required: true
+        schema:
+          type: string
+  /api/v1/me/points:
+    get:
+      summary: 'Saldo, tier, dan riwayat poin.'
+      operationId: saldoTierDanRiwayatPoin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Poin'
+  /api/v1/me/points/redeem-preview:
+    post:
+      summary: 'Simulasi potongan poin.'
+      operationId: simulasiPotonganPoin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Poin'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 50
+                subtotal:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 56000
+              required:
+                - points
+                - subtotal
+  /api/v1/me/favorites:
+    get:
+      summary: 'Produk favorit.'
+      operationId: produkFavorit
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Favorit'
+    post:
+      summary: 'Tambah favorit.'
+      operationId: tambahFavorit
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Favorit'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+              required:
+                - product_id
+  '/api/v1/me/favorites/{productId}':
+    delete:
+      summary: 'Hapus favorit.'
+      operationId: hapusFavorit
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Favorit'
+    parameters:
+      -
+        in: path
+        name: productId
+        description: ''
+        example: '564'
+        required: true
+        schema:
+          type: string
+  /api/v1/me/addresses:
+    get:
+      summary: 'Alamat tersimpan.'
+      operationId: alamatTersimpan
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Alamat'
+    post:
+      summary: 'Tambah alamat.'
+      operationId: tambahAlamat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Alamat'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: Rumah
+                address:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Jl. Merdeka 10, Tangerang'
+                lat:
+                  type: number
+                  description: ':Attribute harus bernilai antara -90 dan 90.'
+                  example: -6.178
+                  nullable: true
+                lng:
+                  type: number
+                  description: ':Attribute harus bernilai antara -180 dan 180.'
+                  example: 106.631
+                  nullable: true
+                note:
+                  type: string
+                  description: ':Attribute maksimal 200 karakter.'
+                  example: 'Pagar hitam'
+                  nullable: true
+                is_default:
+                  type: boolean
+                  description: ''
+                  example: true
+              required:
+                - label
+                - address
+  '/api/v1/me/addresses/{id}':
+    get:
+      summary: 'Detail alamat.'
+      operationId: detailAlamat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Alamat'
+    put:
+      summary: 'Ubah alamat.'
+      operationId: ubahAlamat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Alamat'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: Rumah
+                address:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Jl. Merdeka 10, Tangerang'
+                lat:
+                  type: number
+                  description: ':Attribute harus bernilai antara -90 dan 90.'
+                  example: -6.178
+                  nullable: true
+                lng:
+                  type: number
+                  description: ':Attribute harus bernilai antara -180 dan 180.'
+                  example: 106.631
+                  nullable: true
+                note:
+                  type: string
+                  description: ':Attribute maksimal 200 karakter.'
+                  example: 'Pagar hitam'
+                  nullable: true
+                is_default:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: 'Hapus alamat.'
+      operationId: hapusAlamat
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Alamat'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the address.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/me/vouchers:
+    get:
+      summary: 'Voucher yang masih bisa saya pakai.'
+      operationId: voucherYangMasihBisaSayaPakai
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Voucher'
+  /api/v1/me/reviews:
+    post:
+      summary: 'Beri ulasan.'
+      operationId: beriUlasan
+      description: 'Hanya untuk produk dari pesanan yang sudah selesai.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pelanggan: Ulasan'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                order_code:
+                  type: string
+                  description: ':Attribute maksimal 20 karakter.'
+                  example: KM260928ABCDE
+                product_id:
+                  type: integer
+                  description: ''
+                  example: 1
+                rating:
+                  type: integer
+                  description: ':Attribute harus bernilai antara 1 dan 5.'
+                  example: 5
+                comment:
+                  type: string
+                  description: ':Attribute maksimal 1000 karakter.'
+                  example: 'Kopinya enak, pas manisnya!'
+                  nullable: true
+                photo:
+                  type: string
+                  format: binary
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 3072 kilobyte.'
+                  nullable: true
+              required:
+                - order_code
+                - product_id
+                - rating
+  /api/v1/admin/auth/login:
+    post:
+      summary: 'Login admin.'
+      operationId: loginAdmin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Autentikasi'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: ':Attribute harus berupa alamat email yang valid.'
+                  example: superadmin@kamee.id
+                password:
+                  type: string
+                  description: ''
+                  example: password
+                device_name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: dashboard-web
+                  nullable: true
+              required:
+                - email
+                - password
+      security: []
+  /api/v1/admin/auth/me:
+    get:
+      summary: 'Profil admin yang login.'
+      operationId: profilAdminYangLogin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Autentikasi'
+  /api/v1/admin/auth/logout:
+    post:
+      summary: 'Logout admin.'
+      operationId: logoutAdmin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Autentikasi'
+  /api/v1/admin/dashboard/summary:
+    get:
+      summary: 'Ringkasan penjualan, pesanan, AOV, pelanggan baru.'
+      operationId: ringkasanPenjualanPesananAOVPelangganBaru
+      description: ''
+      parameters:
+        -
+          in: query
+          name: outlet_id
+          description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+            example: 1
+            nullable: true
+        -
+          in: query
+          name: from
+          description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+          example: '2026-09-01'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+            example: '2026-09-01'
+            nullable: true
+        -
+          in: query
+          name: to
+          description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+          example: '2026-09-28'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+            example: '2026-09-28'
+            nullable: true
+        -
+          in: query
+          name: interval
+          description: 'day | month (khusus revenue).'
+          example: day
+          required: false
+          schema:
+            type: string
+            description: 'day | month (khusus revenue).'
+            example: day
+            enum:
+              - day
+              - month
+            nullable: true
+        -
+          in: query
+          name: limit
+          description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+            example: 10
+            nullable: true
+      responses: {  }
+      tags:
+        - 'Admin: Dashboard'
+  /api/v1/admin/dashboard/revenue:
+    get:
+      summary: 'Grafik pendapatan per hari/bulan.'
+      operationId: grafikPendapatanPerHaribulan
+      description: ''
+      parameters:
+        -
+          in: query
+          name: outlet_id
+          description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+            example: 1
+            nullable: true
+        -
+          in: query
+          name: from
+          description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+          example: '2026-09-01'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+            example: '2026-09-01'
+            nullable: true
+        -
+          in: query
+          name: to
+          description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+          example: '2026-09-28'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+            example: '2026-09-28'
+            nullable: true
+        -
+          in: query
+          name: interval
+          description: 'day | month (khusus revenue).'
+          example: day
+          required: false
+          schema:
+            type: string
+            description: 'day | month (khusus revenue).'
+            example: day
+            enum:
+              - day
+              - month
+            nullable: true
+        -
+          in: query
+          name: limit
+          description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+            example: 10
+            nullable: true
+      responses: {  }
+      tags:
+        - 'Admin: Dashboard'
+  /api/v1/admin/dashboard/top-products:
+    get:
+      summary: 'Produk terlaris.'
+      operationId: produkTerlaris
+      description: ''
+      parameters:
+        -
+          in: query
+          name: outlet_id
+          description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+            example: 1
+            nullable: true
+        -
+          in: query
+          name: from
+          description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+          example: '2026-09-01'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+            example: '2026-09-01'
+            nullable: true
+        -
+          in: query
+          name: to
+          description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+          example: '2026-09-28'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+            example: '2026-09-28'
+            nullable: true
+        -
+          in: query
+          name: interval
+          description: 'day | month (khusus revenue).'
+          example: day
+          required: false
+          schema:
+            type: string
+            description: 'day | month (khusus revenue).'
+            example: day
+            enum:
+              - day
+              - month
+            nullable: true
+        -
+          in: query
+          name: limit
+          description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+            example: 10
+            nullable: true
+      responses: {  }
+      tags:
+        - 'Admin: Dashboard'
+  /api/v1/admin/orders:
+    get:
+      summary: 'Daftar pesanan.'
+      operationId: daftarPesanan
+      description: ''
+      parameters:
+        -
+          in: query
+          name: 'filter[status]'
+          description: 'pending,paid,processing,shipped,completed,cancelled (bisa dipisah koma).'
+          example: 'paid,processing'
+          required: false
+          schema:
+            type: string
+            description: 'pending,paid,processing,shipped,completed,cancelled (bisa dipisah koma).'
+            example: 'paid,processing'
+        -
+          in: query
+          name: 'filter[outlet_id]'
+          description: Outlet.
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: Outlet.
+            example: 1
+        -
+          in: query
+          name: 'filter[channel]'
+          description: web|whatsapp|pos.
+          example: web
+          required: false
+          schema:
+            type: string
+            description: web|whatsapp|pos.
+            example: web
+        -
+          in: query
+          name: 'filter[fulfillment]'
+          description: pickup|delivery|dine_in.
+          example: delivery
+          required: false
+          schema:
+            type: string
+            description: pickup|delivery|dine_in.
+            example: delivery
+        -
+          in: query
+          name: 'filter[from]'
+          description: 'Tanggal awal.'
+          example: '2026-09-01'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal awal.'
+            example: '2026-09-01'
+        -
+          in: query
+          name: 'filter[to]'
+          description: 'Tanggal akhir.'
+          example: '2026-09-28'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal akhir.'
+            example: '2026-09-28'
+        -
+          in: query
+          name: 'filter[search]'
+          description: 'Kode, nama, atau nomor WA.'
+          example: KM2609
+          required: false
+          schema:
+            type: string
+            description: 'Kode, nama, atau nomor WA.'
+            example: KM2609
+        -
+          in: query
+          name: sort
+          description: 'created_at, total.'
+          example: '-created_at'
+          required: false
+          schema:
+            type: string
+            description: 'created_at, total.'
+            example: '-created_at'
+      responses: {  }
+      tags:
+        - 'Admin: Pesanan'
+  '/api/v1/admin/orders/{id}':
+    get:
+      summary: 'Detail pesanan + log status + pembayaran.'
+      operationId: detailPesanan+LogStatus+Pembayaran
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pesanan'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the order.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/orders/{order_id}/status':
+    patch:
+      summary: 'Ubah status pesanan.'
+      operationId: ubahStatusPesanan
+      description: 'Transisi divalidasi state machine, dicatat di log, disiarkan realtime, dan pelanggan diberi notifikasi WA.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pesanan'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: 'Status tujuan.'
+                  example: processing
+                  enum:
+                    - pending
+                    - paid
+                    - processing
+                    - shipped
+                    - completed
+                    - cancelled
+                note:
+                  type: string
+                  description: 'Catatan (wajib untuk pembatalan). :Attribute maksimal 255 karakter.'
+                  example: 'Mulai diracik'
+                  nullable: true
+              required:
+                - status
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'The ID of the order.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/orders/{order_id}/refund':
+    post:
+      summary: 'Refund pesanan.'
+      operationId: refundPesanan
+      description: 'Khusus Super Admin. Mengembalikan dana via gateway lalu membatalkan pesanan.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pesanan'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'Stok bahan habis'
+              required:
+                - reason
+    parameters:
+      -
+        in: path
+        name: order_id
+        description: 'The ID of the order.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/products:
+    get:
+      summary: 'Daftar produk (termasuk nonaktif).'
+      operationId: daftarProduktermasukNonaktif
+      description: ''
+      parameters:
+        -
+          in: query
+          name: 'filter[category_id]'
+          description: ''
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: ''
+            example: 1
+        -
+          in: query
+          name: 'filter[is_active]'
+          description: ''
+          example: true
+          required: false
+          schema:
+            type: boolean
+            description: ''
+            example: true
+        -
+          in: query
+          name: 'filter[search]'
+          description: ''
+          example: aren
+          required: false
+          schema:
+            type: string
+            description: ''
+            example: aren
+        -
+          in: query
+          name: 'filter[trashed]'
+          description: with|only
+          example: with
+          required: false
+          schema:
+            type: string
+            description: with|only
+            example: with
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    post:
+      summary: 'Tambah produk (multipart bila ada gambar).'
+      operationId: tambahProdukmultipartBilaAdaGambar
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Es Kopi Susu Aren'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 180 karakter.'
+                  example: b
+                  nullable: true
+                short_description:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'n'
+                  nullable: true
+                description:
+                  type: string
+                  description: ''
+                  example: 'Eius et animi quos velit et.'
+                  nullable: true
+                composition:
+                  type: string
+                  description: ''
+                  example: architecto
+                  nullable: true
+                calories:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 39
+                  nullable: true
+                base_price:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0. :Attribute maksimal bernilai 10000000.'
+                  example: 22000
+                image:
+                  type: string
+                  format: binary
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 3072 kilobyte.'
+                  nullable: true
+                is_featured:
+                  type: boolean
+                  description: ''
+                  example: true
+                is_best_seller:
+                  type: boolean
+                  description: ''
+                  example: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: false
+                option_group_ids:
+                  type: array
+                  description: 'Must match an existing stored value.'
+                  example:
+                    - 16
+                  items:
+                    type: integer
+              required:
+                - category_id
+                - name
+                - base_price
+  '/api/v1/admin/products/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminProductsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    put:
+      summary: 'Ubah produk. Untuk upload gambar gunakan POST dengan _method=PATCH.'
+      operationId: ubahProdukUntukUploadGambarGunakanPOSTDenganMethodPATCH
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Es Kopi Susu Aren'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 180 karakter.'
+                  example: b
+                  nullable: true
+                short_description:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'n'
+                  nullable: true
+                description:
+                  type: string
+                  description: ''
+                  example: 'Eius et animi quos velit et.'
+                  nullable: true
+                composition:
+                  type: string
+                  description: ''
+                  example: architecto
+                  nullable: true
+                calories:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 39
+                  nullable: true
+                base_price:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0. :Attribute maksimal bernilai 10000000.'
+                  example: 22000
+                image:
+                  type: string
+                  format: binary
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 3072 kilobyte.'
+                  nullable: true
+                is_featured:
+                  type: boolean
+                  description: ''
+                  example: true
+                is_best_seller:
+                  type: boolean
+                  description: ''
+                  example: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+                option_group_ids:
+                  type: array
+                  description: 'Must match an existing stored value.'
+                  example:
+                    - 16
+                  items:
+                    type: integer
+    delete:
+      summary: 'Hapus produk (soft delete).'
+      operationId: hapusProduksoftDelete
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/products/{product_id}/images':
+    post:
+      summary: 'Unggah galeri produk.'
+      operationId: unggahGaleriProduk
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 3072 kilobyte.'
+                  items:
+                    type: string
+                    format: binary
+                alt:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Es Kopi Susu Aren'
+                  nullable: true
+    parameters:
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/products/{product_id}/images/{id}':
+    delete:
+      summary: 'Hapus gambar galeri.'
+      operationId: hapusGambarGaleri
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    parameters:
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: id
+        description: 'The ID of the image.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/categories:
+    get:
+      summary: ''
+      operationId: getApiV1AdminCategories
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    post:
+      summary: ''
+      operationId: postApiV1AdminCategories
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Signature Drink'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 120 karakter.'
+                  example: b
+                  nullable: true
+                icon:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: sparkles
+                  nullable: true
+                sort_order:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 3
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+              required:
+                - name
+  '/api/v1/admin/categories/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    put:
+      summary: ''
+      operationId: putApiV1AdminCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Signature Drink'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 120 karakter.'
+                  example: b
+                  nullable: true
+                icon:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: sparkles
+                  nullable: true
+                sort_order:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 3
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the category.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/option-groups:
+    get:
+      summary: ''
+      operationId: getApiV1AdminOptionGroups
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    post:
+      summary: 'Tambah grup opsi beserta opsinya.'
+      operationId: tambahGrupOpsiBesertaOpsinya
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: Ukuran
+                type:
+                  type: string
+                  description: 'single | multi.'
+                  example: single
+                  enum:
+                    - single
+                    - multi
+                is_required:
+                  type: boolean
+                  description: ''
+                  example: true
+                options:
+                  type: array
+                  description: ':Attribute minimal berisi 1 item.'
+                  example:
+                    -
+                      name: Regular
+                      price_delta: 0
+                    -
+                      name: Large
+                      price_delta: 5000
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ''
+                        example: 16
+                        nullable: true
+                      name:
+                        type: string
+                        description: ':Attribute maksimal 100 karakter.'
+                        example: 'n'
+                      price_delta:
+                        type: integer
+                        description: ':Attribute harus bernilai antara -1000000 dan 1000000.'
+                        example: -1000000
+                    required:
+                      - name
+                      - price_delta
+              required:
+                - name
+                - type
+                - options
+  '/api/v1/admin/option-groups/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminOptionGroupsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    put:
+      summary: 'Ubah grup opsi. Opsi yang tidak dikirim akan dihapus.'
+      operationId: ubahGrupOpsiOpsiYangTidakDikirimAkanDihapus
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: Ukuran
+                type:
+                  type: string
+                  description: 'single | multi.'
+                  example: single
+                  enum:
+                    - single
+                    - multi
+                is_required:
+                  type: boolean
+                  description: ''
+                  example: true
+                options:
+                  type: array
+                  description: ':Attribute minimal berisi 1 item.'
+                  example:
+                    -
+                      name: Regular
+                      price_delta: 0
+                    -
+                      name: Large
+                      price_delta: 5000
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ''
+                        example: 16
+                        nullable: true
+                      name:
+                        type: string
+                        description: ':Attribute maksimal 100 karakter.'
+                        example: 'n'
+                      price_delta:
+                        type: integer
+                        description: ':Attribute harus bernilai antara -1000000 dan 1000000.'
+                        example: -1000000
+                    required:
+                      - name
+                      - price_delta
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminOptionGroupsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the option group.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/outlets/{outlet_id}/products/{product_id}':
+    patch:
+      summary: 'Tandai produk tersedia / habis di outlet.'
+      operationId: tandaiProdukTersediaHabisDiOutlet
+      description: 'Admin Outlet hanya untuk outlet miliknya.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Katalog'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_available:
+                  type: boolean
+                  description: 'false = tandai habis.'
+                  example: false
+              required:
+                - is_available
+    parameters:
+      -
+        in: path
+        name: outlet_id
+        description: 'The ID of the outlet.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: product_id
+        description: 'The ID of the product.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/promotions:
+    get:
+      summary: ''
+      operationId: getApiV1AdminPromotions
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    post:
+      summary: ''
+      operationId: postApiV1AdminPromotions
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 'Kosongkan untuk promo otomatis. Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                  nullable: true
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Hemat 20% maks 15rb'
+                type:
+                  type: string
+                  description: 'percent | fixed | bogo | free_delivery.'
+                  example: percent
+                  enum:
+                    - percent
+                    - fixed
+                    - bogo
+                    - free_delivery
+                value:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 20
+                min_spend:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 40000
+                max_discount:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 15000
+                  nullable: true
+                quota:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 16
+                  nullable: true
+                per_customer_limit:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 22
+                  nullable: true
+                starts_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: '2026-09-28T16:25:02'
+                  nullable: true
+                ends_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+                  example: '2052-10-21'
+                  nullable: true
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 16
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: false
+              required:
+                - name
+                - type
+                - value
+  '/api/v1/admin/promotions/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminPromotionsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    put:
+      summary: ''
+      operationId: putApiV1AdminPromotionsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 'Kosongkan untuk promo otomatis. Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 50 karakter.'
+                  example: KAMEEHEMAT
+                  nullable: true
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Hemat 20% maks 15rb'
+                type:
+                  type: string
+                  description: 'percent | fixed | bogo | free_delivery.'
+                  example: percent
+                  enum:
+                    - percent
+                    - fixed
+                    - bogo
+                    - free_delivery
+                value:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 20
+                min_spend:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 40000
+                max_discount:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 15000
+                  nullable: true
+                quota:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 16
+                  nullable: true
+                per_customer_limit:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 22
+                  nullable: true
+                starts_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: '2026-09-28T16:25:02'
+                  nullable: true
+                ends_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+                  example: '2052-10-21'
+                  nullable: true
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 16
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminPromotionsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the promotion.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/banners:
+    get:
+      summary: ''
+      operationId: getApiV1AdminBanners
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    post:
+      summary: ''
+      operationId: postApiV1AdminBanners
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Ngopi Hemat 20%'
+                subtitle:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'Pakai kode KAMEEHEMAT'
+                  nullable: true
+                image_desktop:
+                  type: string
+                  description: 'Path/URL gambar desktop (atau kirim image_desktop_file). This field is required when <code>image_desktop_file</code> is not present. :Attribute maksimal 255 karakter.'
+                  example: banners/promo.jpg
+                  nullable: true
+                image_desktop_file:
+                  type: string
+                  format: binary
+                  description: 'Unggah gambar desktop (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                image_mobile:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: null
+                  nullable: true
+                image_mobile_file:
+                  type: string
+                  format: binary
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                link_url:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: /promo
+                  nullable: true
+                placement:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: home
+                sort_order:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 1
+                starts_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: '2026-10-01 00:00:00'
+                  nullable: true
+                ends_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+                  example: '2026-10-31 23:59:59'
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+              required:
+                - title
+  '/api/v1/admin/banners/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminBannersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    put:
+      summary: ''
+      operationId: putApiV1AdminBannersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Ngopi Hemat 20%'
+                subtitle:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'Pakai kode KAMEEHEMAT'
+                  nullable: true
+                image_desktop:
+                  type: string
+                  description: 'Path/URL gambar desktop (atau kirim image_desktop_file). :Attribute maksimal 255 karakter.'
+                  example: banners/promo.jpg
+                  nullable: true
+                image_desktop_file:
+                  type: string
+                  format: binary
+                  description: 'Unggah gambar desktop (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                image_mobile:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: null
+                  nullable: true
+                image_mobile_file:
+                  type: string
+                  format: binary
+                  description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                link_url:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: /promo
+                  nullable: true
+                placement:
+                  type: string
+                  description: ':Attribute maksimal 50 karakter.'
+                  example: home
+                sort_order:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 1
+                starts_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: '2026-10-01 00:00:00'
+                  nullable: true
+                ends_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+                  example: '2026-10-31 23:59:59'
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminBannersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Promo & Banner'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the banner.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/customers:
+    get:
+      summary: 'Daftar pelanggan.'
+      operationId: daftarPelanggan
+      description: ''
+      parameters:
+        -
+          in: query
+          name: 'filter[search]'
+          description: 'Nama / nomor WA / email.'
+          example: dinda
+          required: false
+          schema:
+            type: string
+            description: 'Nama / nomor WA / email.'
+            example: dinda
+        -
+          in: query
+          name: 'filter[tier_id]'
+          description: ''
+          example: 2
+          required: false
+          schema:
+            type: integer
+            description: ''
+            example: 2
+        -
+          in: query
+          name: sort
+          description: 'lifetime_spend, points_balance, created_at.'
+          example: '-lifetime_spend'
+          required: false
+          schema:
+            type: string
+            description: 'lifetime_spend, points_balance, created_at.'
+            example: '-lifetime_spend'
+      responses: {  }
+      tags:
+        - 'Admin: Pelanggan'
+  '/api/v1/admin/customers/{id}':
+    get:
+      summary: 'Detail pelanggan: statistik, pesanan terbaru, riwayat poin.'
+      operationId: detailPelangganStatistikPesananTerbaruRiwayatPoin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pelanggan'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the customer.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/admin/customers/{customer_id}/points-adjust':
+    post:
+      summary: 'Koreksi poin (khusus Super Admin, tercatat di riwayat poin).'
+      operationId: koreksiPoinkhususSuperAdminTercatatDiRiwayatPoin
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pelanggan'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points:
+                  type: integer
+                  description: 'Positif untuk menambah, negatif untuk mengurangi. Must not be one of <code>0</code> :Attribute harus bernilai antara -100000 dan 100000.'
+                  example: 25
+                note:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'Kompensasi pesanan terlambat'
+              required:
+                - points
+                - note
+    parameters:
+      -
+        in: path
+        name: customer_id
+        description: 'The ID of the customer.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/blogs:
+    get:
+      summary: ''
+      operationId: getApiV1AdminBlogs
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    post:
+      summary: ''
+      operationId: postApiV1AdminBlogs
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog_category_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                  nullable: true
+                title:
+                  type: string
+                  description: ':Attribute maksimal 200 karakter.'
+                  example: 'Cara Menyeduh V60 di Rumah'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 220 karakter.'
+                  example: b
+                  nullable: true
+                excerpt:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Panduan singkat menyeduh V60.'
+                  nullable: true
+                content:
+                  type: string
+                  description: ''
+                  example: '<p>Isi artikel</p>'
+                cover:
+                  type: string
+                  format: binary
+                  description: 'Gambar sampul (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                meta_title:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'n'
+                  nullable: true
+                meta_description:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: g
+                  nullable: true
+                status:
+                  type: string
+                  description: 'draft | published.'
+                  example: published
+                  enum:
+                    - draft
+                    - published
+                published_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: null
+                  nullable: true
+              required:
+                - title
+                - content
+  '/api/v1/admin/blogs/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminBlogsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    put:
+      summary: ''
+      operationId: putApiV1AdminBlogsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                blog_category_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                  nullable: true
+                title:
+                  type: string
+                  description: ':Attribute maksimal 200 karakter.'
+                  example: 'Cara Menyeduh V60 di Rumah'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 220 karakter.'
+                  example: b
+                  nullable: true
+                excerpt:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Panduan singkat menyeduh V60.'
+                  nullable: true
+                content:
+                  type: string
+                  description: ''
+                  example: '<p>Isi artikel</p>'
+                cover:
+                  type: string
+                  format: binary
+                  description: 'Gambar sampul (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+                  nullable: true
+                meta_title:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: 'n'
+                  nullable: true
+                meta_description:
+                  type: string
+                  description: ':Attribute maksimal 255 karakter.'
+                  example: g
+                  nullable: true
+                status:
+                  type: string
+                  description: 'draft | published.'
+                  example: published
+                  enum:
+                    - draft
+                    - published
+                published_at:
+                  type: string
+                  description: ':Attribute bukan tanggal yang valid.'
+                  example: null
+                  nullable: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminBlogsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the blog.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/blog-categories:
+    get:
+      summary: ''
+      operationId: getApiV1AdminBlogCategories
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    post:
+      summary: ''
+      operationId: postApiV1AdminBlogCategories
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Tips Kopi'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 120 karakter.'
+                  example: b
+                  nullable: true
+              required:
+                - name
+  '/api/v1/admin/blog-categories/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminBlogCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    put:
+      summary: ''
+      operationId: putApiV1AdminBlogCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Tips Kopi'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 120 karakter.'
+                  example: b
+                  nullable: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminBlogCategoriesId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Blog'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the blog category.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/contacts:
+    get:
+      summary: ''
+      operationId: getApiV1AdminContacts
+      description: ''
+      parameters:
+        -
+          in: query
+          name: 'filter[status]'
+          description: new|read|replied
+          example: new
+          required: false
+          schema:
+            type: string
+            description: new|read|replied
+            example: new
+      responses: {  }
+      tags:
+        - 'Admin: Kontak'
+  '/api/v1/admin/contacts/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminContactsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Kontak'
+    patch:
+      summary: 'Tandai dibaca / dibalas.'
+      operationId: tandaiDibacaDibalas
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Kontak'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: 'new | read | replied.'
+                  example: read
+                  enum:
+                    - new
+                    - read
+                    - replied
+              required:
+                - status
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the contact.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/outlets:
+    get:
+      summary: ''
+      operationId: getApiV1AdminOutlets
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    post:
+      summary: ''
+      operationId: postApiV1AdminOutlets
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Kamee Coffee BSD'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 180 karakter.'
+                  example: b
+                  nullable: true
+                address:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Jl. Pahlawan Seribu, BSD'
+                city:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Tangerang Selatan'
+                lat:
+                  type: number
+                  description: ':Attribute harus bernilai antara -90 dan 90.'
+                  example: -6.3012
+                lng:
+                  type: number
+                  description: ':Attribute harus bernilai antara -180 dan 180.'
+                  example: 106.6528
+                phone_wa:
+                  type: string
+                  description: ''
+                  example: '081211110003'
+                open_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '07:00'
+                close_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '22:00'
+                is_open:
+                  type: boolean
+                  description: ''
+                  example: true
+                delivery_radius_km:
+                  type: number
+                  description: ':Attribute harus bernilai antara 0 dan 50.'
+                  example: 7.0
+              required:
+                - name
+                - address
+                - city
+                - lat
+                - lng
+                - phone_wa
+  '/api/v1/admin/outlets/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminOutletsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    put:
+      summary: ''
+      operationId: putApiV1AdminOutletsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 150 karakter.'
+                  example: 'Kamee Coffee BSD'
+                slug:
+                  type: string
+                  description: 'Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 180 karakter.'
+                  example: b
+                  nullable: true
+                address:
+                  type: string
+                  description: ':Attribute maksimal 500 karakter.'
+                  example: 'Jl. Pahlawan Seribu, BSD'
+                city:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Tangerang Selatan'
+                lat:
+                  type: number
+                  description: ':Attribute harus bernilai antara -90 dan 90.'
+                  example: -6.3012
+                lng:
+                  type: number
+                  description: ':Attribute harus bernilai antara -180 dan 180.'
+                  example: 106.6528
+                phone_wa:
+                  type: string
+                  description: ''
+                  example: '081211110003'
+                open_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '07:00'
+                close_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '22:00'
+                is_open:
+                  type: boolean
+                  description: ''
+                  example: true
+                delivery_radius_km:
+                  type: number
+                  description: ':Attribute harus bernilai antara 0 dan 50.'
+                  example: 7.0
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminOutletsId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the outlet.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/users:
+    get:
+      summary: ''
+      operationId: getApiV1AdminUsers
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    post:
+      summary: ''
+      operationId: postApiV1AdminUsers
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Admin Kamee BSD'
+                email:
+                  type: string
+                  description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+                  example: admin.bsd@kamee.id
+                password:
+                  type: string
+                  description: ''
+                  example: rahasia123
+                role:
+                  type: string
+                  description: 'super_admin | outlet_admin.'
+                  example: outlet_admin
+                  enum:
+                    - super_admin
+                    - outlet_admin
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+              required:
+                - name
+                - email
+                - password
+                - role
+  '/api/v1/admin/users/{id}':
+    get:
+      summary: ''
+      operationId: getApiV1AdminUsersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    put:
+      summary: ''
+      operationId: putApiV1AdminUsersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ':Attribute maksimal 100 karakter.'
+                  example: 'Admin Kamee BSD'
+                email:
+                  type: string
+                  description: ':Attribute harus berupa alamat email yang valid. :Attribute maksimal 150 karakter.'
+                  example: admin.bsd@kamee.id
+                password:
+                  type: string
+                  description: ''
+                  example: rahasia123
+                  nullable: true
+                role:
+                  type: string
+                  description: 'super_admin | outlet_admin.'
+                  example: outlet_admin
+                  enum:
+                    - super_admin
+                    - outlet_admin
+                outlet_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 1
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: ''
+      operationId: deleteApiV1AdminUsersId
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Outlet & Pengguna'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the user.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/v1/admin/reports/sales.xlsx:
+    get:
+      summary: 'Ekspor laporan penjualan (XLSX).'
+      operationId: eksporLaporanPenjualanXLSX
+      description: ''
+      parameters:
+        -
+          in: query
+          name: outlet_id
+          description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Filter outlet (diabaikan untuk Admin Outlet). Must match an existing stored value.'
+            example: 1
+            nullable: true
+        -
+          in: query
+          name: from
+          description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+          example: '2026-09-01'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal awal (Y-m-d). :Attribute bukan tanggal yang valid.'
+            example: '2026-09-01'
+            nullable: true
+        -
+          in: query
+          name: to
+          description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+          example: '2026-09-28'
+          required: false
+          schema:
+            type: string
+            description: 'Tanggal akhir (Y-m-d). :Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah atau sama dengan <code>from</code>.'
+            example: '2026-09-28'
+            nullable: true
+        -
+          in: query
+          name: interval
+          description: 'day | month (khusus revenue).'
+          example: day
+          required: false
+          schema:
+            type: string
+            description: 'day | month (khusus revenue).'
+            example: day
+            enum:
+              - day
+              - month
+            nullable: true
+        -
+          in: query
+          name: limit
+          description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Jumlah produk (khusus top-products). :Attribute harus bernilai antara 1 dan 50.'
+            example: 10
+            nullable: true
+      responses:
+        200:
+          description: 'Berkas XLSX'
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: binary
+      tags:
+        - 'Admin: Laporan'
+  /api/v1/admin/settings:
+    get:
+      summary: 'Pengaturan ongkir, biaya, rasio poin, nomor WA.'
+      operationId: pengaturanOngkirBiayaRasioPoinNomorWA
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pengaturan'
+    put:
+      summary: ''
+      operationId: putApiV1AdminSettings
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin: Pengaturan'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_timeout_minutes:
+                  type: integer
+                  description: ':Attribute harus bernilai antara 5 dan 120.'
+                  example: 6
+                service_fee:
+                  type: integer
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 39
+                delivery_base_fee:
+                  type: integer
+                  description: 'Ongkir dasar (rupiah). :Attribute minimal bernilai 0.'
+                  example: 8000
+                delivery_base_km:
+                  type: number
+                  description: ':Attribute minimal bernilai 0.'
+                  example: 84
+                delivery_per_km_fee:
+                  type: integer
+                  description: 'Tarif per km di atas jarak dasar. :Attribute minimal bernilai 0.'
+                  example: 2500
+                points_earn_per_amount:
+                  type: integer
+                  description: 'Belanja per 1 poin (rasio poin). :Attribute minimal bernilai 1000.'
+                  example: 10000
+                point_value:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 66
+                points_max_redeem_percent:
+                  type: integer
+                  description: ':Attribute harus bernilai antara 0 dan 100.'
+                  example: 0
+                points_min_redeem:
+                  type: integer
+                  description: ':Attribute minimal bernilai 1.'
+                  example: 35
+                points_expiry_months:
+                  type: integer
+                  description: ':Attribute harus bernilai antara 1 dan 60.'
+                  example: 1
+                whatsapp_number:
+                  type: string
+                  description: ''
+                  example: '6281200000000'
+                default_open_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '16:25'
+                default_close_time:
+                  type: string
+                  description: 'Must be a valid date in the format <code>H:i</code>.'
+                  example: '16:25'

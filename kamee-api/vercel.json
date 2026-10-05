@@ -1,0 +1,32 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["sin1"],
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.9.0",
+      "maxDuration": 30,
+      "excludeFiles": "{.git/**,.github/**,.scribe/**,.vercel/**,node_modules/**,tests/**,docs/**,docker/**,storage/**,public/storage/**,database/supabase/**,bootstrap/cache/*.php,README.md,dump.rdb,phpunit.xml,docker-compose.yml,.env,.env.*,vercel.json,.vercelignore}"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ],
+  "crons": [
+    { "path": "/api/v1/internal/cron", "schedule": "15 17 * * *" }
+  ],
+  "env": {
+    "APP_CONFIG_CACHE": "/tmp/config.php",
+    "APP_EVENTS_CACHE": "/tmp/events.php",
+    "APP_PACKAGES_CACHE": "/tmp/packages.php",
+    "APP_ROUTES_CACHE": "/tmp/routes.php",
+    "APP_SERVICES_CACHE": "/tmp/services.php",
+    "VIEW_COMPILED_PATH": "/tmp",
+    "LARAVEL_STORAGE_PATH": "/tmp/storage",
+    "LOG_CHANNEL": "stderr",
+    "SESSION_DRIVER": "array",
+    "CACHE_STORE": "database",
+    "QUEUE_CONNECTION": "sync",
+    "BROADCAST_CONNECTION": "log",
+    "TRUSTED_PROXIES": "*"
+  }
+}

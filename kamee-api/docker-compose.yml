@@ -1,0 +1,86 @@
+# Lingkungan pengembangan Kamee API: php (app, queue, scheduler, reverb), mysql, redis.
+x-php: &php
+  build:
+    context: .
+    dockerfile: docker/php/Dockerfile
+  image: kamee-api-php
+  working_dir: /var/www/html
+  volumes:
+    - ./:/var/www/html
+  env_file: .env
+  environment:
+    DB_HOST: mysql
+    DB_PORT: 3306
+    REDIS_HOST: redis
+    REVERB_HOST: localhost
+    REVERB_SERVER_HOST: 0.0.0.0
+  depends_on:
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  app:
+    <<: *php
+    container_name: kamee-app
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+  queue:
+    <<: *php
+    container_name: kamee-queue
+    command: php artisan queue:work redis --sleep=1 --tries=3 --max-time=3600
+
+  scheduler:
+    <<: *php
+    container_name: kamee-scheduler
+    command: php artisan schedule:work
+
+  reverb:
+    <<: *php
+    container_name: kamee-reverb
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports:
+      - "${REVERB_PORT:-8080}:8080"
+
+  mysql:
+    image: mysql:8.0
+    container_name: kamee-mysql
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-kamee}
+      MYSQL_USER: ${DB_USERNAME:-kamee}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      TZ: Asia/Jakarta
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: kamee-redis
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:

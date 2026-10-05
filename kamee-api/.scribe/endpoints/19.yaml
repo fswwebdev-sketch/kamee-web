@@ -1,0 +1,965 @@
+name: 'Admin: Promo & Banner'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/admin/promotions
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/admin/promotions
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Kosongkan untuk promo otomatis. Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 50 karakter.'
+        required: false
+        example: KAMEEHEMAT
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      name:
+        custom: []
+        name: name
+        description: ':Attribute maksimal 150 karakter.'
+        required: true
+        example: 'Hemat 20% maks 15rb'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: 'percent | fixed | bogo | free_delivery.'
+        required: true
+        example: percent
+        type: string
+        enumValues:
+          - percent
+          - fixed
+          - bogo
+          - free_delivery
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      value:
+        custom: []
+        name: value
+        description: ':Attribute minimal bernilai 0.'
+        required: true
+        example: 20
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      min_spend:
+        custom: []
+        name: min_spend
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 40000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      max_discount:
+        custom: []
+        name: max_discount
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 15000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      quota:
+        custom: []
+        name: quota
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      per_customer_limit:
+        custom: []
+        name: per_customer_limit
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: ':Attribute bukan tanggal yang valid.'
+        required: false
+        example: '2026-09-28T16:25:02'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+        required: false
+        example: '2052-10-21'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_active:
+        custom: []
+        name: is_active
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      code: KAMEEHEMAT
+      name: 'Hemat 20% maks 15rb'
+      type: percent
+      value: 20
+      min_spend: 40000
+      max_discount: 15000
+      quota: 16
+      per_customer_limit: 22
+      starts_at: '2026-09-28T16:25:02'
+      ends_at: '2052-10-21'
+      outlet_id: 16
+      is_active: false
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/admin/promotions/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/v1/admin/promotions/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      code:
+        custom: []
+        name: code
+        description: 'Kosongkan untuk promo otomatis. Must contain only letters, numbers, dashes and underscores. :Attribute maksimal 50 karakter.'
+        required: false
+        example: KAMEEHEMAT
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      name:
+        custom: []
+        name: name
+        description: ':Attribute maksimal 150 karakter.'
+        required: false
+        example: 'Hemat 20% maks 15rb'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: 'percent | fixed | bogo | free_delivery.'
+        required: false
+        example: percent
+        type: string
+        enumValues:
+          - percent
+          - fixed
+          - bogo
+          - free_delivery
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      value:
+        custom: []
+        name: value
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 20
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      min_spend:
+        custom: []
+        name: min_spend
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 40000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      max_discount:
+        custom: []
+        name: max_discount
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 15000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      quota:
+        custom: []
+        name: quota
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      per_customer_limit:
+        custom: []
+        name: per_customer_limit
+        description: ':Attribute minimal bernilai 1.'
+        required: false
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: ':Attribute bukan tanggal yang valid.'
+        required: false
+        example: '2026-09-28T16:25:02'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+        required: false
+        example: '2052-10-21'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_active:
+        custom: []
+        name: is_active
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      code: KAMEEHEMAT
+      name: 'Hemat 20% maks 15rb'
+      type: percent
+      value: 20
+      min_spend: 40000
+      max_discount: 15000
+      quota: 16
+      per_customer_limit: 22
+      starts_at: '2026-09-28T16:25:02'
+      ends_at: '2052-10-21'
+      outlet_id: 16
+      is_active: true
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/admin/promotions/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/admin/banners
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/admin/banners
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      title:
+        custom: []
+        name: title
+        description: ':Attribute maksimal 150 karakter.'
+        required: true
+        example: 'Ngopi Hemat 20%'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      subtitle:
+        custom: []
+        name: subtitle
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: 'Pakai kode KAMEEHEMAT'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_desktop:
+        custom: []
+        name: image_desktop
+        description: 'Path/URL gambar desktop (atau kirim image_desktop_file). This field is required when <code>image_desktop_file</code> is not present. :Attribute maksimal 255 karakter.'
+        required: false
+        example: banners/promo.jpg
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_desktop_file:
+        custom: []
+        name: image_desktop_file
+        description: 'Unggah gambar desktop (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_mobile:
+        custom: []
+        name: image_mobile
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_mobile_file:
+        custom: []
+        name: image_mobile_file
+        description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      link_url:
+        custom: []
+        name: link_url
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: /promo
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      placement:
+        custom: []
+        name: placement
+        description: ':Attribute maksimal 50 karakter.'
+        required: false
+        example: home
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      sort_order:
+        custom: []
+        name: sort_order
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: ':Attribute bukan tanggal yang valid.'
+        required: false
+        example: '2026-10-01 00:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+        required: false
+        example: '2026-10-31 23:59:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_active:
+        custom: []
+        name: is_active
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      title: 'Ngopi Hemat 20%'
+      subtitle: 'Pakai kode KAMEEHEMAT'
+      image_desktop: banners/promo.jpg
+      link_url: /promo
+      placement: home
+      sort_order: 1
+      starts_at: '2026-10-01 00:00:00'
+      ends_at: '2026-10-31 23:59:59'
+      is_active: true
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/admin/banners/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the banner.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/v1/admin/banners/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the banner.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      title:
+        custom: []
+        name: title
+        description: ':Attribute maksimal 150 karakter.'
+        required: false
+        example: 'Ngopi Hemat 20%'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      subtitle:
+        custom: []
+        name: subtitle
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: 'Pakai kode KAMEEHEMAT'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_desktop:
+        custom: []
+        name: image_desktop
+        description: 'Path/URL gambar desktop (atau kirim image_desktop_file). :Attribute maksimal 255 karakter.'
+        required: false
+        example: banners/promo.jpg
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_desktop_file:
+        custom: []
+        name: image_desktop_file
+        description: 'Unggah gambar desktop (multipart). :Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_mobile:
+        custom: []
+        name: image_mobile
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: null
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image_mobile_file:
+        custom: []
+        name: image_mobile_file
+        description: ':Attribute harus berupa gambar. :Attribute maksimal berukuran 4096 kilobyte.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      link_url:
+        custom: []
+        name: link_url
+        description: ':Attribute maksimal 255 karakter.'
+        required: false
+        example: /promo
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      placement:
+        custom: []
+        name: placement
+        description: ':Attribute maksimal 50 karakter.'
+        required: false
+        example: home
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      sort_order:
+        custom: []
+        name: sort_order
+        description: ':Attribute minimal bernilai 0.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: ':Attribute bukan tanggal yang valid.'
+        required: false
+        example: '2026-10-01 00:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: ':Attribute bukan tanggal yang valid. :Attribute harus tanggal setelah <code>starts_at</code>.'
+        required: false
+        example: '2026-10-31 23:59:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_active:
+        custom: []
+        name: is_active
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      title: 'Ngopi Hemat 20%'
+      subtitle: 'Pakai kode KAMEEHEMAT'
+      image_desktop: banners/promo.jpg
+      link_url: /promo
+      placement: home
+      sort_order: 1
+      starts_at: '2026-10-01 00:00:00'
+      ends_at: '2026-10-31 23:59:59'
+      is_active: true
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/admin/banners/{id}'
+    metadata:
+      custom: []
+      groupName: 'Admin: Promo & Banner'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the banner.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

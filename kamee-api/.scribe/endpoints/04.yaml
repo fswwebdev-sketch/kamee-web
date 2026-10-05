@@ -1,0 +1,110 @@
+name: 'Outlet & Pengantaran'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/outlets
+    metadata:
+      custom: []
+      groupName: 'Outlet & Pengantaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Outlet beserta jam buka dan koordinat.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 500
+        content: '{"message":"Terjadi kesalahan pada server. Silakan coba lagi."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/delivery/quote
+    metadata:
+      custom: []
+      groupName: 'Outlet & Pengantaran'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Hitung ongkir.'
+      description: 'Jarak dihitung dengan rumus Haversine dari koordinat outlet. Di luar radius → 422.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      outlet_id:
+        custom: []
+        name: outlet_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      lat:
+        custom: []
+        name: lat
+        description: 'Latitude tujuan. :Attribute harus bernilai antara -90 dan 90.'
+        required: true
+        example: -6.178
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      lng:
+        custom: []
+        name: lng
+        description: 'Longitude tujuan. :Attribute harus bernilai antara -180 dan 180.'
+        required: true
+        example: 106.631
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      outlet_id: 1
+      lat: -6.178
+      lng: 106.631
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
