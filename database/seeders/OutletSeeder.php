@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Outlet;
+use Database\Seeders\Concerns\SyncsPostgresSequences;
 use Illuminate\Database\Seeder;
 
 /** Kamee Coffee hanya punya satu outlet: Taman Cibodas, Kota Tangerang. */
 class OutletSeeder extends Seeder
 {
+    use SyncsPostgresSequences;
+
     public const SLUG = 'kamee-taman-cibodas';
 
     public function run(): void
@@ -25,5 +28,7 @@ class OutletSeeder extends Seeder
             'delivery_radius_km' => 5,
             'is_open' => true,
         ]));
+
+        $this->syncPostgresSequences('outlets');
     }
 }

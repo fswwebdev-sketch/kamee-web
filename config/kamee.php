@@ -45,6 +45,13 @@ return [
 
     'idempotency_ttl_hours' => 24,
 
+    // Seeder data demo (pelanggan contoh, pesanan demo, pesan kontak contoh). Matikan untuk produksi:
+    // KAMEE_SEED_DEMO=false → db:seed hanya mengisi data asli (outlet, admin, menu, promo, konten, pembukuan).
+    'seed_demo' => filter_var(env('KAMEE_SEED_DEMO', true), FILTER_VALIDATE_BOOL),
+
+    // Rahasia endpoint POST /api/v1/internal/cron (header X-Cron-Secret). Kosong = endpoint nonaktif.
+    'cron_secret' => env('CRON_SECRET'),
+
     // manual (QRIS statis + konfirmasi admin) | midtrans | fake (simulator lokal)
     'payment_gateway' => env('PAYMENT_GATEWAY', 'manual'),
 

@@ -46,7 +46,7 @@ class IngredientController extends Controller
         $items = Ingredient::query()
             ->when($outletId, fn ($q) => $q->where('outlet_id', $outletId))
             ->when($request->filled('kind'), fn ($q) => $q->where('kind', $request->input('kind')))
-            ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%'.$request->input('q').'%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('name', '%'.$request->input('q').'%'))
             ->orderBy('kind')
             ->orderBy('name')
             ->limit(500)

@@ -10,11 +10,14 @@ use App\Services\WhatsApp\ArrayWhatsApp;
 use App\Services\WhatsApp\FonnteWhatsApp;
 use App\Services\WhatsApp\LogWhatsApp;
 use App\Services\WhatsApp\WhatsAppService;
+use App\Support\Cache\TransactionSafeDatabaseStore;
 use App\Support\Phone;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +26,29 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(SettingService::class);
+
+        // CACHE_STORE=database (Vercel): kunci cache aman dipakai di dalam transaksi PostgreSQL.
+        $this->app->booting(function () {
+            Cache::extend('database', function ($app, array $config) {
+                /** @var CacheManager $this */
+                $connection = $app['db']->connection($config['connection'] ?? null);
+
+                $store = new TransactionSafeDatabaseStore(
+                    $connection,
+                    $config['table'],
+                    $this->getPrefix($config),
+                    $config['lock_table'] ?? 'cache_locks',
+                    $config['lock_lottery'] ?? [2, 100],
+                    $config['lock_timeout'] ?? 86400,
+                    $this->getSerializableClasses($config),
+                );
+
+                return $this->repository(
+                    $store->setLockConnection($app['db']->connection($config['lock_connection'] ?? $config['connection'] ?? null)),
+                    $config,
+                );
+            });
+        });
 
         $this->app->singleton(WhatsAppService::class, fn () => match (config('services.whatsapp.driver')) {
             'fonnte' => new FonnteWhatsApp((string) config('services.fonnte.token'), (string) config('services.fonnte.url')),

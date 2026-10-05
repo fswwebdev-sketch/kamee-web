@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 // Webhook gateway pembayaran (tanpa rate limit publik; diverifikasi signature).
 Route::post('webhooks/payments/{provider}', Api\PaymentWebhookController::class)->name('webhooks.payments');
 
+// Pemicu tugas terjadwal tanpa daemon (pg_cron/pg_net atau Vercel Cron); diamankan header X-Cron-Secret.
+Route::match(['get', 'post'], 'internal/cron', Api\InternalCronController::class)
+    ->middleware('throttle:60,1')
+    ->name('internal.cron');
+
 Route::middleware('throttle:public')->group(function () {
 
     // ------------------------------------------------------------------ Publik

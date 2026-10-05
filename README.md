@@ -2,7 +2,7 @@
 
 REST API untuk **Kamee Coffee** (`/api/v1`): katalog, pesanan (web, WhatsApp, POS), pembayaran QRIS statis dengan konfirmasi admin (Midtrans opsional), poin loyalitas, promo, konten, dan dashboard admin. Satu kontrak API yang sama dipakai web Next.js, dashboard admin, dan kelak aplikasi mobile/POS.
 
-**Stack:** Laravel 12 · PHP 8.3 · MySQL 8 · Redis (cache, queue, lock) · Sanctum · Reverb · Pest · spatie/laravel-query-builder · Scribe · OpenSpout (XLSX)
+**Stack:** Laravel 12 · PHP 8.3+ · MySQL 8 atau PostgreSQL 15–17 (Supabase) · Redis atau cache database · Sanctum · Reverb · Pest · spatie/laravel-query-builder · Scribe · OpenSpout (XLSX) · Supabase Storage (S3)
 
 ---
 
@@ -20,6 +20,7 @@ REST API untuk **Kamee Coffee** (`/api/v1`): katalog, pesanan (web, WhatsApp, PO
 10. [Skema database](#10-skema-database)
 11. [Catatan & keputusan desain](#11-catatan--keputusan-desain)
 12. [Keuangan (pembukuan admin)](#12-keuangan-pembukuan-admin)
+13. [Deploy: GitHub + Vercel + Supabase](#13-deploy-github--vercel--supabase)
 
 ---
 
@@ -87,6 +88,8 @@ Di produksi, ganti `schedule:work` dengan cron `* * * * * php artisan schedule:r
 | Keuangan | `BookkeepingSeeder`: data buku catatan pemilik 20–29 Sep 2026 — 11 bahan & kemasan, belanja stok 20/9 (Rp2.321.000) + es batu, pengeluaran lain, 13 pemasukan penjualan, dan resep 19 menu. Lihat [§12](#12-keuangan-pembukuan-admin) |
 
 Login pelanggan memakai OTP WhatsApp. Dengan `WHATSAPP_DRIVER=log`, kode OTP tertulis di `storage/logs/laravel.log`.
+
+**Produksi tanpa data demo:** `KAMEE_SEED_DEMO=false php artisan db:seed` melewati pelanggan, pesanan demo, dan pesan kontak contoh (baris *Pelanggan*, *Pesanan*, dan pesan kontak di tabel atas). Data lain tetap diisi. Data inilah yang ada di `database/supabase/seed.sql`.
 
 ## 4. Dokumentasi API
 
@@ -295,6 +298,9 @@ window.Echo.private(`order.${code}`).listen('.order.status_updated', (e) => { /*
 | `orders:cancel-unpaid` | tiap menit | Batalkan pesanan non-tunai belum dibayar > `payment_timeout_minutes` (default 60 menit; status gateway dicek ulang dulu) |
 | `payments:reconcile` | tiap 5 menit | Cocokkan pembayaran pending dengan status gateway (QRIS manual dilewati) |
 | `loyalty:expire-points` | 00:15 setiap hari | Kedaluwarsakan poin (FIFO) |
+| `kamee:prune-cache` | 03:00 setiap hari | Hapus baris kedaluwarsa di tabel `cache`/`cache_locks` (untuk `CACHE_STORE=database`) |
+
+Di server biasa jalankan `php artisan schedule:work`. Di hosting tanpa proses latar (Vercel), panggil `POST /api/v1/internal/cron` (header `X-Cron-Secret`) setiap 5 menit, atau `php artisan kamee:cron`. Keduanya menjalankan tugas di atas secara sinkron: tugas menit-an/5-menit dijalankan setiap kali dipanggil, sedangkan tugas harian dijalankan sekali per hari pada panggilan pertama setelah jamnya. Lihat [§13](#13-deploy-github--vercel--supabase).
 
 ## 9. Pengujian
 
@@ -309,7 +315,22 @@ Tes berjalan di SQLite in-memory (lihat `phpunit.xml`; gateway `manual`, metode 
 DB_CONNECTION=mysql DB_DATABASE=kamee_test DB_USERNAME=... DB_PASSWORD=... php artisan test
 ```
 
-**Hasil saat ini: 216 tes, semuanya lulus. Coverage `app/Services` + `app/Actions`: 98,7%.**
+**PostgreSQL (sama dengan Supabase).** Variabel lingkungan dari shell menimpa nilai di `phpunit.xml`, jadi cukup:
+
+```bash
+# database kosong khusus tes (akan di-migrate ulang)
+DB_CONNECTION=pgsql DB_HOST=127.0.0.1 DB_PORT=5432 DB_DATABASE=kamee_test DB_USERNAME=postgres DB_PASSWORD= \
+CACHE_STORE=database php artisan test
+
+# Meniru Supabase transaction pooler (PgBouncer pool_mode=transaction di depan Postgres):
+DB_PORT=6432 DB_PGSQL_DISABLE_PREPARES=true ... php artisan test
+```
+
+Tidak punya Postgres lokal? Biner PostgreSQL 17 portabel tersedia lewat npm: `npm i @embedded-postgres/linux-x64@17.10.0-beta.17`. Lalu jalankan `initdb` dan `pg_ctl` dari `node_modules/@embedded-postgres/linux-x64/native/bin` (sebagai user non-root).
+
+Catatan PostgreSQL: pencarian memakai `whereLike` (otomatis `ILIKE`, tidak membedakan huruf besar/kecil). Agregat `SUM`/`AVG` di-cast ke int/float. Pengelompokan tanggal memakai `to_char(created_at, ...)`: kolom `timestamp` disimpan tanpa zona waktu dalam `APP_TIMEZONE` (Asia/Jakarta), jadi tidak perlu `AT TIME ZONE` dan hasilnya tidak bergantung pada zona waktu server (Supabase = UTC). `Cache::lock` di store database memakai `INSERT … ON CONFLICT DO NOTHING`, jadi aman di dalam transaksi PostgreSQL. Seeder yang menulis ID tetap ikut memajukan sequence.
+
+**Hasil saat ini: 231 tes, semuanya lulus di SQLite, MySQL 8, dan PostgreSQL 17 (langsung maupun lewat PgBouncer mode transaksi). Coverage `app/Services` + `app/Actions`: 98,1%.**
 
 Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 19 produk, 3 kategori, total buku catatan & HPP Aren Kame), keuangan (bahan, stok opname, belanja stok, resep/HPP, kasir, pemotongan & pembalikan stok, buku kas, ringkasan, isolasi outlet), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
 
@@ -337,7 +358,7 @@ Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas
 - **Tamu vs member:** pesanan tamu dengan nomor WA yang sudah terdaftar otomatis dikaitkan ke pelanggan tersebut (agar mendapat poin), tetapi penukaran poin hanya untuk member yang login.
 - **Kode pesanan:** `KM` + `yymmdd` + 5 karakter acak tanpa huruf/angka ambigu, contoh `KM260928AB3CD`.
 - **Pelacakan tamu:** `GET /orders/{code}?phone=` memerlukan 4 digit terakhir nomor WA. Channel `order.{code}` privat sehingga butuh token pelanggan; tamu memakai polling `payment-status`.
-- **Upload file** (gambar produk, banner, cover blog, foto ulasan) memakai disk `public`. Untuk `PATCH` dengan file gunakan `POST` + `_method=PATCH` (multipart).
+- **Upload file** (gambar produk, banner, cover blog, foto ulasan) memakai disk `filesystems.media_disk`: default `public`, dan `supabase` (Supabase Storage via S3) di Vercel. Database menyimpan path relatif; URL publik dibentuk oleh `App\Support\Media`. Untuk `PATCH` dengan file gunakan `POST` + `_method=PATCH` (multipart).
 - **Laporan:**
   - `GET /admin/reports/sales` → ringkasan teragregasi `group_by=day|month|product|outlet|payment_method`.
   - `GET /admin/reports/sales.xlsx` → ekspor XLSX di-stream dengan OpenSpout (hemat memori). Tanpa `group_by` = semua transaksi; dengan `group_by` = ringkasan.
@@ -389,3 +410,129 @@ Es batu (±100 gr per cup) tidak dihitung di HPP karena belanjanya tidak tercata
 - Pengeluaran lain Rp388.150 (tanggal & metode tidak tertulis → 2026-09-20, tunai, diberi catatan) dan 13 pemasukan penjualan Rp1.111.000 (transfer BCA/BJB & tunai; baris yang bacaan tulisan tangannya ragu diberi catatan "mohon cek").
 - **Resep Aren Kame adalah resep asli pemilik (`is_sample = false`)** — Cup: aren 30, creamer 20, susu 120, kopi 20, cup 1 → HPP Rp12.580, margin Rp4.420 (26%), cukup 110 cup (dibatasi stok Cup 12 oz + tutup). Resep menu lain adalah **contoh perkiraan (`is_sample = true`)** yang akan diubah pemilik.
 - Pengeluaran pribadi pemilik (kaos kaki, pilates) sengaja tidak dicatat.
+
+## 13. Deploy: GitHub + Vercel + Supabase
+
+Panduan ini untuk pemilik usaha, tidak perlu menjadi developer. Hasil akhirnya: API berjalan di `https://api.<domain-anda>` (Vercel, gratis/Hobby), dengan database dan penyimpanan gambar di Supabase.
+
+**Gambaran singkat**
+
+| Bagian | Layanan | Catatan |
+|---|---|---|
+| Kode | GitHub (repo `kamee-api`) | Setiap *push* ke branch utama otomatis di-deploy ulang oleh Vercel |
+| API PHP | Vercel, runtime komunitas `vercel-php@0.9.0` (PHP 8.4) | `api/index.php` + `vercel.json`, region `sin1` (Singapura) |
+| Database | Supabase Postgres 17, lewat Transaction pooler port 6543 | `database/supabase/schema.sql` + `seed.sql` |
+| Gambar | Supabase Storage, bucket publik `kamee` (API S3) | Disk `supabase` |
+| Jadwal (batal otomatis, poin, dll.) | Supabase `pg_cron` + `pg_net` → `POST /api/v1/internal/cron` tiap 5 menit | Vercel Cron Hobby hanya harian (sudah dipasang sebagai cadangan) |
+
+### Langkah 1 — Buat project Supabase
+
+1. Masuk ke <https://supabase.com> → **New project**. Nama: `kamee`, Region: **Southeast Asia (Singapore)**. Buat **Database Password** yang kuat dan simpan.
+2. Tunggu sampai project siap (±2 menit).
+
+### Langkah 2 — Buat tabel & data awal
+
+1. Supabase → **SQL Editor** → **New query**.
+2. Buka `database/supabase/schema.sql` di GitHub (tombol *Raw*), salin semua isinya, tempel, lalu klik **Run**. Pesan yang muncul harus *Success*.
+3. Ulangi dengan `database/supabase/seed.sql`.
+   (Bisa juga minta asisten/developer menjalankannya: `psql "<connection string>" -f database/supabase/schema.sql -f database/supabase/seed.sql`.)
+
+Isi `seed.sql`: outlet Taman Cibodas, 2 akun admin, 19 menu dan opsinya, promo, banner, blog, tier loyalitas, dan pembukuan awal. Data demo (pelanggan, pesanan, pesan contoh) tidak ikut. Seluruh tabel dikunci dengan RLS, dan akses role `anon`/`authenticated` dicabut, sehingga data tidak bisa dibaca lewat Supabase Data API. Laravel tetap bisa mengaksesnya karena memakai role `postgres`.
+
+> Banner dan artikel contoh memakai gambar placeholder dan tanggal saat file dibuat. Ganti lewat dashboard admin.
+
+### Langkah 3 — Bucket gambar (Supabase Storage)
+
+1. Supabase → **Storage** → **New bucket** → nama `kamee`, aktifkan **Public bucket** → Save.
+2. Storage → **Settings** (bagian *S3 Connection*): pastikan S3 aktif, catat **Endpoint** dan **Region**.
+3. Di halaman yang sama → **New access key** → catat **Access key ID** dan **Secret access key** (secret hanya tampil sekali).
+4. URL publik bucket: `https://<project-ref>.supabase.co/storage/v1/object/public/kamee`. `<project-ref>` adalah kode 20 huruf di URL dashboard Supabase.
+
+### Langkah 4 — Data koneksi database
+
+Supabase → tombol **Connect** (atas) → **Transaction pooler**. Catat *host* (mis. `aws-0-ap-southeast-1.pooler.supabase.com`), *port* `6543`, *database* `postgres`, dan *user* `postgres.<project-ref>`. Password = Database Password dari langkah 1.
+
+> Kenapa pooler? Alamat langsung `db.<ref>.supabase.co` hanya IPv6, sedangkan Vercel butuh IPv4. Mode transaksi (6543) paling cocok untuk serverless. Wajib isi `DB_PGSQL_DISABLE_PREPARES=true`, karena mode ini tidak mendukung *prepared statement* bernama. Sudah diuji dengan PgBouncer `pool_mode=transaction`. Alternatif: Session pooler (port 5432 di host yang sama) dengan `DB_PGSQL_DISABLE_PREPARES=false`, tetapi jumlah koneksinya lebih terbatas.
+
+### Langkah 5 — Import repo ke Vercel
+
+1. Masuk ke <https://vercel.com> dengan akun GitHub → **Add New… → Project** → pilih repo **kamee-api** → **Import**.
+2. Framework Preset: **Other**. Build/Output command dibiarkan kosong (`vercel.json` sudah mengatur semuanya).
+3. Buka **Environment Variables** dan isi semua variabel dari `.env.vercel.example`. Yang wajib diganti:
+
+| Variabel | Isi |
+|---|---|
+| `APP_KEY` | Kunci acak `base64:...`, dibuat dengan `php artisan key:generate --show` (minta asisten). Jangan diganti setelah live |
+| `APP_URL` | `https://api.<domain>` (sementara boleh URL `*.vercel.app`) |
+| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | Domain web, mis. `https://kameecoffee.id,https://www.kameecoffee.id` |
+| `DB_HOST`, `DB_PORT=6543`, `DB_DATABASE=postgres`, `DB_USERNAME`, `DB_PASSWORD`, `DB_SSLMODE=require`, `DB_PGSQL_DISABLE_PREPARES=true` | Dari langkah 4 |
+| `CRON_SECRET` | String acak panjang (mis. `openssl rand -hex 32`) |
+| `FILESYSTEM_DISK=supabase`, `SUPABASE_S3_ENDPOINT`, `SUPABASE_S3_REGION`, `SUPABASE_S3_KEY`, `SUPABASE_S3_SECRET`, `SUPABASE_S3_BUCKET=kamee`, `SUPABASE_PUBLIC_URL` | Dari langkah 3 |
+| `PAYMENT_GATEWAY=manual`, `KAMEE_PAYMENT_METHODS=qris,cash`, `KAMEE_QRIS_IMAGE_URL` | Pembayaran QRIS statis |
+| `KAMEE_SEED_DEMO=false` | Produksi tanpa data demo |
+
+4. Klik **Deploy**. Setelah selesai, cek `https://<project>.vercel.app/up` (harus 200) dan `https://<project>.vercel.app/api/v1/categories` (harus berisi 3 kategori).
+
+Yang sudah diatur otomatis oleh `vercel.json` + `api/index.php`: semua request diarahkan ke Laravel, cache bootstrap/view/storage dipindah ke `/tmp` (filesystem lain read-only), `LOG_CHANNEL=stderr` (log ada di Vercel → Logs), `SESSION_DRIVER=array` (API memakai token Bearer Sanctum, bukan cookie), `CACHE_STORE=database` (rate limit, idempotensi, dan kunci memakai tabel `cache`/`cache_locks`), `QUEUE_CONNECTION=sync`, `BROADCAST_CONNECTION=log`, dan `TRUSTED_PROXIES=*` (IP klien & https terbaca benar di belakang proxy Vercel). Folder `tests`, `docs`, `storage`, dan file SQL tidak ikut dibundel (`excludeFiles`). Composer memasang dependensi tanpa paket dev, dan skrip `composer vercel` membuang layanan AWS SDK selain S3 agar bundel kecil.
+
+### Langkah 6 — Domain `api.<domain>`
+
+1. Vercel → Project → **Settings → Domains** → tambahkan `api.kameecoffee.id`.
+2. Di pengelola DNS domain, buat record **CNAME** `api` → `cname.vercel-dns.com` (ikuti nilai yang ditampilkan Vercel). Tunggu sampai statusnya *Valid*.
+3. Ubah `APP_URL` ke `https://api.kameecoffee.id`, lalu **Redeploy**.
+4. Di project web (kamee-web), set `NEXT_PUBLIC_API_URL=https://api.kameecoffee.id/api/v1` dan `NEXT_PUBLIC_API_MOCKING=disabled`.
+
+### Langkah 7 — Jadwal otomatis tiap 5 menit (pg_cron)
+
+Pesanan QRIS yang tidak dibayar dalam 60 menit dibatalkan oleh tugas terjadwal. Karena Vercel tidak punya proses latar, Supabase yang memanggil API setiap 5 menit:
+
+1. Supabase → **Database → Extensions**: aktifkan **pg_cron** dan **pg_net**.
+2. SQL Editor → jalankan (ganti domain dan rahasia sesuai `CRON_SECRET`):
+
+```sql
+select cron.schedule(
+  'kamee-cron',
+  '*/5 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://api.kameecoffee.id/api/v1/internal/cron',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Accept', 'application/json',
+      'X-Cron-Secret', 'ISI_SAMA_DENGAN_CRON_SECRET'
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 25000
+  );
+  $$
+);
+```
+
+Cek hasilnya beberapa menit kemudian:
+
+```sql
+select status, return_message, start_time from cron.job_run_details order by start_time desc limit 5;
+select status_code, content from net._http_response order by created desc limit 5;  -- harus 200 + ringkasan JSON
+```
+
+Mengubah/menghapus jadwal: `select cron.unschedule('kamee-cron');` lalu jalankan ulang `cron.schedule` di atas.
+
+Respons endpoint berisi ringkasan, mis. `{"data":{"status":"ok","tasks":{"orders:cancel-unpaid":{"status":"ok","output":"0 pesanan dibatalkan otomatis."}, ...}}}`. Tanpa rahasia yang benar → 401. Bila panggilan sebelumnya masih berjalan → 409.
+
+> **Vercel Cron** (paket Hobby) hanya bisa harian. `vercel.json` sudah memasang satu jadwal harian 17:15 UTC (00:15 WIB) ke endpoint yang sama sebagai cadangan. Vercel otomatis mengirim `Authorization: Bearer <CRON_SECRET>`. Jadwal tiap 5 menit tetap memakai pg_cron. Alternatif lain: layanan cron eksternal (mis. cron-job.org) dengan header `X-Cron-Secret`.
+
+### Langkah 8 — Ganti sandi admin (WAJIB)
+
+Akun awal `superadmin@kamee.id` dan `admin.cibodas@kamee.id` memakai sandi **`password`**. Segera ganti: masuk ke dashboard admin → **Pengguna** → ubah sandi kedua akun (atau buat akun baru lalu nonaktifkan akun bawaan).
+
+### Perawatan
+
+- **Migrasi baru:** jalankan `database/supabase/build.sh` di komputer developer (butuh PostgreSQL lokal) untuk membuat ulang `schema.sql`/`seed.sql`. Untuk database Supabase yang sudah berisi data, jalankan `php artisan migrate --force` dari komputer developer dengan env `DB_*` mengarah ke Supabase (pakai Session pooler port 5432). Jangan jalankan `schema.sql` lagi. Tabel baru di Supabase perlu `alter table public.<tabel> enable row level security;`.
+- **Batasan di Vercel:**
+  - Realtime Reverb tidak aktif (`BROADCAST_CONNECTION=log`); web memakai polling.
+  - Antrean `sync`, jadi pesan WhatsApp (bila `WHATSAPP_DRIVER=fonnte`) dikirim di dalam request dan sedikit memperlambat respons.
+  - *Cold start* ±1–2 detik setelah lama tidak ada request.
+  - Body request maksimal ±4,5 MB, jadi unggah gambar galeri sedikit demi sedikit (maks 4 MB per file, lihat `api/php.ini`).
+  - Durasi maksimal request 30 detik (`maxDuration`).
+  - Batal otomatis bisa terlambat hingga 5 menit (cron 5 menit, bukan per menit).
+- **Build gagal karena batas rate GitHub saat `composer install`:** tambahkan env `COMPOSER_AUTH` = `{"github-oauth":{"github.com":"<token GitHub read-only>"}}` di Vercel.

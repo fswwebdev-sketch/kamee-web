@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 | aksi massal produk, urutan galeri, ketersediaan per outlet di detail produk, dan laporan JSON.
 */
 
-beforeEach(fn () => Storage::fake('public'));
+beforeEach(fn () => Storage::fake(Media::diskName()));
 
 it('menjalankan aksi massal produk dan hanya untuk Super Admin', function () {
     $products = Product::factory()->count(3)->create(['is_active' => true]);
@@ -85,7 +86,7 @@ it('menyajikan laporan penjualan per hari, produk, outlet, dan metode bayar', fu
 
     $make = function ($outlet, int $total, PaymentMethod $method, string $when, OrderStatus $status = OrderStatus::Completed) use ($kopi) {
         $order = Order::factory()->status($status)->create(['outlet_id' => $outlet->id, 'total' => $total, 'created_at' => $when]);
-        OrderItem::factory()->create(['order_id' => $order->id, 'product_id' => $kopi->id, 'product_name' => $kopi->name, 'qty' => $total / 20000, 'subtotal' => $total]);
+        OrderItem::factory()->create(['order_id' => $order->id, 'product_id' => $kopi->id, 'product_name' => $kopi->name, 'qty' => intdiv($total, 20000), 'subtotal' => $total]);
         Payment::factory()->create(['order_id' => $order->id, 'method' => $method, 'amount' => $total, 'status' => PaymentStatus::Paid]);
 
         return $order;
@@ -108,8 +109,8 @@ it('menyajikan laporan penjualan per hari, produk, outlet, dan metode bayar', fu
         ->assertJsonPath('data.rows.0.label', $kopi->name)->assertJsonPath('data.rows.0.qty', 6)->assertJsonPath('data.rows.0.share', 100);
 
     $this->getJson("/api/v1/admin/reports/sales?{$q}&group_by=outlet")
-        ->assertJsonPath('data.rows.0.label', 'Karawaci')->assertJsonPath('data.rows.0.revenue', 60000)
-        ->assertJsonPath('data.rows.1.label', 'Cikokol')->assertJsonPath('data.rows.1.orders', 2);
+        ->assertJsonPath('data.rows.0.label', 'Cikokol')->assertJsonPath('data.rows.0.orders', 2)
+        ->assertJsonPath('data.rows.1.label', 'Karawaci')->assertJsonPath('data.rows.1.revenue', 60000); // omzet seri → diurutkan menurut ID outlet
 
     $this->getJson("/api/v1/admin/reports/sales?{$q}&group_by=payment_method")
         ->assertJsonPath('data.rows.0.key', 'qris')->assertJsonPath('data.rows.0.label', PaymentMethod::Qris->label())

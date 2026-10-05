@@ -44,7 +44,7 @@ class ProductController extends Controller
                 AllowedFilter::exact('category_id'),
                 AllowedFilter::exact('is_active'),
                 AllowedFilter::trashed(),
-                AllowedFilter::callback('search', fn ($q, $v) => $q->where('name', 'like', "%{$v}%")),
+                AllowedFilter::callback('search', fn ($q, $v) => $q->whereLike('name', "%{$v}%")),
             ])
             ->allowedSorts(['name', 'base_price', 'sold_count', 'created_at'])
             ->defaultSort('name')

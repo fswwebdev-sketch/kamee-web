@@ -5,11 +5,11 @@ namespace App\Services;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -18,7 +18,7 @@ class ProductService
         return DB::transaction(function () use ($data, $image) {
             $product = new Product(Arr::except($data, ['option_group_ids']));
             if ($image) {
-                $product->image = $image->store('products', 'public');
+                $product->image = Media::store($image, 'products');
             }
             $product->save();
             $this->syncOptionGroups($product, $data['option_group_ids'] ?? null);
@@ -33,10 +33,8 @@ class ProductService
             $product->fill(Arr::except($data, ['option_group_ids']));
             if ($image) {
                 $old = $product->image;
-                $product->image = $image->store('products', 'public');
-                if ($old) {
-                    Storage::disk('public')->delete($old);
-                }
+                $product->image = Media::store($image, 'products');
+                Media::delete($old);
             }
             $product->save();
             $this->syncOptionGroups($product, $data['option_group_ids'] ?? null);
@@ -51,7 +49,7 @@ class ProductService
         $start = (int) $product->images()->max('sort_order') + 1;
 
         return array_map(fn (UploadedFile $file, int $i) => $product->images()->create([
-            'path' => $file->store('products/gallery', 'public'),
+            'path' => Media::store($file, 'products/gallery'),
             'alt' => $alt ?? $product->name,
             'sort_order' => $start + $i,
         ]), $files, array_keys($files));
@@ -59,7 +57,7 @@ class ProductService
 
     public function deleteImage(ProductImage $image): void
     {
-        Storage::disk('public')->delete($image->path);
+        Media::delete($image->path);
         $image->delete();
     }
 

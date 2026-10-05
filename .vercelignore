@@ -1,0 +1,23 @@
+# Berkas yang tidak perlu diunggah saat `vercel deploy` dari komputer lokal.
+# (Deploy dari GitHub hanya memakai berkas yang ada di repo; vendor dipasang ulang oleh vercel-php.)
+/vendor
+/node_modules
+/.git
+/.env
+/.env.backup
+/.env.production
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/app/public/*
+/public/storage
+/bootstrap/cache/*.php
+/tests
+/docs
+/docker
+/.scribe
+/database/database.sqlite
+/dump.rdb
+/.phpunit.cache
+/.phpunit.result.cache

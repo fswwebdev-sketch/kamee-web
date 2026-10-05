@@ -38,7 +38,7 @@ class CustomerController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('tier_id'),
                 AllowedFilter::callback('search', fn ($q, $v) => $q->where(fn ($w) => $w
-                    ->where('name', 'like', "%{$v}%")->orWhere('phone_wa', 'like', "%{$v}%")->orWhere('email', 'like', "%{$v}%"))),
+                    ->whereLike('name', "%{$v}%")->orWhereLike('phone_wa', "%{$v}%")->orWhereLike('email', "%{$v}%"))),
             ])
             ->allowedSorts(['lifetime_spend', 'points_balance', 'created_at', 'name'])
             ->defaultSort('-created_at')

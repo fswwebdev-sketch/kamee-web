@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +42,7 @@ class ReviewService
                 'order_id' => $order->id,
                 'rating' => $data['rating'],
                 'comment' => $data['comment'] ?? null,
-                'photo' => $photo?->store('reviews', 'public'),
+                'photo' => $photo ? Media::store($photo, 'reviews') : null,
                 'is_published' => true,
             ]);
 

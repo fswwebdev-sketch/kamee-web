@@ -36,7 +36,7 @@ class BlogController extends Controller
             ])
             ->allowedSorts(['published_at', 'views'])
             ->defaultSort('-published_at')
-            ->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%'.$request->string('search').'%'))
+            ->when($request->filled('search'), fn ($q) => $q->whereLike('title', '%'.$request->string('search').'%'))
             ->paginate($this->perPage($request, 9))
             ->withQueryString();
 

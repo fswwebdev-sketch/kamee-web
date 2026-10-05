@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Disk Gambar Unggahan (produk, galeri, banner, blog, ulasan)
+    |--------------------------------------------------------------------------
+    |
+    | MEDIA_DISK menentukan tujuan unggahan. Bila kosong, mengikuti FILESYSTEM_DISK
+    | (kecuali `local` yang bersifat privat → memakai `public`). Di Vercel gunakan
+    | `supabase` karena filesystem function bersifat read-only & sementara.
+    |
+    */
+
+    'media_disk' => env('MEDIA_DISK', in_array(env('FILESYSTEM_DISK'), [null, '', 'local'], true) ? 'public' : env('FILESYSTEM_DISK')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -44,6 +57,27 @@ return [
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false,
+        ],
+
+        // Supabase Storage (S3-compatible). Bucket harus PUBLIC agar URL gambar bisa diakses langsung.
+        // Endpoint: https://<ref>.storage.supabase.co/storage/v1/s3
+        // URL publik: https://<ref>.supabase.co/storage/v1/object/public/<bucket>
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_KEY'),
+            'secret' => env('SUPABASE_S3_SECRET'),
+            'region' => env('SUPABASE_S3_REGION', 'ap-southeast-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET', 'kamee'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => env('SUPABASE_PUBLIC_URL'),
+            'use_path_style_endpoint' => true,
+            // Supabase tidak memakai ACL objek: jangan kirim header visibility; akses publik diatur di bucket.
+            'options' => ['CacheControl' => 'public, max-age=31536000, immutable'],
+            // Checksum CRC32 default AWS SDK terbaru tidak diperlukan; kirim hanya bila diwajibkan operasi.
+            'request_checksum_calculation' => 'when_required',
+            'response_checksum_validation' => 'when_required',
+            'throw' => true,
             'report' => false,
         ],
 

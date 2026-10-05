@@ -6,6 +6,7 @@ use App\Enums\OptionGroupType;
 use App\Models\Category;
 use App\Models\OptionGroup;
 use App\Models\Product;
+use Database\Seeders\Concerns\SyncsPostgresSequences;
 use Illuminate\Database\Seeder;
 
 /**
@@ -17,6 +18,8 @@ use Illuminate\Database\Seeder;
  */
 class CatalogSeeder extends Seeder
 {
+    use SyncsPostgresSequences;
+
     /** id, slug, nama, ikon */
     private const CATEGORIES = [
         [1, 'based-coffee', 'Based Coffee', 'coffee'],
@@ -84,7 +87,8 @@ class CatalogSeeder extends Seeder
                 'composition' => null,
                 'calories' => null,
                 'base_price' => $price,
-                'image' => 'https://placehold.co/600x600/04338B/FFFFFF/png?text='.rawurlencode($name),
+                // Ilustrasi bawaan situs web (public/images/products) — ganti dengan foto asli lewat admin.
+                'image' => "/images/products/{$slug}.avif",
                 'rating_avg' => 0,
                 'review_count' => 0,
                 'sold_count' => 0,
@@ -98,13 +102,17 @@ class CatalogSeeder extends Seeder
             );
 
             if ($product->images()->doesntExist()) {
-                $product->images()->create([
-                    'path' => 'https://placehold.co/1200x900/04338B/FFFFFF/png?text='.rawurlencode($name),
-                    'alt' => "{$name} — Kamee Coffee",
-                    'sort_order' => 1,
-                ]);
+                foreach (['', '-2', '-3'] as $i => $suffix) {
+                    $product->images()->create([
+                        'path' => "/images/products/{$slug}{$suffix}.avif",
+                        'alt' => "{$name} — Kamee Coffee",
+                        'sort_order' => $i + 1,
+                    ]);
+                }
             }
         }
+
+        $this->syncPostgresSequences('categories', 'option_groups', 'products');
     }
 
     /** @return array<string, OptionGroup> */

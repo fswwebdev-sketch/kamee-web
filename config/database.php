@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use Pdo\Pgsql;
 
 return [
 
@@ -97,6 +98,15 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Opsional: zona waktu sesi (mis. Asia/Jakarta). Kolom timestamp disimpan tanpa zona waktu
+            // dalam APP_TIMEZONE oleh Laravel, jadi biasanya tidak perlu diisi.
+            'timezone' => env('DB_TIMEZONE'),
+            // Supabase transaction pooler (Supavisor, port 6543) tidak mendukung prepared statement bernama.
+            // DB_PGSQL_DISABLE_PREPARES=true → PDO memakai statement tanpa nama (PQexecParams) sehingga aman
+            // di mode transaksi; parameter tetap dikirim terpisah (bukan emulasi, tipe boolean tetap benar).
+            'options' => extension_loaded('pdo_pgsql') && filter_var(env('DB_PGSQL_DISABLE_PREPARES', false), FILTER_VALIDATE_BOOL)
+                ? [(class_exists(Pgsql::class) ? Pgsql::ATTR_DISABLE_PREPARES : PDO::PGSQL_ATTR_DISABLE_PREPARES) => true]
+                : [],
         ],
 
         'sqlsrv' => [

@@ -34,6 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [ForceJsonResponse::class]);
+
+        // Di belakang proxy (Vercel, load balancer): percayai X-Forwarded-* agar IP klien (rate limit),
+        // skema https, dan host terbaca benar. TRUSTED_PROXIES="*" atau daftar IP/CIDR dipisah koma.
+        if (filled($proxies = env('TRUSTED_PROXIES'))) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
         $middleware->alias([
             'customer' => EnsureCustomer::class,
             'admin' => EnsureAdmin::class,

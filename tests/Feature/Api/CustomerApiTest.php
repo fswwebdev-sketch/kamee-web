@@ -8,6 +8,7 @@ use App\Models\OtpCode;
 use App\Models\Promotion;
 use App\Models\Review;
 use App\Services\LoyaltyService;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -162,7 +163,7 @@ it('memesan ulang dengan harga terkini dan melaporkan produk yang tidak dijual',
 });
 
 it('ulasan hanya untuk produk dari pesanan selesai milik pelanggan', function () {
-    Storage::fake('public');
+    Storage::fake(Media::diskName());
     $me = actingAsCustomer();
     $product = snack();
     $done = Order::factory()->status(OrderStatus::Completed)->create(['customer_id' => $me->id]);
@@ -186,5 +187,5 @@ it('ulasan hanya untuk produk dari pesanan selesai milik pelanggan', function ()
         ->assertJsonPath('errors.product_id.0', 'Anda sudah memberi ulasan untuk produk ini.');
 
     expect($product->fresh()->rating_avg)->toBe(4.0)->and($product->fresh()->review_count)->toBe(1)
-        ->and(Storage::disk('public')->exists(Review::first()->photo))->toBeTrue();
+        ->and(Media::disk()->exists(Review::first()->photo))->toBeTrue();
 });

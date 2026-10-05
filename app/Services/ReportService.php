@@ -94,10 +94,10 @@ class ReportService
             'product' => OrderItem::query()
                 ->whereIn('order_id', $orders()->select('orders.id'))
                 ->selectRaw('product_id as k, MAX(product_name) as label, COUNT(DISTINCT order_id) as orders, SUM(qty) as qty, SUM(subtotal) as revenue')
-                ->groupBy('product_id')->orderByDesc('revenue')->get()
+                ->groupBy('product_id')->orderByDesc('revenue')->orderBy('product_id')->get()
                 ->map(fn ($r) => ['key' => (string) $r->k, 'label' => $r->label, 'orders' => (int) $r->orders, 'qty' => (int) $r->qty, 'revenue' => (int) $r->revenue]),
             'outlet' => $this->withLabels(
-                $orders()->selectRaw('outlet_id as k, COUNT(*) as orders, SUM(total) as revenue')->groupBy('outlet_id')->orderByDesc('revenue')->get(),
+                $orders()->selectRaw('outlet_id as k, COUNT(*) as orders, SUM(total) as revenue')->groupBy('outlet_id')->orderByDesc('revenue')->orderBy('outlet_id')->get(),
                 Outlet::query()->pluck('name', 'id')->all(),
             ),
             'payment_method' => $this->withLabels(
@@ -105,7 +105,7 @@ class ReportService
                     ->where('status', PaymentStatus::Paid)
                     ->whereIn('order_id', $orders()->select('orders.id'))
                     ->selectRaw('method as k, COUNT(DISTINCT order_id) as orders, SUM(amount) as revenue')
-                    ->groupBy('method')->orderByDesc('revenue')->get(),
+                    ->groupBy('method')->orderByDesc('revenue')->orderBy('method')->get(),
                 collect(PaymentMethod::cases())->mapWithKeys(fn ($m) => [$m->value => $m->label()])->all(),
             ),
             default => $this->byPeriod($orders(), $from, $to, $groupBy === 'month' ? 'month' : 'day'),

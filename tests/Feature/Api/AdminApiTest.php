@@ -13,11 +13,12 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\User;
 use App\Services\ReportService;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
-    Storage::fake('public');
+    Storage::fake(Media::diskName());
     $this->admin = actingAsAdmin(superAdmin());
 });
 
@@ -34,7 +35,7 @@ it('mengelola produk beserta gambar, grup opsi, dan galeri', function () {
         ->json('data.id');
 
     $product = Product::find($id);
-    Storage::disk('public')->assertExists($product->image);
+    Media::disk()->assertExists($product->image);
 
     $this->patchJson("/api/v1/admin/products/{$id}", ['base_price' => 27000, 'is_best_seller' => true])
         ->assertOk()->assertJsonPath('data.base_price', 27000)->assertJsonPath('message', 'Produk berhasil diperbarui.');
@@ -100,7 +101,7 @@ it('mengelola promo, banner, blog, dan kategori blog', function () {
 
     $banner = $this->post('/api/v1/admin/banners', ['title' => 'Promo', 'image_desktop_file' => UploadedFile::fake()->image('b.jpg')], ['Accept' => 'application/json'])
         ->assertCreated()->json('data.id');
-    Storage::disk('public')->assertExists(Banner::find($banner)->image_desktop);
+    Media::disk()->assertExists(Banner::find($banner)->image_desktop);
     $this->patchJson("/api/v1/admin/banners/{$banner}", ['is_active' => false])->assertJsonPath('data.is_active', false);
     $this->getJson('/api/v1/admin/banners')->assertJsonCount(1, 'data');
     $this->getJson("/api/v1/admin/banners/{$banner}")->assertOk();

@@ -58,9 +58,9 @@ class CashEntryController extends Controller
             ->when($request->filled('category'), fn ($q) => $q->where('category', $request->input('category')))
             ->when($request->filled('q'), function ($q) use ($request) {
                 $term = '%'.$request->input('q').'%';
-                $q->where(fn ($w) => $w->where('description', 'like', $term)
-                    ->orWhere('counterparty', 'like', $term)
-                    ->orWhere('note', 'like', $term));
+                $q->where(fn ($w) => $w->whereLike('description', $term)
+                    ->orWhereLike('counterparty', $term)
+                    ->orWhereLike('note', $term));
             });
 
         $totals = (clone $query)->selectRaw('type, SUM(amount) as total')->groupBy('type')->pluck('total', 'type');

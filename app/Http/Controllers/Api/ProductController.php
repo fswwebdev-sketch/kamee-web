@@ -44,7 +44,7 @@ class ProductController extends Controller
                 AllowedFilter::callback('outlet', fn (Builder $q, $outletId) => $q->availableAt((int) $outletId)),
                 AllowedFilter::exact('featured', 'is_featured'),
                 AllowedFilter::exact('best_seller', 'is_best_seller'),
-                AllowedFilter::callback('search', fn (Builder $q, $term) => $q->where('name', 'like', '%'.$term.'%')),
+                AllowedFilter::callback('search', fn (Builder $q, $term) => $q->whereLike('name', '%'.$term.'%')),
             ])
             ->allowedSorts([
                 AllowedSort::field('price', 'base_price'),
@@ -53,7 +53,7 @@ class ProductController extends Controller
                 AllowedSort::field('name'),
             ])
             ->allowedIncludes(['images', 'category', AllowedInclude::custom('options', new IncludeProductOptions)])
-            ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%'.$request->string('search').'%'))
+            ->when($request->filled('search'), fn ($q) => $q->whereLike('name', '%'.$request->string('search').'%'))
             ->defaultSort('-sold_count')
             ->paginate($this->perPage($request, 12))
             ->withQueryString();

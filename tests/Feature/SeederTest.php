@@ -2,13 +2,20 @@
 
 use App\Enums\CashCategory;
 use App\Enums\OrderStatus;
+use App\Models\Banner;
+use App\Models\Blog;
 use App\Models\CashEntry;
 use App\Models\Category;
+use App\Models\Contact;
+use App\Models\Customer;
 use App\Models\Ingredient;
+use App\Models\LoyaltyTier;
+use App\Models\OptionGroup;
 use App\Models\Order;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Promotion;
 use App\Models\Recipe;
 use App\Models\Review;
 use App\Models\StockMovement;
@@ -96,4 +103,31 @@ it('BookkeepingSeeder mengisi data buku catatan pemilik secara idempoten', funct
             'price' => 17000, 'hpp' => 12580, 'margin' => 4420, 'margin_pct' => 26,
             'cups_possible' => 110, 'limiting_ingredient' => 'Cup 12 oz + tutup',
         ]);
+});
+
+it('mode produksi (KAMEE_SEED_DEMO=false) hanya mengisi data asli tanpa pelanggan, pesanan, dan pesan demo', function () {
+    config(['kamee.seed_demo' => false]);
+    $this->seed(DatabaseSeeder::class);
+
+    expect(Customer::count())->toBe(0)
+        ->and(Order::withoutGlobalScopes()->count())->toBe(0)
+        ->and(Contact::count())->toBe(0)
+        ->and(Review::count())->toBe(0)
+        ->and(User::pluck('email')->sort()->values()->all())->toBe(['admin.cibodas@kamee.id', 'superadmin@kamee.id'])
+        ->and(Outlet::count())->toBe(1)
+        ->and(Product::count())->toBe(19)
+        ->and(LoyaltyTier::count())->toBeGreaterThan(0)
+        ->and(Promotion::count())->toBeGreaterThan(0)
+        ->and(Banner::count())->toBeGreaterThan(0)
+        ->and(Blog::count())->toBeGreaterThan(0)
+        ->and(Recipe::count())->toBe(19)
+        ->and(StockPurchase::count())->toBe(1)
+        ->and(Ingredient::where('name', 'Cup 12 oz + tutup')->value('stock_qty'))->toEqual(110.0);
+
+    // Sequence ID ikut maju setelah seeder ber-ID tetap (PostgreSQL): data baru tidak bentrok primary key.
+    // (MySQL tidak me-rollback AUTO_INCREMENT antar tes, jadi cukup dipastikan lebih besar dari ID seeder.)
+    expect(Category::factory()->create()->id)->toBeGreaterThan(3)
+        ->and(Product::factory()->create()->id)->toBeGreaterThan(19)
+        ->and(Outlet::factory()->create()->id)->toBeGreaterThan(1)
+        ->and(OptionGroup::factory()->create()->id)->toBeGreaterThan(8);
 });

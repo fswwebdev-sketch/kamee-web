@@ -22,8 +22,8 @@ class ContentSeeder extends Seeder
         foreach ($banners as $i => [$title, $subtitle, $link]) {
             Banner::updateOrCreate(['title' => $title], [
                 'subtitle' => $subtitle,
-                'image_desktop' => 'https://placehold.co/1600x600/png?text='.rawurlencode($title),
-                'image_mobile' => 'https://placehold.co/800x800/png?text='.rawurlencode($title),
+                'image_desktop' => '/images/banners/banner-'.($i + 1).'.avif',
+                'image_mobile' => '/images/banners/banner-'.($i + 1).'.avif',
                 'link_url' => $link,
                 'placement' => 'home',
                 'sort_order' => $i,
@@ -51,13 +51,14 @@ class ContentSeeder extends Seeder
                 'author_id' => $author?->id,
                 'excerpt' => "{$title} — simak selengkapnya di blog Kamee Coffee.",
                 'content' => "<p>{$title}.</p><p>Artikel demo untuk pengembangan. Ganti dengan konten asli melalui dashboard admin.</p>",
-                'cover' => 'https://placehold.co/1200x630/png?text='.rawurlencode($title),
+                'cover' => '/images/blog/blog-'.($i + 1).'.avif',
                 'status' => BlogStatus::Published,
                 'published_at' => now()->subDays(40 - $i * 6),
             ]);
         }
 
-        if (Contact::count() === 0) {
+        // Pesan kontak contoh hanya untuk data demo.
+        if (config('kamee.seed_demo') && Contact::count() === 0) {
             Contact::factory()->count(3)->create();
         }
     }

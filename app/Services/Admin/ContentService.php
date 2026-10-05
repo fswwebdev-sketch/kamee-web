@@ -6,9 +6,9 @@ use App\Enums\BlogStatus;
 use App\Models\Banner;
 use App\Models\Blog;
 use App\Models\User;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
 
 class ContentService
 {
@@ -19,7 +19,7 @@ class ContentService
 
         foreach (['image_desktop', 'image_mobile'] as $field) {
             if (($file = $files["{$field}_file"] ?? null) instanceof UploadedFile) {
-                $banner->{$field} = $file->store('banners', 'public');
+                $banner->{$field} = Media::store($file, 'banners');
             }
         }
 
@@ -35,10 +35,8 @@ class ContentService
         $blog->fill(Arr::except($data, ['cover']));
 
         if ($cover) {
-            if ($blog->cover) {
-                Storage::disk('public')->delete($blog->cover);
-            }
-            $blog->cover = $cover->store('blogs', 'public');
+            Media::delete($blog->cover);
+            $blog->cover = Media::store($cover, 'blogs');
         }
 
         if ($blog->status === BlogStatus::Published && $blog->published_at === null) {

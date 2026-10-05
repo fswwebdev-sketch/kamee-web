@@ -33,8 +33,8 @@ class DashboardService
             'pending_orders' => (clone $all)->where('status', OrderStatus::Pending)->count(),
             'average_order_value' => $paidOrders > 0 ? intdiv($totalRevenue, $paidOrders) : 0,
             'new_customers' => Customer::query()->whereBetween('created_at', [$from, $to])->count(),
-            'by_status' => (clone $all)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status'),
-            'by_channel' => (clone $all)->selectRaw('channel, COUNT(*) as total')->groupBy('channel')->pluck('total', 'channel'),
+            'by_status' => (clone $all)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status')->map(fn ($v) => (int) $v),
+            'by_channel' => (clone $all)->selectRaw('channel, COUNT(*) as total')->groupBy('channel')->pluck('total', 'channel')->map(fn ($v) => (int) $v),
         ];
     }
 
@@ -76,6 +76,7 @@ class DashboardService
             ->selectRaw('product_id, MAX(product_name) as product_name, SUM(qty) as qty, SUM(subtotal) as revenue')
             ->groupBy('product_id')
             ->orderByDesc('qty')
+            ->orderBy('product_id')
             ->limit($limit)
             ->get()
             ->map(fn ($r) => [

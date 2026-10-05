@@ -15,6 +15,7 @@
         "laravel/reverb": "^1.4",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "openspout/openspout": "^4.28",
         "spatie/laravel-query-builder": "^6.3"
     },
@@ -78,12 +79,18 @@
         ],
         "docs": [
             "@php artisan scribe:generate"
+        ],
+        "vercel": [
+            "Aws\\Script\\Composer\\Composer::removeUnusedServices"
         ]
     },
     "extra": {
         "laravel": {
             "dont-discover": []
-        }
+        },
+        "aws/aws-sdk-php": [
+            "S3"
+        ]
     },
     "config": {
         "optimize-autoloader": true,

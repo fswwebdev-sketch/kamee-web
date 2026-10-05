@@ -59,7 +59,7 @@ class OrderController extends Controller
                 AllowedFilter::callback('from', fn (Builder $q, $v) => $q->where('created_at', '>=', Carbon::parse($v)->startOfDay())),
                 AllowedFilter::callback('to', fn (Builder $q, $v) => $q->where('created_at', '<=', Carbon::parse($v)->endOfDay())),
                 AllowedFilter::callback('search', fn (Builder $q, $v) => $q->where(fn ($w) => $w
-                    ->where('code', 'like', "%{$v}%")->orWhere('customer_name', 'like', "%{$v}%")->orWhere('customer_phone', 'like', "%{$v}%"))),
+                    ->whereLike('code', "%{$v}%")->orWhereLike('customer_name', "%{$v}%")->orWhereLike('customer_phone', "%{$v}%"))),
             ])
             ->allowedSorts(['created_at', 'total'])
             ->defaultSort('-created_at')
