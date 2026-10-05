@@ -26,7 +26,8 @@ class InternalSetupController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $secret = (string) config('kamee.cron_secret');
-        $given = (string) ($request->header('X-Cron-Secret') ?: ($request->bearerToken() ?: $request->query('key', '')));
+        // Kunci juga boleh di path (/internal/setup/{key}): sebagian proxy/rewrite membuang query string.
+        $given = (string) ($request->header('X-Cron-Secret') ?: ($request->bearerToken() ?: ($request->query('key') ?: $request->route('key', ''))));
 
         if (! config('kamee.setup_enabled') || $secret === '' || $given === '' || ! hash_equals($secret, $given)) {
             return response()->json(['message' => 'Penyiapan tidak diizinkan.'], 401);

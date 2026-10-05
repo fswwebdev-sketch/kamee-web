@@ -27,6 +27,10 @@ it('mengisi data awal tanpa demo saat database kosong, lalu idempoten', function
         ->and(Outlet::count())->toBe(1)
         ->and(Order::count())->toBe(0);
 
+    $this->getJson('/api/v1/internal/setup/rahasia-setup')
+        ->assertOk()
+        ->assertJsonPath('steps.seed', 'Dilewati: data sudah ada.');
+
     $this->withHeader('X-Cron-Secret', 'rahasia-setup')->postJson('/api/v1/internal/setup')
         ->assertOk()
         ->assertJsonPath('steps.seed', 'Dilewati: data sudah ada.');
