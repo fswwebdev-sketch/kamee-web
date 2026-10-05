@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       // Gambar dari storage Laravel (produk, banner, blog) & placeholder seeder
       { protocol: apiUrl.protocol.replace(":", "") as "http" | "https", hostname: apiUrl.hostname, port: apiUrl.port || undefined, pathname: "/storage/**" },
       { protocol: "https", hostname: "placehold.co" },
+      // Foto unggahan admin di Supabase Storage (kamee-api di Vercel, disk "supabase")
+      { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
   experimental: {
