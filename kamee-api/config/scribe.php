@@ -7,6 +7,12 @@ use Knuckles\Scribe\Extracting\Strategies;
 use function Knuckles\Scribe\Config\configureStrategy;
 use function Knuckles\Scribe\Config\removeStrategies;
 
+// Scribe hanya terpasang di lingkungan dev (require-dev). Di produksi (composer install --no-dev,
+// mis. Vercel) kelasnya tidak ada → kembalikan konfigurasi kosong agar bootstrap tidak gagal.
+if (! class_exists(AuthIn::class)) {
+    return [];
+}
+
 // Only the most common configs are shown. See the https://scribe.knuckles.wtf/laravel/reference/config for all.
 
 return [

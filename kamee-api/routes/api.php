@@ -20,8 +20,8 @@ Route::match(['get', 'post'], 'internal/cron', Api\InternalCronController::class
     ->name('internal.cron');
 
 // Penyiapan database sekali jalan (migrasi + data awal) untuk Vercel; diamankan CRON_SECRET.
+// Tanpa throttle: rate limiter memakai cache database yang tabelnya baru dibuat oleh endpoint ini.
 Route::match(['get', 'post'], 'internal/setup', Api\InternalSetupController::class)
-    ->middleware('throttle:10,1')
     ->name('internal.setup');
 
 Route::middleware('throttle:public')->group(function () {
