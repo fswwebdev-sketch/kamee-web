@@ -6,7 +6,7 @@ export const env = {
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "6281280871630",
   instagram: process.env.NEXT_PUBLIC_INSTAGRAM ?? "https://instagram.com/kameecoffee",
   tiktok: process.env.NEXT_PUBLIC_TIKTOK ?? "https://tiktok.com/@kameecoffee",
-  email: process.env.NEXT_PUBLIC_EMAIL ?? "halo@kamee.id",
+  email: process.env.NEXT_PUBLIC_EMAIL ?? "kamecoffe3@gmail.com",
   mapTileUrl: process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "",
   /** Laravel Reverb (realtime dashboard admin). Kosongkan key → fallback polling. */
