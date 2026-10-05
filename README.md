@@ -1,5 +1,9 @@
 # kamee-web
 
+> **Isi repo:** situs Next.js di root, dan API Laravel di folder [`kamee-api/`](kamee-api/README.md).
+> Di Vercel dibuat **dua project** dari repo ini: `kamee-web` (Root Directory = `/`) dan `kamee-api`
+> (Root Directory = `kamee-api`, database Supabase). Lihat `kamee-api/README.md` bagian Deploy.
+
 Situs pemesanan **Kamee Coffee**, dibangun dengan Next.js 15 (App Router, RSC), TypeScript strict, dan Tailwind CSS v4.
 Situs ini mencakup landing, menu, detail produk, keranjang, checkout (QRIS/e-wallet/transfer/cash), lacak pesanan, blog, kontak, dan akun pelanggan (login OTP WhatsApp), plus **dashboard admin** di `/admin` (lihat [Dashboard admin](#dashboard-admin)).
 Semua data diambil dari `kamee-api` (`/api/v1`). Mock MSW bawaan membuat UI bisa jalan penuh **tanpa backend**.
