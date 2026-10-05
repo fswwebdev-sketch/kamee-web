@@ -58,7 +58,7 @@ class DemoOrderSeeder extends Seeder
         $outlets = Outlet::all();
         $products = Product::with('optionGroups.options')->where('is_active', true)->get();
         $customers = Customer::all();
-        $this->admin = User::where('email', 'admin.cibodas@kamee.id')->first() ?? User::where('email', 'superadmin@kamee.id')->first();
+        $this->admin = User::where('email', 'admin.cibodas@kamee.id')->first() ?? User::where('email', config('kamee.admin_email'))->first();
 
         // Urutkan waktu agar poin & tier terakumulasi secara kronologis.
         $this->realNow = now()->copy();

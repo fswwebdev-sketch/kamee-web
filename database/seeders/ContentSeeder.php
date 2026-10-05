@@ -33,7 +33,7 @@ class ContentSeeder extends Seeder
             ]);
         }
 
-        $author = User::where('email', 'superadmin@kamee.id')->first();
+        $author = User::where('email', config('kamee.admin_email'))->first();
         $categories = collect(['Tips Kopi', 'Cerita Kamee', 'Promo & Event'])
             ->map(fn ($name) => BlogCategory::firstOrCreate(['name' => $name]));
 

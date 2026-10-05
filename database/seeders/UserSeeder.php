@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(['email' => 'superadmin@kamee.id'], [
+        User::updateOrCreate(['email' => config('kamee.admin_email')], [
             'name' => 'Super Admin Kamee',
             'password' => 'password',
             'role' => UserRole::SuperAdmin,

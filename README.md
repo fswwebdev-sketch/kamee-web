@@ -413,6 +413,12 @@ Es batu (±100 gr per cup) tidak dihitung di HPP karena belanjanya tidak tercata
 
 ## 13. Deploy: GitHub + Vercel + Supabase
 
+> **Penyiapan database tanpa SQL Editor:** setelah deploy pertama, buka sekali
+> `https://api.<domain>/api/v1/internal/setup?key=<CRON_SECRET>` — endpoint ini menjalankan migrasi dan
+> mengisi data awal (tanpa demo; Super Admin = `KAMEE_ADMIN_EMAIL`, sandi `password`). Idempoten.
+> Setelah berhasil, set `KAMEE_SETUP_ENABLED=false` dan redeploy. Alternatifnya tetap bisa menempel
+> `database/supabase/schema.sql` + `seed.sql` di SQL Editor.
+
 Panduan ini untuk pemilik usaha, tidak perlu menjadi developer. Hasil akhirnya: API berjalan di `https://api.<domain-anda>` (Vercel, gratis/Hobby), dengan database dan penyimpanan gambar di Supabase.
 
 **Gambaran singkat**

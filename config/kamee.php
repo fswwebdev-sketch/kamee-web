@@ -52,6 +52,12 @@ return [
     // Rahasia endpoint POST /api/v1/internal/cron (header X-Cron-Secret). Kosong = endpoint nonaktif.
     'cron_secret' => env('CRON_SECRET'),
 
+    // Endpoint /internal/setup (migrasi + data awal). Matikan setelah database siap.
+    'setup_enabled' => filter_var(env('KAMEE_SETUP_ENABLED', true), FILTER_VALIDATE_BOOL),
+
+    // Email login Super Admin yang dibuat seeder (produksi: email pemilik).
+    'admin_email' => env('KAMEE_ADMIN_EMAIL', 'superadmin@kamee.id'),
+
     // manual (QRIS statis + konfirmasi admin) | midtrans | fake (simulator lokal)
     'payment_gateway' => env('PAYMENT_GATEWAY', 'manual'),
 

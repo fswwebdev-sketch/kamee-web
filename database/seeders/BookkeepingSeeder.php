@@ -110,7 +110,7 @@ class BookkeepingSeeder extends Seeder
     public function run(): void
     {
         $outlet = Outlet::query()->where('slug', OutletSeeder::SLUG)->first() ?? Outlet::query()->orderBy('id')->first();
-        $admin = User::query()->where('email', 'superadmin@kamee.id')->first();
+        $admin = User::query()->where('email', config('kamee.admin_email'))->first();
         if ($outlet === null || $admin === null) {
             return;
         }

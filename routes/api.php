@@ -19,6 +19,11 @@ Route::match(['get', 'post'], 'internal/cron', Api\InternalCronController::class
     ->middleware('throttle:60,1')
     ->name('internal.cron');
 
+// Penyiapan database sekali jalan (migrasi + data awal) untuk Vercel; diamankan CRON_SECRET.
+Route::match(['get', 'post'], 'internal/setup', Api\InternalSetupController::class)
+    ->middleware('throttle:10,1')
+    ->name('internal.setup');
+
 Route::middleware('throttle:public')->group(function () {
 
     // ------------------------------------------------------------------ Publik
