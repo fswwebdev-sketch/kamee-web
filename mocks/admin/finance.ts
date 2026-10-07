@@ -886,7 +886,61 @@ export function financeSummary(db: MockAdminState, user: AdminUser, url: URL): F
 
 const SEED_AT = "2026-09-20T08:00:00+07:00";
 const NOTE_UNDATED = "Tanggal & metode belum tercatat di buku";
-const NOTE_HANDWRITING = "Bacaan tulisan tangan, mohon cek";
+const NOTE_KASIR = "Dari Kasir Kamee (Excel)";
+
+/** Penjualan dari ekspor Kasir Kamee 20/9–2/10/2026 (menggantikan catatan pemasukan buku tulis). Sama dengan BookkeepingSeeder. */
+const KASIR_SALES: [date: string, time: string, who: string, items: string, amount: number, method: BookMethod, bank: string | null, note: string][] = [
+  ["2026-09-20", "13:24", "Tante Ike", "Caramel Latte Kame x1; Spanish Latte Kame x1; Aren Kame x11", 221000, "bank_transfer", "BJB", "Take Away; Catatan: 8000 gojek; cocok dgn buku tulis (Mike)"],
+  ["2026-09-20", "13:26", "Tante Unnun", "Aren Kame x2; Americano x2; Butterscotch Sea Salt Latte x1; Caramel Latte Kame x1", 104000, "cash", null, "Dine In; cocok dgn buku tulis (Unun)"],
+  ["2026-09-21", "11:57", "Guru Sukma", "Aren Kame x2; Kame Orangecano x1; Iced Matche Latte x1", 73000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-21", "13:20", "Bu Tini", "Aren Kame x6; Iced Strawberry Choco x1", 125000, "cash", null, "Online; Ket: SD Neglasari 1; metode bayar belum tercatat"],
+  ["2026-09-21", "13:21", "Mimih Nur", "Aden Kame 1ltr x1; Kame Manucano x1", 91000, "bank_transfer", "BCA", "Dine In; Ket: SD Sukma; cocok dgn buku tulis (Nur)"],
+  ["2026-09-22", "13:48", "Siska, Delia, Amira", "Aren Kame x3", 51000, "bank_transfer", "BCA", "Take Away; cocok dgn buku tulis (Abi)"],
+  ["2026-09-22", "13:53", "Guru taman", "Pandan Latte Kame x1; Butterscotch Sea Salt Latte x1; Aren Kame x1", 57000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-22", "14:02", "Pesanan By Abi", "Dark Chocolate 1L x1; Spanis Latte Kame 1L x1", 175000, "bank_transfer", "BCA", "Take Away; cocok dgn buku tulis (Rumi)"],
+  ["2026-09-22", "14:03", "Pesanan By Abi", "Butterscotch Sea Salt Latte x1", 23000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-22", "14:04", "Pesanan By Umi", "Aren Kame 1L x1", 75000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-23", "14:44", "Pesanan Abi", "Butterscotch Sea Salt Latte x2; Aren Kame x1", 63000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-24", "14:45", "Pesanan by Umi", "Aren Kame x4; Pandan Latte Kame x1; Butterscotch Sea Salt Latte x1", 108000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-24", "14:47", "Aa Robi", "Aren Kame 1L x1", 75000, "cash", null, "Online; metode bayar belum tercatat"],
+  ["2026-09-24", "14:48", "Kak Wiwi Pramuka", "Kame Manucano x1; Strawberry Matcha Latte x1", 41000, "cash", null, "Online; metode bayar belum tercatat"],
+  ["2026-09-24", "18:30", "Mamah Lia", "Aren Kame x2", 34000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-24", "22:56", "Pesanan By Umi", "Aren Kame x4; Pandan Latte Kame x1; Butterscotch Sea Salt Latte x1", 108000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-25", "18:19", "Guru delta", "Aren Kame 1L x1; Caramel Latte Kame x1; Aren Kame x2; Butterscotch Sea Salt Latte x1; Kame Manucano x1; Pandan Latte Kame x1", 182000, "cash", null, "Online; Catatan: +gojek 17k; metode bayar belum tercatat"],
+  ["2026-09-25", "18:20", "Bang Opick", "Americano 1L x1; Pandan Latte Kame x1; Spanish Latte Kame x1", 94000, "cash", null, "Online; metode bayar belum tercatat"],
+  ["2026-09-25", "18:21", "Sa’id", "Aren Kame x2; Kame Manucano x1", 50000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-09-25", "18:21", "Pesanan by Umi", "Iced Matche Latte x1; Aren Kame x1", 40000, "cash", null, "Online; metode bayar belum tercatat"],
+  ["2026-09-26", "21:45", "guru sd taman", "Aren Kame x3; Butterscotch Sea Salt Latte x1; Dari Chocolate x1; Pandan Latte Kame x1", 116000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-26", "21:47", "Arisan Teh Indah dan Uwa Ita", "Aren Kame x2", 34000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-09-26", "21:47", "A Ucu", "Aren Kame x1; Butterscotch Sea Salt Latte x1", 40000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-09-26", "21:48", "Umi", "Aren Kame x2", 34000, "cash", null, "Dine In; Catatan: +ongkir 17k; metode bayar belum tercatat"],
+  ["2026-09-28", "18:20", "Fauzan", "Aren Kame 1L x1", 75000, "cash", null, "Online; metode bayar belum tercatat"],
+  ["2026-09-29", "11:05", "Teteh Lia", "Caramel Latte 1lt x1", 80000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-09-29", "21:51", "Pak Camat dan Pak Sidik Sukma", "Aren Kame 1L x2; Aren Kame x1", 167000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-09-30", "10:51", "Pesanan Abi", "Butterscotch Sea Salt Latte x2; Aren Kame x1", 63000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-10-01", "10:52", "Pesanan Umi", "Aren Kame x1; Iced Matche Latte x1", 40000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-10-01", "10:55", "Nitya", "Kame Orangecano x1; Iced Matche Latte x1; Butterscotch Sea Salt Latte x1; Aren Kame x1; Caramel Latte Kame x1", 96000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-10-01", "22:58", "Kak Shanty", "Aren Kame 1L x1; Cokelat Reguler 1Lt x1", 165000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-10-02", "11:02", "Pesanan Guru Delta", "Iced Strawberry Choco x1; Aren Kame x1; Butterscotch Sea Salt Latte x1; Aren Kame 1L x2; Kame Manucano x1", 241000, "cash", null, "Take Away; metode bayar belum tercatat"],
+  ["2026-10-02", "11:02", "Bunda Adia", "Aren Kame 1L x1; Aren Kame x1", 97000, "cash", null, "Dine In; metode bayar belum tercatat"],
+  ["2026-10-02", "11:03", "Pesanan Guru Taman", "Iced Matche Latte x1; Butterscotch Sea Salt Latte x5; Pandan Latte Kame x1", 155000, "cash", null, "Take Away; metode bayar belum tercatat"],
+];
+
+/** Pengeluaran dari ekspor Kasir Kamee 21/9–1/10/2026. */
+const KASIR_EXPENSES: [date: string, description: string, amount: number][] = [
+  ["2026-09-21", "Madu Manuka beli Tiptop", 63000],
+  ["2026-09-21", "Strawberry jam beli Alfamart", 20900],
+  ["2026-09-21", "Es Batu Kristal", 5000],
+  ["2026-09-21", "Susu Kental Manis Sachet beli Enci", 10000],
+  ["2026-09-21", "Parkir tiptop", 2000],
+  ["2026-09-22", "Es Batu", 10000],
+  ["2026-09-25", "Susu Diamond Rich Milk beli Tiptop 12kotak", 276300],
+  ["2026-09-25", "Whipped cream", 27850],
+  ["2026-09-25", "Biji Kopi Vottrro arabica mandailing 1kg", 228445],
+  ["2026-09-25", "Whipping Cream Rich Gold 500gr", 39200],
+  ["2026-09-25", "Es Batu", 5000],
+  ["2026-10-01", "Gula Aren", 288825],
+];
 
 type SeedIng = [key: string, name: string, kind: IngredientKind, unit: IngredientUnit, packLabel: string, packSize: number, packPrice: number, note: string | null];
 const SEED_INGREDIENTS: SeedIng[] = [
@@ -926,11 +980,16 @@ const LATTE_NO_AREN = {
   "Bottle 1 L": { kopi: 100, susu: 725, creamer: 100, botol1L: 1 },
 };
 const AMERICANO = { Cup: { amer: 20, cup: 1 }, "Bottle 250 ml": { amer: 25, botol250: 1 }, "Bottle 1 L": { amer: 100, botol1L: 1 } };
+const AREN = {
+  Cup: { aren: 30, creamer: 20, susu: 120, kopi: 20, cup: 1 },
+  "Bottle 250 ml": { aren: 38, creamer: 25, susu: 181, kopi: 25, botol250: 1 },
+  "Bottle 1 L": { aren: 150, creamer: 100, susu: 725, kopi: 100, botol1L: 1 },
+};
 const CHOCO = { Cup: { susu: 150, creamer: 20, cup: 1 }, "Bottle 1 L": { susu: 725, creamer: 100, botol1L: 1 } };
 
 const SEED_RECIPES: SeedRecipe[] = [
   {
-    names: ["Aren Kame"],
+    names: ["Aren Kame Reguler"],
     sample: false,
     note:
       "Aren, creamer, dan susu dishake/frother sampai tercampur rata, tuang lewat saringan, tambah es batu 100 gr (cup), lalu masukkan espresso. " +
@@ -941,14 +1000,20 @@ const SEED_RECIPES: SeedRecipe[] = [
       "Bottle 250 ml": { aren: 38, creamer: 25, susu: 181, kopi: 25, botol250: 1 },
     },
   },
-  { names: ["Americano", "Kame Orangecano", "Kame Manucano"], sample: true, note: NOTE_SAMPLE, variants: AMERICANO },
+  { names: ["Americano", "Kame Orangecano", "Kame Manucano", "Americano Specialty Blend"], sample: true, note: NOTE_SAMPLE, variants: AMERICANO },
   { names: ["Caramel Latte Kame", "Pandan Latte Kame", "Spanish Latte Kame"], sample: true, note: NOTE_SAMPLE, variants: LATTE_NO_AREN },
   { names: ["Butterscotch Sea Salt Latte"], sample: true, note: NOTE_SAMPLE, variants: { kopi: 20, susu: 120, bs: 20, creamer: 20, cup: 1 } },
   { names: ["Mont Blanc"], sample: true, note: NOTE_SAMPLE, variants: { kopi: 20, susu: 120, creamer: 20, cup: 1 } },
   { names: ["Local Beans"], sample: true, note: NOTE_SAMPLE, variants: { kopi: 15, cup: 1 } },
   { names: ["Cold Brew"], sample: true, note: NOTE_SAMPLE, variants: { kopi: 20, cup: 1 } },
-  { names: ["Iced Matcha Latte", "Iced Strawberry Matcha Latte", "Iced Matcha Sea Salt Cloud"], sample: true, note: NOTE_SAMPLE, variants: { matcha: 5, susu: 150, cup: 1 } },
-  { names: ["Regular Chocolate", "Premium Dark Chocolate"], sample: true, note: NOTE_SAMPLE, variants: CHOCO },
+  { names: ["Iced Matcha Latte", "Iced Strawberry Matcha Latte", "Iced Matcha Sea Salt Cloud", "Iced Matcha Oatmilk", "Iced Caramel Matcha Latte"], sample: true, note: NOTE_SAMPLE, variants: { matcha: 5, susu: 150, cup: 1 } },
+  { names: ["Reguler Chocolate", "Premium Dark Chocolate"], sample: true, note: NOTE_SAMPLE, variants: CHOCO },
+  { names: ["Aren Kame Premium"], sample: true, note: NOTE_SAMPLE, variants: AREN },
+  { names: ["Aren Sea Salt Kame"], sample: true, note: NOTE_SAMPLE, variants: { Cup: AREN.Cup, "Bottle 250 ml": AREN["Bottle 250 ml"] } },
+  { names: ["Butterscotch Latte Kame"], sample: true, note: NOTE_SAMPLE, variants: {
+    Cup: { ...LATTE_NO_AREN.Cup, bs: 20 }, "Bottle 250 ml": { ...LATTE_NO_AREN["Bottle 250 ml"], bs: 25 }, "Bottle 1 L": { ...LATTE_NO_AREN["Bottle 1 L"], bs: 100 } } },
+  { names: ["Iced Aren Matcha Latte"], sample: true, note: NOTE_SAMPLE, variants: { matcha: 5, susu: 150, aren: 20, cup: 1 } },
+  { names: ["Iced Espresso Matcha Latte"], sample: true, note: NOTE_SAMPLE, variants: { matcha: 5, susu: 150, kopi: 20, cup: 1 } },
   { names: ["Iced Chocolate Sea Salt Cloud", "Iced Strawberry Choco", "Iced Strawberry Choco Sea Salt Cloud"], sample: true, note: NOTE_SAMPLE, variants: { susu: 150, creamer: 20, cup: 1 } },
 ];
 
@@ -993,23 +1058,11 @@ export function seedFinance(db: Pick<MockAdminState, "products" | "outlets">): F
   for (const [description, category, amount, counterparty, extra] of others) {
     entry({ date: "2026-09-20", type: "expense", category, description, amount, method: "cash", counterparty, note: extra ? `${NOTE_UNDATED}. ${extra}` : NOTE_UNDATED });
   }
-  const incomes: [string, string, number, BookMethod, string | null, boolean][] = [
-    ["2026-09-21", "Nur", 91000, "bank_transfer", "BCA", false],
-    ["2026-09-21", "Arum", 17000, "bank_transfer", "BCA", false],
-    ["2026-09-22", "Abi", 51000, "bank_transfer", "BCA", false],
-    ["2026-09-22", "Rumi", 175000, "bank_transfer", "BCA", false],
-    ["2026-09-23", "Aa", 61000, "bank_transfer", "BCA", false],
-    ["2026-09-24", "Aa", 17000, "bank_transfer", "BCA", true],
-    ["2026-09-24", "Az", 61000, "bank_transfer", "BCA", false],
-    ["2026-09-24", "AG", 80000, "bank_transfer", "BJB", false],
-    ["2026-09-20", "Mike", 221000, "bank_transfer", "BJB", true],
-    ["2026-09-21", "Rifqo", 23000, "bank_transfer", "BJB", true],
-    ["2026-09-21", "Mudi Rafi", 33000, "bank_transfer", "BJB", true],
-    ["2026-09-20", "Unun", 104000, "cash", null, false],
-    ["2026-09-20", "Camat", 177000, "cash", null, false],
-  ];
-  for (const [date, who, amount, method, bank, handwriting] of incomes) {
-    entry({ date, type: "income", category: "penjualan", description: `Penjualan — ${who}`, amount, method, bank, counterparty: who, note: handwriting ? NOTE_HANDWRITING : null });
+  for (const [date, description, amount] of KASIR_EXPENSES) {
+    entry({ date, type: "expense", category: "bahan_baku", description, amount, method: "cash", note: `${NOTE_KASIR}; metode bayar belum tercatat` });
+  }
+  for (const [date, time, who, items, amount, method, bank, note] of KASIR_SALES) {
+    entry({ date, type: "income", category: "penjualan", description: `Penjualan ${time} — ${who}: ${items}`.slice(0, 255), amount, method, bank, counterparty: who, note: `${NOTE_KASIR}. ${note}` });
   }
 
   for (const r of SEED_RECIPES) {

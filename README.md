@@ -16,7 +16,7 @@ Semua data diambil dari `kamee-api` (`/api/v1`). Mock MSW bawaan membuat UI bisa
 | Jam buka | Setiap hari 10.00–17.00 WIB |
 | WhatsApp | 0812-8087-1630 (`NEXT_PUBLIC_WHATSAPP_NUMBER=6281280871630`) |
 | Warna brand | Biru navy Kame `#04338B` + putih (token di `app/globals.css`; ilustrasi & ikon hanya biru-putih) |
-| Menu | 19 menu sesuai daftar menu outlet: Based Coffee (Cup / Bottle 250 ml / Bottle 1 L), Manual Brew, Non Coffee. 👍 di menu = *Best Seller*. Mont Blanc & Cold Brew hanya akhir pekan. Rating, ulasan, jumlah terjual, komposisi, dan kalori sengaja kosong (disembunyikan) sampai ada data asli. |
+| Menu | 27 menu sesuai daftar menu outlet (Okt 2026): Based Coffee (Cup / Bottle 250 ml / Bottle 1 L), Manual Brew, Non Coffee. 👍 di menu = *Best Seller*. Mont Blanc & Cold Brew hanya akhir pekan. Rating, ulasan, jumlah terjual, komposisi, dan kalori sengaja kosong (disembunyikan) sampai ada data asli. |
 | Pembayaran | **QRIS statis GoPay Merchant** (`KAMEECOFFEE`, NMID `ID1026594722880`, gambar `public/payments/qris-kameecoffee.jpg`) + **Tunai** di kasir. Lihat [Alur QRIS statis](#alur-qris-statis). |
 
 | Kebutuhan | Pustaka |
@@ -151,7 +151,7 @@ Aturan hitung:
 - **Stok** berkurang otomatis saat pesanan pertama kali terbayar/diproses (termasuk Kasir) dan kembali bila pesanan dibatalkan/refund. 1 cup/botol terjual = 1 kemasan berkurang.
 - **Konfirmasi pembayaran** pesanan online kini mencatat metode sebenarnya: QRIS, Transfer (bank), atau Tunai.
 
-Data awal diambil dari buku catatan pemilik 20–29 Sep 2026: belanja 20/9 Rp2.346.000 (termasuk es batu Rp25.000), pengeluaran lain Rp388.150 (pengeluaran pribadi tidak dicatat), dan pemasukan Rp1.111.000 (Transfer BCA/BJB & Tunai). Resep **Aren Kame** (Cup 12 oz & 1 L) adalah resep asli; resep menu lain masih contoh. Di mode mock, pesanan demo hanya dibuat mulai 1 Okt 2026 agar periode 20–29 Sep hanya berisi data asli.
+Data awal: buku catatan pemilik (belanja 20/9 Rp2.346.000 termasuk es batu Rp25.000, pengeluaran lain Rp388.150; pengeluaran pribadi tidak dicatat) + ekspor Kasir Kamee 20/9–2/10 (34 penjualan Rp3.193.000, 12 pengeluaran bahan Rp976.520). Pemasukan buku tulis (transfer BCA/BJB & tunai) diganti data Kasir agar tidak dobel. Resep **Aren Kame** (Cup 12 oz & 1 L) adalah resep asli; resep menu lain masih contoh. Di mode mock, pesanan demo hanya dibuat mulai 1 Okt 2026 agar periode 20–29 Sep hanya berisi data asli.
 
 ### Alur QRIS statis
 

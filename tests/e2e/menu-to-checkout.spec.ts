@@ -11,10 +11,10 @@ async function addArenKame(page: Page) {
   await page.getByLabel("Cari menu").fill("aren");
   // debounce 300 ms → URL ikut berubah (?q=aren)
   await expect(page).toHaveURL(/q=aren/);
-  const card = page.getByRole("article").filter({ has: page.getByRole("link", { name: "Aren Kame", exact: true }) });
+  const card = page.getByRole("article").filter({ has: page.getByRole("link", { name: "Aren Kame Reguler", exact: true }) });
   await expect(card).toBeVisible();
 
-  await card.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).click();
+  await card.getByRole("button", { name: /Tambah Aren Kame Reguler ke keranjang/ }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet).toBeVisible();
   await sheet.getByRole("button", { name: /^Tambah ·/ }).click();
@@ -28,13 +28,13 @@ test.describe("menu → checkout", () => {
 
     await addArenKame(page);
 
-    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp40.000 → 3 × Rp17.000)
+    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp40.000 → 3 × Rp18.000)
     await page.goto("/keranjang");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await page.getByRole("button", { name: "Tambah Aren Kame", exact: true }).click();
-    await expect(page.getByRole("group", { name: "Jumlah Aren Kame" })).toContainText("2");
-    await page.getByRole("button", { name: "Tambah Aren Kame", exact: true }).click();
-    await expect(page.getByRole("group", { name: "Jumlah Aren Kame" })).toContainText("3");
+    await page.getByRole("button", { name: "Tambah Aren Kame Reguler", exact: true }).click();
+    await expect(page.getByRole("group", { name: "Jumlah Aren Kame Reguler" })).toContainText("2");
+    await page.getByRole("button", { name: "Tambah Aren Kame Reguler", exact: true }).click();
+    await expect(page.getByRole("group", { name: "Jumlah Aren Kame Reguler" })).toContainText("3");
 
     await page.getByLabel("Kode voucher").fill("KAMEEHEMAT");
     await page.getByRole("button", { name: "Pakai" }).click();
@@ -54,7 +54,7 @@ test.describe("menu → checkout", () => {
     await expect(page.getByTestId("static-qris")).toBeVisible();
     await expect(page.getByTestId("static-qris")).toHaveAttribute("src", /qris-kameecoffee/);
     await expect(page.getByText("ID1026594722880").first()).toBeVisible();
-    await expect(page.getByTestId("qris-amount")).toHaveText(/Rp\s?4\d\.\d{3}/); // 51.000 − diskon 20%
+    await expect(page.getByTestId("qris-amount")).toHaveText(/Rp\s?4\d\.\d{3}/); // 54.000 − diskon 20%
     await expect(page.getByRole("link", { name: /Kirim bukti bayar via WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/6281280871630\?text=.*KM/);
     await expect(page.getByText(/\d{1,2}:\d{2}/).first()).toBeVisible();
     await expect(page.getByText(/Menunggu konfirmasi admin/)).toBeVisible();

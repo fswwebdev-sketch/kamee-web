@@ -9,7 +9,7 @@ export default async function OpengraphImage() {
     <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 680 }}>
       <Brand />
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 64, lineHeight: 1.1, color: "#FFFFFF" }}>Nikmati Secangkir Kebahagiaan</div>
+        <div style={{ fontFamily: "Montserrat", fontWeight: 700, fontSize: 64, lineHeight: 1.1, color: "#FFFFFF" }}>Nikmati Secangkir Kebahagiaan</div>
         <div style={{ fontSize: 28, color: "rgba(255,255,255,.88)" }}>Based coffee, manual brew & non coffee · Taman Cibodas, Tangerang</div>
       </div>
       <div style={{ display: "flex", gap: 12 }}>

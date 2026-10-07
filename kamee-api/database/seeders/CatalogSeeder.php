@@ -29,37 +29,51 @@ class CatalogSeeder extends Seeder
 
     /** kunci => [id, nama, tipe, wajib, [[opsi, selisih harga]]] — opsi pertama = default. */
     private const OPTION_GROUPS = [
-        'size-americano' => [1, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 50000]]],
-        'size-orangecano' => [2, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 59000]]],
-        'size-manucano' => [3, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 67000]]],
-        'size-latte' => [4, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 63000]]],
+        'size-americano' => [1, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 59000]]],
+        'size-orangecano' => [2, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 67000]]],
+        'size-manucano' => [3, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 70000]]],
+        'size-latte' => [4, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 67000]]],
         'size-choco-regular' => [5, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 1 L', 67000]]],
         'size-choco-premium' => [6, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 1 L', 95000]]],
         'brew-style' => [7, 'Penyajian', 'single', true, [['Hot', 0], ['Japanese (iced)', 0]]],
         'bean-process' => [8, 'Proses Biji', 'single', true, [['Natural', 0], ['Washed', 0], ['Honey', 0]]],
+        'size-specialty' => [9, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 99000]]],
+        'size-aren-premium' => [10, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0], ['Bottle 1 L', 78000]]],
+        'size-cup-250' => [11, 'Ukuran', 'single', true, [['Cup', 0], ['Bottle 250 ml', 0]]],
     ];
 
-    /** id, slug, nama, kategori, harga, grup opsi, best seller, featured, hanya akhir pekan, deskripsi singkat */
+    /**
+     * id, slug, nama, kategori, harga, grup opsi, best seller, featured, hanya akhir pekan, deskripsi singkat.
+     * Harga sesuai daftar menu outlet (Okt 2026). Produk 20+ = menu baru; ID lama tetap agar URL & data lama aman.
+     */
     private const PRODUCTS = [
-        [1, 'americano', 'Americano', 'based-coffee', 15000, ['size-americano'], false, false, false, 'Espresso dan air — bersih, ringan, tanpa susu.'],
-        [2, 'kame-orangecano', 'Kame Orangecano', 'based-coffee', 16000, ['size-orangecano'], false, true, false, 'Americano dengan sentuhan jeruk yang segar.'],
-        [3, 'kame-manucano', 'Kame Manucano', 'based-coffee', 18000, ['size-manucano'], true, true, false, 'Iced Americano with Manuka Honey.'],
-        [4, 'caramel-latte-kame', 'Caramel Latte Kame', 'based-coffee', 17000, ['size-latte'], false, false, false, 'Latte susu dengan karamel.'],
-        [5, 'aren-kame', 'Aren Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Kopi susu dengan gula aren.'],
-        [6, 'pandan-latte-kame', 'Pandan Latte Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Latte dengan aroma pandan.'],
-        [7, 'spanish-latte-kame', 'Spanish Latte Kame', 'based-coffee', 17000, ['size-latte'], true, true, false, 'Latte manis dengan susu kental.'],
-        [8, 'butterscotch-sea-salt-latte', 'Butterscotch Sea Salt Latte', 'based-coffee', 23000, [], false, false, false, 'Latte butterscotch dengan sea salt.'],
-        [9, 'mont-blanc', 'Mont Blanc', 'based-coffee', 35000, [], false, false, true, 'Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).'],
+        [1, 'americano', 'Americano', 'based-coffee', 16000, ['size-americano'], false, false, false, 'Espresso dan air — bersih, ringan, tanpa susu.'],
+        [2, 'kame-orangecano', 'Kame Orangecano', 'based-coffee', 18000, ['size-orangecano'], false, true, false, 'Americano dengan sentuhan jeruk yang segar.'],
+        [3, 'kame-manucano', 'Kame Manucano', 'based-coffee', 20000, ['size-manucano'], true, true, false, 'Iced Americano with Manuka Honey.'],
+        [4, 'caramel-latte-kame', 'Caramel Latte Kame', 'based-coffee', 18000, ['size-latte'], false, false, false, 'Latte susu dengan karamel.'],
+        [5, 'aren-kame', 'Aren Kame Reguler', 'based-coffee', 18000, ['size-latte'], true, true, false, 'Kopi susu gula aren — with 50% Arabica + 50% Robusta.'],
+        [6, 'pandan-latte-kame', 'Pandan Latte Kame', 'based-coffee', 18000, ['size-latte'], true, true, false, 'Latte dengan aroma pandan.'],
+        [7, 'spanish-latte-kame', 'Spanish Latte Kame', 'based-coffee', 18000, ['size-latte'], true, true, false, 'Latte manis dengan susu kental.'],
+        [8, 'butterscotch-sea-salt-latte', 'Butterscotch Sea Salt Latte', 'based-coffee', 26000, [], false, false, false, 'Latte butterscotch dengan sea salt.'],
+        [9, 'mont-blanc', 'Mont Blanc', 'based-coffee', 35000, [], true, false, true, 'Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).'],
         [10, 'local-beans', 'Local Beans', 'manual-brew', 26000, ['brew-style', 'bean-process'], false, false, false, 'Manual brew biji kopi lokal — Hot atau Japanese, proses Natural, Washed, atau Honey.'],
-        [11, 'cold-brew', 'Cold Brew', 'manual-brew', 28000, [], false, false, true, 'Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.'],
-        [12, 'iced-matcha-latte', 'Iced Matcha Latte', 'non-coffee', 23000, [], false, false, false, 'Matcha dengan susu dingin.'],
-        [13, 'iced-strawberry-matcha-latte', 'Iced Strawberry Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan stroberi.'],
+        [11, 'cold-brew', 'Cold Brew', 'manual-brew', 30000, [], false, false, true, 'Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.'],
+        [12, 'iced-matcha-latte', 'Iced Matcha Latte', 'non-coffee', 23000, [], true, false, false, 'Matcha dengan susu dingin.'],
+        [13, 'iced-strawberry-matcha-latte', 'Iced Strawberry Matcha Latte', 'non-coffee', 26000, [], true, false, false, 'Matcha latte dengan stroberi.'],
         [14, 'iced-matcha-sea-salt-cloud', 'Iced Matcha Sea Salt Cloud', 'non-coffee', 25000, [], false, false, false, 'Matcha dengan lapisan sea salt cream.'],
-        [15, 'regular-chocolate', 'Regular Chocolate', 'non-coffee', 18000, ['size-choco-regular'], false, false, false, 'Cokelat susu klasik. Tersedia juga ukuran 1 L.'],
-        [16, 'premium-dark-chocolate', 'Premium Dark Chocolate', 'non-coffee', 25000, ['size-choco-premium'], false, false, false, 'Dark chocolate yang lebih pekat. Tersedia juga ukuran 1 L.'],
+        [15, 'regular-chocolate', 'Reguler Chocolate', 'non-coffee', 18000, ['size-choco-regular'], false, false, false, 'Cokelat susu klasik. Tersedia juga ukuran 1 L.'],
+        [16, 'premium-dark-chocolate', 'Premium Dark Chocolate', 'non-coffee', 25000, ['size-choco-premium'], true, false, false, 'Dark chocolate yang lebih pekat. Tersedia juga ukuran 1 L.'],
         [17, 'iced-chocolate-sea-salt-cloud', 'Iced Chocolate Sea Salt Cloud', 'non-coffee', 25000, [], false, false, false, 'Cokelat dingin dengan lapisan sea salt cream.'],
         [18, 'iced-strawberry-choco', 'Iced Strawberry Choco', 'non-coffee', 23000, [], false, false, false, 'Cokelat dingin dengan stroberi.'],
         [19, 'iced-strawberry-choco-sea-salt-cloud', 'Iced Strawberry Choco Sea Salt Cloud', 'non-coffee', 26000, [], false, false, false, 'Strawberry choco dengan lapisan sea salt cream.'],
+        [20, 'americano-specialty-blend', 'Americano Specialty Blend', 'based-coffee', 26000, ['size-specialty'], true, false, false, 'Blend Arabica Colombia & Arabica Brazil Santos.'],
+        [21, 'aren-kame-premium', 'Aren Kame Premium', 'based-coffee', 22000, ['size-aren-premium'], true, false, false, 'Kopi susu gula aren — with 100% Arabica Mandhailing.'],
+        [22, 'aren-sea-salt-kame', 'Aren Sea Salt Kame', 'based-coffee', 22000, ['size-cup-250'], false, false, false, 'Kopi susu gula aren dengan lapisan sea salt cream.'],
+        [23, 'butterscotch-latte-kame', 'Butterscotch Latte Kame', 'based-coffee', 18000, ['size-latte'], false, false, false, 'Latte susu dengan butterscotch.'],
+        [24, 'iced-matcha-oatmilk', 'Iced Matcha Oatmilk', 'non-coffee', 25000, [], false, false, false, 'Matcha dengan oat milk dingin.'],
+        [25, 'iced-caramel-matcha-latte', 'Iced Caramel Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan karamel.'],
+        [26, 'iced-aren-matcha-latte', 'Iced Aren Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan gula aren.'],
+        [27, 'iced-espresso-matcha-latte', 'Iced Espresso Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan shot espresso.'],
     ];
 
     private const WEEKEND_NOTE = 'Hanya tersedia akhir pekan (Sabtu–Minggu).';
