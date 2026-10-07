@@ -15,15 +15,17 @@ class ContentSeeder extends Seeder
     public function run(): void
     {
         $banners = [
-            ['Ngopi Hemat 5%', 'Pakai kode KAMEEHEMAT · min. belanja Rp50.000', '/promo'],
-            ['Kame Manucano', 'Iced Americano dengan Manuka Honey — favorit pelanggan', '/menu/kame-manucano'],
-            ['Potongan Rp10.000', 'Belanja min. Rp125.000 pakai kode NGOPI10K', '/promo'],
+            // [judul, subjudul, link, gambar] — foto asli Kamee untuk banner promo
+            ['Ngopi Hemat 5%', 'Pakai kode KAMEEHEMAT · min. belanja Rp50.000', '/promo', 'promo-hemat'],
+            ['Potongan Rp10.000', 'Belanja min. Rp125.000 pakai kode NGOPI10K', '/promo', 'promo-ngopi10k'],
+            ['Kenalan Dulu, Hemat Rp3.000', 'Pakai kode KENALAN · min. belanja Rp36.000 · 1x per pelanggan', '/promo', 'promo-kenalan'],
+            ['Kame Manucano', 'Iced Americano dengan Manuka Honey — favorit pelanggan', '/menu/kame-manucano', 'banner-2'],
         ];
-        foreach ($banners as $i => [$title, $subtitle, $link]) {
+        foreach ($banners as $i => [$title, $subtitle, $link, $image]) {
             Banner::updateOrCreate(['title' => $title], [
                 'subtitle' => $subtitle,
-                'image_desktop' => '/images/banners/banner-'.($i + 1).'.avif',
-                'image_mobile' => '/images/banners/banner-'.($i + 1).'.avif',
+                'image_desktop' => "/images/banners/{$image}.avif",
+                'image_mobile' => "/images/banners/{$image}.avif",
                 'link_url' => $link,
                 'placement' => 'home',
                 'sort_order' => $i,

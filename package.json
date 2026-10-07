@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node -e \"require('fs').rmSync('.next/cache/webpack',{recursive:true,force:true})\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "dev:offline": "NEXT_FONT_GOOGLE_MOCKED_RESPONSES=$PWD/scripts/google-fonts-mock.cjs next dev",
-    "build:offline": "NEXT_FONT_GOOGLE_MOCKED_RESPONSES=$PWD/scripts/google-fonts-mock.cjs next build",
+    "build:offline": "npm run prebuild && NEXT_FONT_GOOGLE_MOCKED_RESPONSES=$PWD/scripts/google-fonts-mock.cjs next build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
