@@ -55,9 +55,16 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const CHUNK_RELOAD = `(function(){function bad(m){return /ChunkLoadError|Loading (CSS )?chunk|Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(m||"")}function go(){try{var k="kamee-reload-at",t=+(sessionStorage.getItem(k)||0);if(Date.now()-t<30000)return;sessionStorage.setItem(k,String(Date.now()))}catch(e){}location.reload()}addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="SCRIPT"&&(t.src||"").indexOf("/_next/static/")>-1)go();else if(bad(e.message))go()},true);addEventListener("unhandledrejection",function(e){var r=e.reason;if(bad(r&&(r.name+" "+r.message)))go()})})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning className={montserrat.variable}>
+      <head>
+        {/* Setelah update situs, halaman dari cache bisa meminta file JS lama yang sudah dihapus
+            (ChunkLoadError) → muat ulang sekali agar memakai versi terbaru. */}
+        <script dangerouslySetInnerHTML={{ __html: CHUNK_RELOAD }} />
+      </head>
       <body>
         <a href="#konten" className="sr-only z-[100] rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
           Lewati ke konten utama

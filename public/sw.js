@@ -11,7 +11,7 @@
  *
  * URL API dikirim saat registrasi: /sw.js?api=<origin+path API>.
  */
-const VERSION = "kamee-v2"; // naikkan saat aset/brand berubah agar cache lama dibuang
+const VERSION = "kamee-v3"; // naikkan saat aset/brand berubah agar cache lama dibuang
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const IMAGES = `${VERSION}-images`;
@@ -29,6 +29,9 @@ self.addEventListener("install", (event) => {
       // Hanya aset kecil; halaman dicache saat dikunjungi (tidak membebani server/jaringan saat instal)
       const cache = await caches.open(STATIC);
       await cache.addAll(PRECACHE);
+      // Langsung aktif: versi lama tidak boleh terus menyajikan HTML lama yang merujuk file JS
+      // yang sudah dihapus (penyebab "Application error" setelah situs diperbarui).
+      await self.skipWaiting();
     })(),
   );
 });
@@ -112,7 +115,8 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.startsWith("/admin") || url.pathname.startsWith("/api/") || url.pathname === "/sw.js" || url.pathname.startsWith("/mockServiceWorker")) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request, PAGES, { ms: 4000, fallback: OFFLINE_URL, preload: event.preloadResponse }));
+    // 10 dtk: di jaringan lambat jangan cepat jatuh ke HTML lama (bisa merujuk file JS versi lama)
+    event.respondWith(networkFirst(request, PAGES, { ms: 10000, fallback: OFFLINE_URL, preload: event.preloadResponse }));
     return;
   }
   // Payload RSC untuk navigasi sisi klien Next.js
