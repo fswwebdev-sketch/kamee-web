@@ -22,6 +22,7 @@ import { estimateTotals, toOrderItems } from "@/features/cart/pricing";
 import { useCartStore } from "@/features/cart/store";
 import { useRecentOrders } from "@/features/orders/store";
 import { isApiError, type ApiError } from "@/lib/api";
+import { env } from "@/lib/env";
 import { formatRupiah, normalizePhone } from "@/lib/format";
 import { useDebounce } from "@/lib/hooks";
 import { useAddresses } from "@/lib/queries/account";
@@ -99,7 +100,7 @@ export function CheckoutForm() {
     if (outletId) setValue("outletId", outletId, { shouldValidate: false });
   }, [outletId, setValue]);
 
-  // Alamat utama member otomatis dipakai saat memilih "Diantar".
+  // Alamat utama member otomatis dipakai saat memilih pengiriman.
   const defaultAddress = addresses.find((a) => a.is_default) ?? addresses[0];
   useEffect(() => {
     if (v.fulfillment === "delivery" && defaultAddress && !v.address && v.lat == null) {
@@ -253,7 +254,8 @@ export function CheckoutForm() {
 
   const minSchedule = toLocalInput(new Date(Date.now() + 30 * 60_000));
   const busy = isSubmitting || createOrder.isPending || payOrder.isPending;
-  const deliveryLabel = v.fulfillment === "delivery" ? (q ? formatRupiah(q.delivery_fee) : "Tandai lokasi di peta") : "Gratis";
+  const ojol = env.deliveryMode === "ojol";
+  const deliveryLabel = v.fulfillment === "delivery" ? (ojol ? "Bayar ke driver" : q ? formatRupiah(q.delivery_fee) : "Tandai lokasi di peta") : "Gratis";
   const payLabel = v.paymentMethod === "cash" ? "Buat Pesanan" : `Bayar ${formatRupiah(totals.total)}`;
 
   return (
@@ -322,7 +324,12 @@ export function CheckoutForm() {
                 />
                 <Textarea label="Alamat lengkap" rows={2} autoComplete="street-address" placeholder="Nama jalan, nomor rumah, RT/RW, patokan" required error={errors.address?.message} {...register("address")} />
                 <Input label="Catatan untuk kurir" placeholder="Pagar hitam, titip satpam" {...register("addressNote")} />
-                {q && q.delivery_distance_km != null && (
+                {ojol ? (
+                  <p className="rounded-xl bg-cream px-3 py-2.5 text-sm text-ink" role="status">
+                    🛵 Dikirim via <b>GoSend / GrabExpress</b>. Ongkir dibayar langsung ke driver sesuai tarif aplikasi
+                    {q && q.delivery_distance_km != null ? <> (jarak ±{q.delivery_distance_km} km)</> : null}. Admin akan menghubungi lewat WhatsApp saat pesanan dikirim.
+                  </p>
+                ) : q && q.delivery_distance_km != null && (
                   <p className="text-sm text-ink" role="status">Jarak {q.delivery_distance_km} km · ongkir <b>{formatRupiah(q.delivery_fee)}</b></p>
                 )}
               </div>

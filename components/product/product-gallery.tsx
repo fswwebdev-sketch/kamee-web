@@ -7,6 +7,9 @@ import type { ProductImage } from "@/types/api";
 import { cn } from "@/lib/utils";
 
 /** Galeri swipe (CSS scroll-snap, tanpa library) + thumbnail + navigasi keyboard. */
+/** Ukuran yang tertulis di alt foto (mis. "Americano Bottle 1 L — Kamee Coffee") → label di galeri. */
+const sizeOf = (alt?: string | null) => alt?.match(/Bottle (?:1 L|250 ml)/)?.[0] ?? null;
+
 export function ProductGallery({ images, name }: { images: ProductImage[]; name: string }) {
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
@@ -36,6 +39,9 @@ export function ProductGallery({ images, name }: { images: ProductImage[]; name:
           {images.map((img, i) => (
             <div key={img.id} className="relative aspect-square w-full shrink-0 snap-center" role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${images.length}`}>
               <Image src={img.url} alt={img.alt ?? name} fill priority={i === 0} fetchPriority={i === 0 ? "high" : "low"} sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
+              {sizeOf(img.alt) && (
+                <span className="absolute bottom-10 left-3 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-on-primary shadow-soft md:bottom-3">Foto: {sizeOf(img.alt)}</span>
+              )}
             </div>
           ))}
         </div>

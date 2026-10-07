@@ -15,7 +15,7 @@ import type { Category, Paginated, Product } from "@/types/api";
 import { CategoryChips } from "./category-chips";
 import { ProductGrid } from "./product-grid";
 import { SearchBar } from "./search-bar";
-import { SORT_OPTIONS, SortSelect } from "./sort-select";
+import { DEFAULT_SORT, SORT_OPTIONS, SortSelect } from "./sort-select";
 
 // Sheet dimuat saat pertama kali dibuka (tidak membebani LCP halaman menu)
 const FilterSheet = dynamic(() => import("./filter-sheet"), { ssr: false });
@@ -31,7 +31,7 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
     () => ({
       search: params.get("q") ?? "",
       category: params.get("kategori") ?? "",
-      sort: params.get("urut") ?? "-sold_count",
+      sort: params.get("urut") ?? DEFAULT_SORT,
       outlet: hydrated ? outletId : null,
     }),
     [params, hydrated, outletId],
@@ -49,7 +49,7 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
       const next = new URLSearchParams(params.toString());
       if (value) next.set(key, value);
       else next.delete(key);
-      if (key === "urut" && value === "-sold_count") next.delete("urut");
+      if (key === "urut" && value === DEFAULT_SORT) next.delete("urut");
       next.delete("order");
       startTransition(() => router.replace(`/menu${next.size ? `?${next}` : ""}`, { scroll: false }));
     },
@@ -59,13 +59,13 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
   const [sheetOpen, setSheetOpen] = useState(false);
   // Tetap terpasang setelah dibuka pertama kali agar animasi tutup berjalan
   const [sheetMounted, setSheetMounted] = useState(false);
-  const activeFilters = (filters.category ? 1 : 0) + (filters.sort && filters.sort !== "-sold_count" ? 1 : 0);
-  const sortLabel = SORT_OPTIONS.find((o) => o.value === filters.sort)?.label ?? "Terlaris";
+  const activeFilters = (filters.category ? 1 : 0) + (filters.sort && filters.sort !== DEFAULT_SORT ? 1 : 0);
+  const sortLabel = SORT_OPTIONS.find((o) => o.value === filters.sort)?.label ?? "Harga termurah";
   const applySheet = ({ category, sort }: { category: string; sort: string }) => {
     const next = new URLSearchParams(params.toString());
     if (category) next.set("kategori", category);
     else next.delete("kategori");
-    if (sort && sort !== "-sold_count") next.set("urut", sort);
+    if (sort && sort !== DEFAULT_SORT) next.set("urut", sort);
     else next.delete("urut");
     next.delete("order");
     startTransition(() => router.replace(`/menu${next.size ? `?${next}` : ""}`, { scroll: false }));
@@ -79,7 +79,7 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
         <SearchBar value={filters.search ?? ""} onChange={(v) => setParam("q", v)} />
         <div className="flex items-center justify-between gap-3">
           <CategoryChips categories={cats} value={filters.category ?? ""} onChange={(v) => setParam("kategori", v)} />
-          <div className="hidden shrink-0 md:block"><SortSelect value={filters.sort ?? "-sold_count"} onChange={(v) => setParam("urut", v)} /></div>
+          <div className="hidden shrink-0 md:block"><SortSelect value={filters.sort ?? DEFAULT_SORT} onChange={(v) => setParam("urut", v)} /></div>
         </div>
         <div className="flex items-center justify-between gap-3 md:hidden">
           <p className="text-caption text-muted" aria-live="polite">{isLoading ? "Memuat menu…" : `${total} menu · ${sortLabel}`}</p>
@@ -122,7 +122,7 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
           onClose={() => setSheetOpen(false)}
           categories={cats}
           category={filters.category ?? ""}
-          sort={filters.sort ?? "-sold_count"}
+          sort={filters.sort ?? DEFAULT_SORT}
           onApply={applySheet}
         />
       )}

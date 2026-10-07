@@ -7,7 +7,7 @@ const STEPS: { status: OrderStatus; label: string; icon: typeof ClipboardList }[
   { status: "pending", label: "Pesanan dibuat", icon: ClipboardList },
   { status: "paid", label: "Dibayar", icon: CircleDollarSign },
   { status: "processing", label: "Diracik barista", icon: ChefHat },
-  { status: "shipped", label: "Diantar kurir", icon: Bike },
+  { status: "shipped", label: "Dikirim (ojol)", icon: Bike },
   { status: "completed", label: "Selesai", icon: CheckCircle2 },
 ];
 

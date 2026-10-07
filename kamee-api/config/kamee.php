@@ -21,6 +21,10 @@ return [
         'payment_timeout_minutes' => (int) env('KAMEE_PAYMENT_TIMEOUT', 60),
         'service_fee' => (int) env('KAMEE_SERVICE_FEE', 0),
 
+        // Pengiriman: 'ojol' = dikirim GoSend/GrabExpress, ongkir dibayar pembeli langsung ke driver (ongkir di web Rp0);
+        // 'internal' = ongkir dihitung dari jarak dengan tarif di bawah.
+        'delivery_mode' => env('KAMEE_DELIVERY_MODE', 'ojol'),
+
         // Ongkir: tarif dasar untuk jarak <= delivery_base_km, lalu per km berikutnya (dibulatkan ke atas)
         'delivery_base_fee' => 8000,
         'delivery_base_km' => 2,

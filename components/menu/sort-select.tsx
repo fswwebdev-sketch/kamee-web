@@ -1,12 +1,15 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
+import { DEFAULT_SORT } from "@/lib/queries/keys";
+
+export { DEFAULT_SORT };
 
 export const SORT_OPTIONS = [
+  { value: DEFAULT_SORT, label: "Harga termurah" },
+  { value: "-price,name", label: "Harga termahal" },
   { value: "-sold_count", label: "Terlaris" },
-  { value: "-rating", label: "Rating tertinggi" },
-  { value: "price", label: "Harga terendah" },
-  { value: "-price", label: "Harga tertinggi" },
+  { value: "name", label: "Nama A–Z" },
 ] as const;
 
 export function SortSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {

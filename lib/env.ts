@@ -4,7 +4,13 @@ export const env = {
   apiUrl: (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace(/\/$/, ""),
   mocking: process.env.NEXT_PUBLIC_API_MOCKING === "enabled",
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "6281280871630",
-  instagram: process.env.NEXT_PUBLIC_INSTAGRAM ?? "https://instagram.com/kameecoffee",
+  instagram: process.env.NEXT_PUBLIC_INSTAGRAM ?? "https://instagram.com/kameecoffee.id",
+  /** "ojol" (default): kirim via GoSend/GrabExpress, ongkir dibayar ke driver. "internal": ongkir dihitung web. */
+  deliveryMode: (process.env.NEXT_PUBLIC_DELIVERY_MODE ?? "ojol") as "ojol" | "internal",
+  /** Link toko ojek online (kosong = belum ada, tombol disembunyikan). */
+  gofoodUrl: process.env.NEXT_PUBLIC_GOFOOD_URL ?? "",
+  grabfoodUrl: process.env.NEXT_PUBLIC_GRABFOOD_URL ?? "",
+  shopeefoodUrl: process.env.NEXT_PUBLIC_SHOPEEFOOD_URL ?? "",
   tiktok: process.env.NEXT_PUBLIC_TIKTOK ?? "https://tiktok.com/@kameecoffee",
   email: process.env.NEXT_PUBLIC_EMAIL ?? "kamecoffe3@gmail.com",
   mapTileUrl: process.env.NEXT_PUBLIC_MAP_TILE_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",

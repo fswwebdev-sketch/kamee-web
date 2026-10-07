@@ -2,11 +2,14 @@
 
 import { Bike, Store, UtensilsCrossed } from "lucide-react";
 import { ChoiceCard } from "@/components/ui/choice-card";
+import { env } from "@/lib/env";
 import type { Fulfillment } from "@/types/api";
 
 const OPTIONS: { value: Fulfillment; title: string; description: string; icon: typeof Store }[] = [
   { value: "pickup", title: "Ambil di outlet", description: "Tanpa antre, siap ±10 menit", icon: Store },
-  { value: "delivery", title: "Diantar", description: "Ongkir sesuai jarak", icon: Bike },
+  env.deliveryMode === "ojol"
+    ? { value: "delivery", title: "Kirim via ojol", description: "GoSend / GrabExpress, ongkir bayar ke driver", icon: Bike }
+    : { value: "delivery", title: "Diantar", description: "Ongkir sesuai jarak", icon: Bike },
   { value: "dine_in", title: "Makan di tempat", description: "Disajikan di meja", icon: UtensilsCrossed },
 ];
 

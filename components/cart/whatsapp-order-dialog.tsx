@@ -84,7 +84,7 @@ export function WhatsAppOrderDialog({ open, onClose }: { open: boolean; onClose:
             <ChoiceCard name="wa-fulfillment" value="pickup" checked={fulfillment === "pickup"} onChange={() => setValue("fulfillment", "pickup")} title="Ambil di outlet" />
             <ChoiceCard name="wa-fulfillment" value="dine_in" checked={fulfillment === "dine_in"} onChange={() => setValue("fulfillment", "dine_in")} title="Makan di tempat" />
           </div>
-          <p className="text-caption text-muted">Untuk pesanan antar, gunakan Checkout agar ongkir terhitung dari lokasi.</p>
+          <p className="text-caption text-muted">Mau dikirim via GoSend/GrabExpress? Pilih Checkout → “Kirim via ojol”, atau tulis alamat di catatan. Ongkir dibayar ke driver.</p>
         </fieldset>
         <Textarea label="Catatan (opsional)" rows={2} {...register("note")} />
       </form>
