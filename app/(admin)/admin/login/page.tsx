@@ -10,7 +10,7 @@ export default function AdminLoginPage() {
   return (
     <main id="konten" className="grid min-h-svh bg-bg lg:grid-cols-[1.1fr_1fr]">
       <div className="relative hidden overflow-hidden lg:block">
-        <Image src="/hero/latte.avif" alt="" fill priority sizes="55vw" className="object-cover" />
+        <Image src="/hero/aren-kame.avif" alt="" fill priority sizes="55vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A1020]/85 via-[#0A1020]/35 to-transparent" />
         <div className="absolute inset-x-10 bottom-10 text-white">
           <p className="font-heading text-3xl font-bold leading-tight">Setiap cangkir,<br />tercatat rapi.</p>
