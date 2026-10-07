@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 /** Galeri swipe (CSS scroll-snap, tanpa library) + thumbnail + navigasi keyboard. */
 /** Ukuran yang tertulis di alt foto (mis. "Americano Bottle 1 L — Kamee Coffee") → label di galeri. */
-const sizeOf = (alt?: string | null) => alt?.match(/Bottle (?:1 L|250 ml)/)?.[0] ?? null;
+const sizeOf = (alt?: string | null) => alt?.match(/Bottle (?:1 L|250 ml)|\bCup\b/)?.[0] ?? null;
 
 export function ProductGallery({ images, name }: { images: ProductImage[]; name: string }) {
   const track = useRef<HTMLDivElement>(null);
