@@ -71,7 +71,9 @@ it('menampilkan detail lengkap produk admin beserta outlet yang menandai habis',
         ->assertJsonCount(3, 'data.option_group_ids')
         ->assertJsonPath('data.unavailable_outlet_ids', [$b->id]);
 
-    $this->getJson('/api/v1/admin/products')->assertJsonPath('data.0.unavailable_outlet_ids', [$b->id]);
+    // Daftar produk admin memuat option_group_ids: kasir (POS) menampilkan pilihan ukuran dari sini.
+    $this->getJson('/api/v1/admin/products')->assertJsonPath('data.0.unavailable_outlet_ids', [$b->id])
+        ->assertJsonCount(3, 'data.0.option_group_ids');
 
     $this->patchJson("/api/v1/admin/outlets/{$b->id}/products/{$product->id}", ['is_available' => true])->assertOk();
     $this->getJson("/api/v1/admin/products/{$product->id}")->assertJsonPath('data.unavailable_outlet_ids', []);
