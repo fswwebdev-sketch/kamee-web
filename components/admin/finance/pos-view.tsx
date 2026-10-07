@@ -64,9 +64,10 @@ function usePosCatalog() {
         price: p.base_price,
         image: p.image_url,
         categoryId: p.category_id ?? p.category?.id ?? null,
-        groups: (p.option_groups?.length ? p.option_groups : (p.option_group_ids ?? []).map((id) => groupById.get(id)).filter((g): g is OptionGroup => Boolean(g))).filter(
-          (g) => g.options.length > 0,
-        ),
+        // Grup lengkap (beserta opsi) diambil dari /option-groups; option_groups di daftar produk bisa tanpa opsi.
+        groups: (p.option_group_ids ?? p.option_groups?.map((g) => g.id) ?? [])
+          .map((id) => groupById.get(id))
+          .filter((g): g is OptionGroup => Boolean(g) && (g?.options?.length ?? 0) > 0),
       }));
   }, [products.data, groups.data]);
   return {
