@@ -63,7 +63,7 @@ export function cafeJsonLd(outlets: Outlet[]) {
     "@id": absoluteUrl(`/outlet#${o.slug}`),
     name: o.name,
     url: absoluteUrl("/"),
-    image: absoluteUrl("/hero/aren-kame-og.jpg"),
+    image: absoluteUrl("/hero/aren-kame-2-og.jpg"),
     logo: absoluteUrl("/icons/icon-512.png"),
     telephone: `+${o.phone_wa}`,
     priceRange: "Rp15.000–Rp120.000",

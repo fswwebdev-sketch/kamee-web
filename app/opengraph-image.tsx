@@ -18,6 +18,6 @@ export default async function OpengraphImage() {
         ))}
       </div>
     </div>,
-    "hero/aren-kame-og.jpg",
+    "hero/aren-kame-2-og.jpg",
   );
 }
