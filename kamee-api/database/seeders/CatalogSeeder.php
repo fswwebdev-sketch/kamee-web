@@ -76,6 +76,9 @@ class CatalogSeeder extends Seeder
         [27, 'iced-espresso-matcha-latte', 'Iced Espresso Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan shot espresso.'],
     ];
 
+    /** Menu yang sudah punya foto asli: file `{slug}-foto(-2|-3).avif` di public/images/products kamee-web. */
+    private const PHOTOS = ['americano', 'mont-blanc', 'aren-kame', 'butterscotch-sea-salt-latte'];
+
     private const WEEKEND_NOTE = 'Hanya tersedia akhir pekan (Sabtu–Minggu).';
 
     public function run(): void
@@ -90,6 +93,7 @@ class CatalogSeeder extends Seeder
         $groups = $this->optionGroups();
 
         foreach (self::PRODUCTS as [$id, $slug, $name, $category, $price, $groupKeys, $bestSeller, $featured, $weekendOnly, $short]) {
+            $file = in_array($slug, self::PHOTOS, true) ? "{$slug}-foto" : $slug;
             $description = $weekendOnly && ! str_contains($short, 'Sabtu') ? "{$short} ".self::WEEKEND_NOTE : $short;
 
             $product = Product::unguarded(fn () => Product::updateOrCreate(['id' => $id], [
@@ -102,7 +106,7 @@ class CatalogSeeder extends Seeder
                 'calories' => null,
                 'base_price' => $price,
                 // Ilustrasi bawaan situs web (public/images/products) — ganti dengan foto asli lewat admin.
-                'image' => "/images/products/{$slug}.avif",
+                'image' => "/images/products/{$file}.avif",
                 'rating_avg' => 0,
                 'review_count' => 0,
                 'sold_count' => 0,
@@ -118,7 +122,7 @@ class CatalogSeeder extends Seeder
             if ($product->images()->doesntExist()) {
                 foreach (['', '-2', '-3'] as $i => $suffix) {
                     $product->images()->create([
-                        'path' => "/images/products/{$slug}{$suffix}.avif",
+                        'path' => "/images/products/{$file}{$suffix}.avif",
                         'alt' => "{$name} — Kamee Coffee",
                         'sort_order' => $i + 1,
                     ]);
