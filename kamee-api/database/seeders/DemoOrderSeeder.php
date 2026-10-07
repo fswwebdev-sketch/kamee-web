@@ -79,7 +79,7 @@ class DemoOrderSeeder extends Seeder
             $outlet = $outlets[$i % $outlets->count()];
             $member = mt_rand(1, 100) <= 70 ? (mt_rand(1, 100) <= 45 ? $loyal->random() : $customers->random()) : null;
             $fulfillment = [FulfillmentType::Pickup, FulfillmentType::Delivery, FulfillmentType::DineIn][mt_rand(0, 2)];
-            $promo = mt_rand(1, 100) <= 25 ? ['KAMEEHEMAT', 'GRATISONGKIR', 'BELI1GRATIS1', 'NGOPI10K'][mt_rand(0, 3)] : null;
+            $promo = mt_rand(1, 100) <= 25 ? ['KAMEEHEMAT', 'NGOPI10K', 'KENALAN'][mt_rand(0, 2)] : null;
 
             $order = $this->createOrder($outlet, $products, $member, $fulfillment, $promo);
             if ($order === null) {

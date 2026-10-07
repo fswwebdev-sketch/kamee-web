@@ -211,16 +211,15 @@ export const outlets: Outlet[] = [
 const start = "2026-07-01T00:00:00+07:00";
 const end = "2026-12-31T23:59:59+07:00";
 export const promotions: Promotion[] = [
-  { id: 1, code: "KAMEEHEMAT", name: "Hemat 20% (maks Rp15.000)", type: "percent", type_label: "Diskon persen", value: 20, min_spend: 40000, max_discount: 15000, per_customer_limit: 3, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
-  { id: 2, code: "GRATISONGKIR", name: "Gratis ongkir min. belanja Rp50.000", type: "free_delivery", type_label: "Gratis ongkir", value: 0, min_spend: 50000, max_discount: 15000, per_customer_limit: 5, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
-  { id: 3, code: "BELI1GRATIS1", name: "Beli 1 Gratis 1 (minuman yang sama)", type: "bogo", type_label: "Beli 1 gratis 1", value: 0, min_spend: 0, max_discount: 35000, per_customer_limit: 1, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
-  { id: 4, code: "NGOPI10K", name: "Potongan Rp10.000 min. belanja Rp75.000", type: "fixed", type_label: "Potongan harga", value: 10000, min_spend: 75000, max_discount: null, per_customer_limit: 2, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
+  { id: 1, code: "KAMEEHEMAT", name: "Hemat 5% (maks Rp7.500) min. belanja Rp50.000", type: "percent", type_label: "Diskon persen", value: 5, min_spend: 50000, max_discount: 7500, per_customer_limit: 3, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
+  { id: 4, code: "NGOPI10K", name: "Potongan Rp10.000 min. belanja Rp125.000", type: "fixed", type_label: "Potongan harga", value: 10000, min_spend: 125000, max_discount: null, per_customer_limit: 2, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
+  { id: 5, code: "KENALAN", name: "Potongan Rp3.000 min. belanja Rp36.000 (1x per pelanggan)", type: "fixed", type_label: "Potongan harga", value: 3000, min_spend: 36000, max_discount: null, per_customer_limit: 1, outlet_id: null, starts_at: start, ends_at: end, is_automatic: false },
 ];
 
 export const banners: Banner[] = [
-  { id: 1, title: "Ngopi Hemat 20%", subtitle: "Pakai kode KAMEEHEMAT untuk semua menu", image_desktop_url: "/images/banners/banner-1.avif", image_mobile_url: "/images/banners/banner-1.avif", link_url: "/promo", placement: "home", sort_order: 0 },
+  { id: 1, title: "Ngopi Hemat 5%", subtitle: "Pakai kode KAMEEHEMAT · min. belanja Rp50.000", image_desktop_url: "/images/banners/banner-1.avif", image_mobile_url: "/images/banners/banner-1.avif", link_url: "/promo", placement: "home", sort_order: 0 },
   { id: 2, title: "Kame Manucano", subtitle: "Iced Americano dengan Manuka Honey — favorit pelanggan", image_desktop_url: "/images/banners/banner-2.avif", image_mobile_url: "/images/banners/banner-2.avif", link_url: "/menu/kame-manucano", placement: "home", sort_order: 1 },
-  { id: 3, title: "Gratis Ongkir sekitar Taman Cibodas", subtitle: "Minimal belanja Rp50.000 dengan kode GRATISONGKIR", image_desktop_url: "/images/banners/banner-3.avif", image_mobile_url: "/images/banners/banner-3.avif", link_url: "/promo", placement: "home", sort_order: 2 },
+  { id: 3, title: "Potongan Rp10.000", subtitle: "Belanja min. Rp125.000 pakai kode NGOPI10K", image_desktop_url: "/images/banners/banner-3.avif", image_mobile_url: "/images/banners/banner-3.avif", link_url: "/promo", placement: "home", sort_order: 2 },
 ];
 
 export const tiers: LoyaltyTier[] = [
