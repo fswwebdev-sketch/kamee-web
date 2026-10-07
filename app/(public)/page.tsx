@@ -19,7 +19,7 @@ export const metadata: Metadata = buildMetadata({ path: "/" });
 
 export default async function HomePage() {
   const [featured, banners, promotions, testimonials, outlets] = await Promise.all([
-    getProducts({ "filter[best_seller]": 1, per_page: 8, sort: "-sold_count" }),
+    getProducts({ per_page: 8, sort: "-sold_count,name" }), // tab Terlaris: 8 menu paling banyak terjual
     getBanners(),
     getPromotions(),
     getTestimonials(),

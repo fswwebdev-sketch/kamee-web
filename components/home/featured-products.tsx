@@ -10,7 +10,7 @@ import { useProductList } from "@/lib/queries/catalog";
 import type { Product } from "@/types/api";
 
 const TABS = [
-  { id: "best", label: "Terlaris", params: { "filter[best_seller]": 1, per_page: 8, sort: "-sold_count" } },
+  { id: "best", label: "Terlaris", params: { per_page: 8, sort: "-sold_count,name" } }, // urut jumlah terjual asli
   { id: "featured", label: "Rekomendasi", params: { "filter[featured]": 1, per_page: 8 } },
   { id: "manual", label: "Manual Brew", params: { "filter[category]": "manual-brew", per_page: 8 } },
   { id: "noncoffee", label: "Non Coffee", params: { "filter[category]": "non-coffee", per_page: 8 } },
