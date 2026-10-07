@@ -28,7 +28,7 @@ test.describe("menu → checkout", () => {
 
     await addArenKame(page);
 
-    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp40.000 → 3 × Rp18.000)
+    // Keranjang: naikkan qty agar memenuhi minimal belanja voucher (Rp50.000 → 3 × Rp18.000)
     await page.goto("/keranjang");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.getByRole("button", { name: "Tambah Aren Kame Reguler", exact: true }).click();
@@ -54,7 +54,7 @@ test.describe("menu → checkout", () => {
     await expect(page.getByTestId("static-qris")).toBeVisible();
     await expect(page.getByTestId("static-qris")).toHaveAttribute("src", /qris-kameecoffee/);
     await expect(page.getByText("ID1026594722880").first()).toBeVisible();
-    await expect(page.getByTestId("qris-amount")).toHaveText(/Rp\s?4\d\.\d{3}/); // 54.000 − diskon 20%
+    await expect(page.getByTestId("qris-amount")).toHaveText(/Rp\s?51\.300/); // 54.000 − diskon 5% (2.700)
     await expect(page.getByRole("link", { name: /Kirim bukti bayar via WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/6281280871630\?text=.*KM/);
     await expect(page.getByText(/\d{1,2}:\d{2}/).first()).toBeVisible();
     await expect(page.getByText(/Menunggu konfirmasi admin/)).toBeVisible();

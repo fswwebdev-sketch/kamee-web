@@ -15,9 +15,9 @@ class ContentSeeder extends Seeder
     public function run(): void
     {
         $banners = [
-            ['Ngopi Hemat 20%', 'Pakai kode KAMEEHEMAT untuk semua menu', '/promo'],
+            ['Ngopi Hemat 5%', 'Pakai kode KAMEEHEMAT · min. belanja Rp50.000', '/promo'],
             ['Kame Manucano', 'Iced Americano dengan Manuka Honey — favorit pelanggan', '/menu/kame-manucano'],
-            ['Gratis Ongkir sekitar Taman Cibodas', 'Minimal belanja Rp50.000 dengan kode GRATISONGKIR', '/promo'],
+            ['Potongan Rp10.000', 'Belanja min. Rp125.000 pakai kode NGOPI10K', '/promo'],
         ];
         foreach ($banners as $i => [$title, $subtitle, $link]) {
             Banner::updateOrCreate(['title' => $title], [

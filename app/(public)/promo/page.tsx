@@ -9,7 +9,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = buildMetadata({
   title: "Promo & Voucher",
-  description: "Promo terbaru Kamee Coffee: diskon, gratis ongkir, dan beli 1 gratis 1. Salin kode voucher dan pakai saat checkout.",
+  description: "Promo terbaru Kamee Coffee: hemat 5%, potongan Rp10.000, dan potongan pelanggan baru. Salin kode voucher dan pakai saat checkout.",
   path: "/promo",
 });
 
