@@ -25,7 +25,7 @@ function AccessDenied() {
       <div className="max-w-sm">
         <ShieldAlert className="mx-auto size-12 text-muted" aria-hidden="true" />
         <h1 className="mt-4 text-h3">Akses terbatas</h1>
-        <p className="mt-2 text-sm text-muted">Halaman ini hanya untuk Super Admin. Hubungi pemilik usaha bila Anda memerlukan akses.</p>
+        <p className="mt-2 text-sm text-muted">Halaman ini hanya untuk Admin (akses penuh). Hubungi pemilik usaha bila Anda memerlukan akses.</p>
         <a href="/admin" className={buttonClasses("secondary", "md", "mt-5")}>Kembali ke Ringkasan</a>
       </div>
     </div>

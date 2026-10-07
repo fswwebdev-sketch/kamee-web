@@ -20,7 +20,7 @@ class EnsureAdmin
         if (! $user->is_active) {
             $user->currentAccessToken()?->delete();
 
-            return response()->json(['message' => 'Akun Anda dinonaktifkan. Hubungi Super Admin.'], 403);
+            return response()->json(['message' => 'Akun Anda dinonaktifkan. Hubungi pemilik usaha.'], 403);
         }
 
         return $next($request);

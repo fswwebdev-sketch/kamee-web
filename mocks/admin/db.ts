@@ -154,7 +154,7 @@ function seed(): MockAdminState {
   }));
 
   const users: MockAdminState["users"] = [
-    { id: 1, name: "Super Admin Kamee", email: "superadmin@kamee.id", role: "super_admin", role_label: "Super Admin", outlet_id: null, outlet: null, is_active: true, last_login_at: created(1), created_at: created(200), password: "password", token: "mock-token-1" },
+    { id: 1, name: "Super Admin Kamee", email: "superadmin@kamee.id", role: "super_admin", role_label: "Admin", outlet_id: null, outlet: null, is_active: true, last_login_at: created(1), created_at: created(200), password: "password", token: "mock-token-1" },
     { id: 2, name: "Admin Kamee Cibodas", email: "admin.cibodas@kamee.id", role: "outlet_admin", role_label: "Admin Outlet", outlet_id: 1, outlet: { id: 1, name: outlets[0]!.name }, is_active: true, last_login_at: created(2), created_at: created(180), password: "password", token: "mock-token-2" },
   ];
 

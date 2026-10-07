@@ -1117,7 +1117,7 @@ export const adminHandlers = [
       if (email) u.email = email;
       if (str(b.password)) u.password = String(b.password);
       u.role = role;
-      u.role_label = role === "super_admin" ? "Super Admin" : "Admin Outlet";
+      u.role_label = role === "super_admin" ? "Admin" : "Admin Outlet";
       u.outlet_id = role === "super_admin" ? null : outletId;
       u.outlet = u.outlet_id ? { id: u.outlet_id, name: db.outlets.find((o) => o.id === u!.outlet_id)?.name ?? "" } : null;
       if (has(b, "is_active")) u.is_active = bool(b.is_active);

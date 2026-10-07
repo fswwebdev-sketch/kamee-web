@@ -40,7 +40,7 @@ it('login admin mengembalikan token; kredensial salah dan akun nonaktif ditolak'
 it('admin nonaktif yang masih memegang token ditolak', function () {
     actingAsAdmin(User::factory()->outletAdmin($this->outletA)->inactive()->create());
 
-    $this->getJson('/api/v1/admin/orders')->assertForbidden()->assertJsonPath('message', 'Akun Anda dinonaktifkan. Hubungi Super Admin.');
+    $this->getJson('/api/v1/admin/orders')->assertForbidden()->assertJsonPath('message', 'Akun Anda dinonaktifkan. Hubungi pemilik usaha.');
 });
 
 it('token pelanggan tidak bisa mengakses admin, dan token admin tidak bisa mengakses /me', function () {
