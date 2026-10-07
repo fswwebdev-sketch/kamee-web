@@ -3,8 +3,10 @@ import {
   computeVariant,
   costPerUnit,
   findRecipeVariant,
+  markupOf,
   matchSizeOption,
   stockUsageForOrder,
+  suggestPrice,
   type CalcIngredient,
 } from "@/lib/admin/finance-calc";
 
@@ -141,5 +143,27 @@ describe("stockUsageForOrder", () => {
       sizes,
     );
     expect(usage.size).toBe(0);
+  });
+});
+
+describe("suggestPrice & markupOf", () => {
+  it("untung 200% = 3× HPP, dibulatkan ke atas ke Rp1.000", () => {
+    expect(suggestPrice(7300, 200)).toBe(22000);
+    expect(suggestPrice(6000, 200)).toBe(18000);
+    expect(suggestPrice(6001, 200)).toBe(19000);
+    expect(suggestPrice(7300, 100)).toBe(15000);
+    expect(suggestPrice(7300, 200, 500)).toBe(22000);
+    expect(suggestPrice(7100, 200, 500)).toBe(21500);
+  });
+
+  it("HPP 0 → tidak ada saran", () => {
+    expect(suggestPrice(0, 200)).toBe(0);
+    expect(markupOf(18000, 0)).toBeNull();
+  });
+
+  it("markup = (harga − HPP) / HPP", () => {
+    expect(markupOf(18000, 6000)).toBe(200);
+    expect(markupOf(18000, 12000)).toBe(50);
+    expect(markupOf(10000, 12000)).toBe(-16.7);
   });
 });
