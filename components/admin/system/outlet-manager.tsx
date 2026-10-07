@@ -213,7 +213,7 @@ export function OutletManager() {
     <>
       <PageHeader
         title="Outlet"
-        description={manage ? "Lokasi, jam operasional, dan radius pengantaran tiap outlet." : "Informasi outlet Anda. Perubahan dilakukan oleh Super Admin."}
+        description={manage ? "Lokasi, jam operasional, dan radius pengantaran tiap outlet." : "Informasi outlet Anda. Perubahan dilakukan oleh Admin (akses penuh)."}
         breadcrumb={[{ label: "Sistem" }, { label: "Outlet" }]}
         actions={manage && <Button onClick={() => setEditing("new")}><Plus className="size-4" aria-hidden="true" /> Tambah outlet</Button>}
       />

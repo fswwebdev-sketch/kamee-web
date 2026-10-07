@@ -48,7 +48,7 @@ export function can(user: Pick<AdminUser, "role"> | null | undefined, ability: A
 }
 
 export function roleLabel(role: AdminRole): string {
-  return role === "super_admin" ? "Super Admin" : "Admin Outlet";
+  return role === "super_admin" ? "Admin" : "Admin Outlet";
 }
 
 /* ------------------------------------------------------------------ Status pesanan */

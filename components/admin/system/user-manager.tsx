@@ -24,7 +24,7 @@ import { errorMessage, useAdminDelete, useAdminList, useAdminSave, useAdminSessi
 import type { AdminRole, AdminUser, Paginated } from "@/lib/admin/types";
 import { formatDateTime } from "@/lib/format";
 
-const ROLE_LABEL: Record<AdminRole, string> = { super_admin: "Super Admin", outlet_admin: "Admin Outlet" };
+const ROLE_LABEL: Record<AdminRole, string> = { super_admin: "Admin", outlet_admin: "Admin Outlet" };
 
 function makeSchema(creating: boolean) {
   return z
@@ -87,7 +87,7 @@ function UserForm({ target, selfId, onDone }: { target: AdminUser | null; selfId
       />
       <Select label="Peran" required disabled={isSelf} hint={isSelf ? "Anda tidak dapat mengubah peran akun sendiri." : undefined} error={errors.role?.message} {...register("role")}>
         <option value="outlet_admin">Admin Outlet</option>
-        <option value="super_admin">Super Admin</option>
+        <option value="super_admin">Admin (akses penuh)</option>
       </Select>
       {role === "outlet_admin" ? (
         <Select label="Outlet" required error={errors.outlet_id?.message} {...register("outlet_id")}>

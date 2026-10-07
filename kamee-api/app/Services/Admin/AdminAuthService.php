@@ -18,7 +18,7 @@ class AdminAuthService
         }
 
         if (! $user->is_active) {
-            throw BusinessException::field('email', 'Akun Anda dinonaktifkan. Hubungi Super Admin.', 403);
+            throw BusinessException::field('email', 'Akun Anda dinonaktifkan. Hubungi pemilik usaha.', 403);
         }
 
         $user->forceFill(['last_login_at' => now()])->save();

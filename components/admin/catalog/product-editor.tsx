@@ -162,7 +162,7 @@ function ProductForm({ product, readOnly }: { product: AdminProduct | null; read
     <>
       <PageHeader
         title={product ? product.name : "Tambah produk"}
-        description={readOnly ? "Mode lihat saja — hanya Super Admin yang dapat mengubah produk." : product ? `/${product.slug}` : "Isi informasi dasar produk. Galeri gambar bisa ditambahkan setelah produk tersimpan."}
+        description={readOnly ? "Mode lihat saja — hanya Admin (akses penuh) yang dapat mengubah produk." : product ? `/${product.slug}` : "Isi informasi dasar produk. Galeri gambar bisa ditambahkan setelah produk tersimpan."}
         breadcrumb={[{ label: "Katalog" }, { label: "Produk", href: "/admin/produk" }, { label: product ? "Ubah" : "Baru" }]}
         actions={
           <>
@@ -350,7 +350,7 @@ export function ProductEditor({ id }: { id?: number }) {
         <EmptyState
           illustration={<Lock className="size-10 text-muted" aria-hidden="true" />}
           title="Tidak dapat menambah produk"
-          description="Hanya Super Admin yang dapat menambah produk. Anda tetap bisa mengatur stok outlet dari daftar produk."
+          description="Hanya Admin (akses penuh) yang dapat menambah produk. Anda tetap bisa mengatur stok outlet dari daftar produk."
           action={<Link href="/admin/produk" className={buttonClasses("primary")}>Kembali ke daftar produk</Link>}
         />
       );

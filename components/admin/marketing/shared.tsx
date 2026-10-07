@@ -57,7 +57,7 @@ export function QueryError({ error, onRetry }: { error: unknown; onRetry: () => 
       <div className="flex flex-col items-center rounded-2xl border border-line bg-surface px-6 py-14 text-center shadow-soft">
         <ShieldAlert className="size-10 text-muted" aria-hidden="true" />
         <p className="mt-3 font-heading font-semibold text-ink">Akses ditolak</p>
-        <p className="mt-1 max-w-sm text-sm text-muted">{error.message || "Halaman ini hanya untuk Super Admin."}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted">{error.message || "Halaman ini hanya untuk Admin (akses penuh)."}</p>
       </div>
     );
   }
