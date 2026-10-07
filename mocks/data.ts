@@ -143,6 +143,9 @@ const catalog: Row[] = [
   { slug: "iced-espresso-matcha-latte", name: "Iced Espresso Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan shot espresso." },
 ];
 
+/** Menu yang sudah punya foto asli (`{slug}-foto*.avif`) — sama dengan CatalogSeeder::PHOTOS. */
+const PHOTOS = new Set(["americano", "mont-blanc", "aren-kame", "butterscotch-sea-salt-latte"]);
+
 export function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -154,6 +157,7 @@ export const productGroups: Record<number, OptionGroup[]> = {};
 
 catalog.forEach((row, index) => {
   const pid = index + 1;
+  const file = PHOTOS.has(row.slug) ? `${row.slug}-foto` : row.slug;
   const category = categories.find((c) => c.slug === row.category)!;
   const groups = row.groups.map((key) => optionGroups[key]!);
   const sizes = groups.find((g) => g.name === "Ukuran");
@@ -169,7 +173,7 @@ catalog.forEach((row, index) => {
     composition: null,
     calories: null,
     base_price: row.price,
-    image_url: `/images/products/${row.slug}.avif`,
+    image_url: `/images/products/${file}.avif`,
     rating_avg: 0,
     review_count: 0,
     sold_count: 0,
@@ -179,7 +183,7 @@ catalog.forEach((row, index) => {
     category,
     images: [1, 2, 3].map((n, i) => ({
       id: pid * 10 + n,
-      url: `/images/products/${row.slug}${n === 1 ? "" : `-${n}`}.avif`,
+      url: `/images/products/${file}${n === 1 ? "" : `-${n}`}.avif`,
       alt: `${row.name} foto ${n}`,
       sort_order: i,
     })),
