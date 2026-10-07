@@ -217,9 +217,10 @@ export const promotions: Promotion[] = [
 ];
 
 export const banners: Banner[] = [
-  { id: 1, title: "Ngopi Hemat 5%", subtitle: "Pakai kode KAMEEHEMAT · min. belanja Rp50.000", image_desktop_url: "/images/banners/banner-1.avif", image_mobile_url: "/images/banners/banner-1.avif", link_url: "/promo", placement: "home", sort_order: 0 },
-  { id: 2, title: "Kame Manucano", subtitle: "Iced Americano dengan Manuka Honey — favorit pelanggan", image_desktop_url: "/images/banners/banner-2.avif", image_mobile_url: "/images/banners/banner-2.avif", link_url: "/menu/kame-manucano", placement: "home", sort_order: 1 },
-  { id: 3, title: "Potongan Rp10.000", subtitle: "Belanja min. Rp125.000 pakai kode NGOPI10K", image_desktop_url: "/images/banners/banner-3.avif", image_mobile_url: "/images/banners/banner-3.avif", link_url: "/promo", placement: "home", sort_order: 2 },
+  { id: 1, title: "Ngopi Hemat 5%", subtitle: "Pakai kode KAMEEHEMAT · min. belanja Rp50.000", image_desktop_url: "/images/banners/promo-hemat.avif", image_mobile_url: "/images/banners/promo-hemat.avif", link_url: "/promo", placement: "home", sort_order: 0 },
+  { id: 3, title: "Potongan Rp10.000", subtitle: "Belanja min. Rp125.000 pakai kode NGOPI10K", image_desktop_url: "/images/banners/promo-ngopi10k.avif", image_mobile_url: "/images/banners/promo-ngopi10k.avif", link_url: "/promo", placement: "home", sort_order: 1 },
+  { id: 4, title: "Kenalan Dulu, Hemat Rp3.000", subtitle: "Pakai kode KENALAN · min. belanja Rp36.000 · 1x per pelanggan", image_desktop_url: "/images/banners/promo-kenalan.avif", image_mobile_url: "/images/banners/promo-kenalan.avif", link_url: "/promo", placement: "home", sort_order: 2 },
+  { id: 2, title: "Kame Manucano", subtitle: "Iced Americano dengan Manuka Honey — favorit pelanggan", image_desktop_url: "/images/banners/banner-2.avif", image_mobile_url: "/images/banners/banner-2.avif", link_url: "/menu/kame-manucano", placement: "home", sort_order: 3 },
 ];
 
 export const tiers: LoyaltyTier[] = [

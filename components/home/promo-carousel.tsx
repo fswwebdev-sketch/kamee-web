@@ -56,7 +56,7 @@ export default function PromoCarousel({ banners, promotions }: { banners: Banner
           {slides.map(({ banner, promo }, i) => (
             <div key={banner.id} role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${slides.length}`} className="relative min-w-0 flex-[0_0_100%]">
               <div className="relative aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9]">
-                <Image src={banner.image_desktop_url} alt="" fill sizes="(min-width:1200px) 1200px, 100vw" className="object-cover" />
+                <Image src={banner.image_desktop_url} alt="" fill sizes="(min-width:1200px) 1200px, 100vw" className="object-cover object-[88%_50%] sm:object-center" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1B3F]/90 via-[#0B1B3F]/40 to-transparent sm:bg-gradient-to-r" aria-hidden="true" />
                 <div className="absolute inset-0 flex flex-col justify-end gap-3 p-6 text-white sm:max-w-md sm:justify-center md:p-10">
                   {promo && <span className="w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur">{promo.type_label}</span>}
