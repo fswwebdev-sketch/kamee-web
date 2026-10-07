@@ -55,8 +55,8 @@ it('seeder mengisi satu outlet, menu asli, dan data demo yang konsisten', functi
         ->and($bottle('regular-chocolate'))->toBe(67000)
         ->and($bottle('premium-dark-chocolate'))->toBe(95000)
         ->and(Product::where('slug', 'local-beans')->first()->optionGroups()->pluck('name')->all())->toBe(['Penyajian', 'Proses Biji'])
-        ->and(Product::where('slug', 'mont-blanc')->value('description'))->toContain('Sabtu–Minggu')
-        ->and(Product::where('slug', 'cold-brew')->value('description'))->toContain('Sabtu–Minggu');
+        ->and(Product::where('slug', 'mont-blanc')->value('description'))->toContain('hari Sabtu')
+        ->and(Product::where('slug', 'cold-brew')->value('description'))->toContain('hari Sabtu');
 
     $admin = User::where('email', 'admin.cibodas@kamee.id')->first();
     expect($admin->outlet_id)->toBe(1)

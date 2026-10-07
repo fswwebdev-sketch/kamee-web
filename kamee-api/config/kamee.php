@@ -9,6 +9,10 @@
 */
 
 return [
+    // Hari tutup (0 = Minggu … 6 = Sabtu, pisahkan koma). Kamee buka Senin–Sabtu.
+    'closed_days' => array_values(array_map('intval', array_filter(explode(',', (string) env('KAMEE_CLOSED_DAYS', '0')), 'is_numeric'))),
+    'open_days_label' => env('KAMEE_OPEN_DAYS_LABEL', 'Senin–Sabtu'),
+
     // Batas request panel admin per akun per menit
     'admin_rate_limit' => (int) env('KAMEE_ADMIN_RATE_LIMIT', 300),
 

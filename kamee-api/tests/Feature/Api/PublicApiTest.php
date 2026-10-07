@@ -122,6 +122,13 @@ it('menampilkan outlet dengan status buka saat ini', function () {
     $this->getJson('/api/v1/outlets')->assertJsonPath('data.0.is_open_now', true)->assertJsonPath('data.0.open_time', '07:00');
 });
 
+it('outlet tutup pada hari Minggu dan menolak pesanan', function () {
+    outlet(['name' => 'Kamee Cikokol']);
+    $this->travelTo(Carbon\Carbon::parse('2026-10-04 12:00:00', 'Asia/Jakarta')); // Minggu
+
+    $this->getJson('/api/v1/outlets')->assertJsonPath('data.0.is_open_now', false)->assertJsonPath('data.0.open_days', 'Senin–Sabtu');
+});
+
 it('menampilkan blog terbit, detail dengan artikel terkait, dan kategori', function () {
     $category = BlogCategory::factory()->create(['name' => 'Tips Kopi']);
     $blog = Blog::factory()->for($category, 'category')->create(['title' => 'Cara Seduh V60']);

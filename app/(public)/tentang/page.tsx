@@ -45,7 +45,7 @@ export default async function AboutPage() {
             <h1 className="mt-2 text-display">Kedai kopi di Taman Cibodas</h1>
             <p className="mt-5 text-body-lg text-muted">
               Kamee Coffee menyajikan based coffee, manual brew, dan minuman non coffee dari outlet kami di Jl. Cempaka Raya
-              Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang. Buka setiap hari pukul 10.00–17.00 WIB — pesan online untuk
+              Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang. Buka Senin–Sabtu pukul 10.00–17.00 WIB (Minggu tutup) — pesan online untuk
               ambil sendiri, makan di tempat, atau diantar.
             </p>
             <Link href="/menu" className={buttonClasses("primary", "lg", "mt-8")}>Lihat Menu</Link>

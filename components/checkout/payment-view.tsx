@@ -169,7 +169,7 @@ export function PaymentView({ code, phone }: { code: string; phone: string }) {
                 <MessageCircle className="size-5" aria-hidden="true" /> Kirim bukti bayar via WhatsApp
               </a>
               <p className="max-w-sm text-caption text-muted" role="note">
-                Pesanan diproses setelah admin mengonfirmasi pembayaran (jam buka 10.00–17.00 WIB). Halaman ini berubah otomatis begitu dikonfirmasi.
+                Pesanan diproses setelah admin mengonfirmasi pembayaran (Senin–Sabtu, 10.00–17.00 WIB). Halaman ini berubah otomatis begitu dikonfirmasi.
               </p>
             </>
           )}

@@ -55,9 +55,9 @@ class CatalogSeeder extends Seeder
         [6, 'pandan-latte-kame', 'Pandan Latte Kame', 'based-coffee', 18000, ['size-latte'], true, true, false, 'Latte dengan aroma pandan.'],
         [7, 'spanish-latte-kame', 'Spanish Latte Kame', 'based-coffee', 18000, ['size-latte'], true, true, false, 'Latte manis dengan susu kental.'],
         [8, 'butterscotch-sea-salt-latte', 'Butterscotch Sea Salt Latte', 'based-coffee', 26000, [], false, false, false, 'Latte butterscotch dengan sea salt.'],
-        [9, 'mont-blanc', 'Mont Blanc', 'based-coffee', 35000, [], true, false, true, 'Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).'],
+        [9, 'mont-blanc', 'Mont Blanc', 'based-coffee', 35000, [], true, false, true, 'Menu spesial — hanya tersedia hari Sabtu.'],
         [10, 'local-beans', 'Local Beans', 'manual-brew', 26000, ['brew-style', 'bean-process'], false, false, false, 'Manual brew biji kopi lokal — Hot atau Japanese, proses Natural, Washed, atau Honey.'],
-        [11, 'cold-brew', 'Cold Brew', 'manual-brew', 30000, [], false, false, true, 'Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.'],
+        [11, 'cold-brew', 'Cold Brew', 'manual-brew', 30000, [], false, false, true, 'Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya hari Sabtu.'],
         [12, 'iced-matcha-latte', 'Iced Matcha Latte', 'non-coffee', 23000, [], true, false, false, 'Matcha dengan susu dingin.'],
         [13, 'iced-strawberry-matcha-latte', 'Iced Strawberry Matcha Latte', 'non-coffee', 26000, [], true, false, false, 'Matcha latte dengan stroberi.'],
         [14, 'iced-matcha-sea-salt-cloud', 'Iced Matcha Sea Salt Cloud', 'non-coffee', 25000, [], false, false, false, 'Matcha dengan lapisan sea salt cream.'],
@@ -79,7 +79,7 @@ class CatalogSeeder extends Seeder
     /** Menu yang sudah punya foto asli: file `{slug}-foto(-2|-3).avif` di public/images/products kamee-web. */
     private const PHOTOS = ['americano', 'mont-blanc', 'aren-kame', 'butterscotch-sea-salt-latte'];
 
-    private const WEEKEND_NOTE = 'Hanya tersedia akhir pekan (Sabtu–Minggu).';
+    private const WEEKEND_NOTE = 'Hanya tersedia hari Sabtu.';
 
     public function run(): void
     {

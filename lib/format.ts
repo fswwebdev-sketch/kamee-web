@@ -32,6 +32,9 @@ export function formatCountdown(totalSeconds: number): string {
 }
 
 /** "07:00:00" / "07:00" → "07.00" */
+/** Hari buka default Kamee (Minggu tutup) — dipakai bila API belum mengirim `open_days`. */
+export const OPEN_DAYS = "Senin–Sabtu";
+
 export function formatHour(time: string) {
   return time.slice(0, 5).replace(":", ".");
 }

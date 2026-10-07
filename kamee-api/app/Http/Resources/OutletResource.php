@@ -22,6 +22,7 @@ class OutletResource extends JsonResource
             'phone_wa' => $this->phone_wa,
             'open_time' => substr((string) $this->open_time, 0, 5),
             'close_time' => substr((string) $this->close_time, 0, 5),
+            'open_days' => config('kamee.open_days_label'),
             'is_open' => $this->is_open,
             'is_open_now' => $this->isAcceptingOrders(),
             'delivery_radius_km' => $this->delivery_radius_km,
