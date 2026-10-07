@@ -5,7 +5,7 @@ import { VariantSheet } from "@/components/menu/variant-sheet-host";
 import { Breadcrumb, SectionHeader } from "@/components/ui/misc";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 import { getCategories, getProducts } from "@/lib/data";
-import { PRODUCTS_PER_PAGE } from "@/lib/queries/keys";
+import { DEFAULT_SORT, PRODUCTS_PER_PAGE } from "@/lib/queries/keys";
 import { buildMetadata } from "@/lib/seo";
 
 type SearchParams = Promise<{ q?: string; kategori?: string; urut?: string }>;
@@ -25,7 +25,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 }
 
 export default async function MenuPage({ searchParams }: { searchParams: SearchParams }) {
-  const { q = "", kategori = "", urut = "-sold_count" } = await searchParams;
+  const { q = "", kategori = "", urut = DEFAULT_SORT } = await searchParams;
   const [categories, firstPage] = await Promise.all([
     getCategories(),
     getProducts({ page: 1, per_page: PRODUCTS_PER_PAGE, search: q || undefined, sort: urut, "filter[category]": kategori || undefined }),

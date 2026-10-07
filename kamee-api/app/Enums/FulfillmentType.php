@@ -14,7 +14,7 @@ enum FulfillmentType: string
     {
         return match ($this) {
             self::Pickup => 'Ambil di outlet',
-            self::Delivery => 'Diantar',
+            self::Delivery => 'Kirim via ojol',
             self::DineIn => 'Makan di tempat',
         };
     }

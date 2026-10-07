@@ -123,11 +123,11 @@ test.describe("UX ponsel", () => {
     await page.goto("/menu");
     await page.getByRole("button", { name: /Filter & urutkan/ }).click();
     const sheet = page.getByRole("dialog", { name: "Filter & urutkan" });
-    await sheet.getByRole("radio", { name: "Harga terendah" }).click();
+    await sheet.getByRole("radio", { name: "Harga termahal" }).click();
     await sheet.getByRole("radio", { name: "Based Coffee", exact: true }).click();
     await sheet.getByRole("button", { name: "Terapkan" }).click();
     await expect(page).toHaveURL(/kategori=based-coffee/);
-    await expect(page).toHaveURL(/urut=price/);
+    await expect(page).toHaveURL(/urut=-price/);
     await expect(page.getByRole("button", { name: /Filter & urutkan/ })).toContainText("2");
   });
 

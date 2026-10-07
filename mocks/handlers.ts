@@ -17,6 +17,7 @@ import type {
 } from "@/types/api";
 import { banners, blogCategories, blogs, categories, outlets, productGroups, products, promotions, reviews, tiers } from "./data";
 import { db, nextId, persist } from "./db";
+import { env } from "@/lib/env";
 import { isPaymentMethodEnabled, manualQrisFields } from "@/lib/payments";
 
 const API = "*/api/v1";
@@ -88,7 +89,8 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number) {
 function deliveryQuote(outletId: number, lat: number, lng: number) {
   const outlet = outlets.find((o) => o.id === outletId) ?? reject("outlet_id", "Outlet tidak ditemukan.");
   const distance = haversine(outlet.lat, outlet.lng, lat, lng);
-  const fee = 8000 + Math.ceil(Math.max(0, distance - 2)) * 2500;
+  // Mode ojol (default): ongkir GoSend/GrabExpress dibayar ke driver, tidak ditagih di web.
+  const fee = env.deliveryMode === "ojol" ? 0 : 8000 + Math.ceil(Math.max(0, distance - 2)) * 2500;
   return { outlet, distance, fee, within: distance <= outlet.delivery_radius_km };
 }
 
@@ -205,7 +207,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: "Menunggu pembayaran", paid: "Sudah dibayar", processing: "Sedang diproses",
   shipped: "Dalam pengantaran", completed: "Selesai", cancelled: "Dibatalkan",
 };
-const FULFILLMENT_LABEL = { pickup: "Ambil di outlet", delivery: "Diantar", dine_in: "Makan di tempat" } as const;
+const FULFILLMENT_LABEL = { pickup: "Ambil di outlet", delivery: "Kirim via ojol", dine_in: "Makan di tempat" } as const;
 const METHOD_LABEL: Record<PaymentMethod, string> = { qris: "QRIS", ewallet: "E-Wallet", bank_transfer: "Transfer Bank (VA)", cash: "Tunai" };
 
 function orderCode() {
@@ -427,11 +429,17 @@ export const handlers = [
     if (search) list = list.filter((p) => p.name.toLowerCase().includes(search));
     if (sp.get("filter[featured]") === "1" || sp.get("filter[featured]") === "true") list = list.filter((p) => p.is_featured);
     if (sp.get("filter[best_seller]") === "1" || sp.get("filter[best_seller]") === "true") list = list.filter((p) => p.is_best_seller);
-    const sort = sp.get("sort") ?? "-sold_count";
-    const dir = sort.startsWith("-") ? -1 : 1;
-    const field = sort.replace("-", "");
-    const key = (p: ProductDetail) => (field === "price" ? p.base_price : field === "rating" ? p.rating_avg : field === "name" ? p.name : p.sold_count);
-    list.sort((a, b) => (key(a) > key(b) ? dir : key(a) < key(b) ? -dir : 0));
+    const sorts = (sp.get("sort") ?? "-sold_count").split(",").filter(Boolean);
+    const key = (p: ProductDetail, field: string) => (field === "price" ? p.base_price : field === "rating" ? p.rating_avg : field === "name" ? p.name : p.sold_count);
+    list.sort((a, b) => {
+      for (const s of sorts) {
+        const dir = s.startsWith("-") ? -1 : 1;
+        const f = s.replace("-", "");
+        const ka = key(a, f), kb = key(b, f);
+        if (ka !== kb) return ka > kb ? dir : -dir;
+      }
+      return 0;
+    });
     const withOptions = (sp.get("include") ?? "").includes("options");
     const page = paginate(list, url, 12);
     return ok({ ...page, data: page.data.map((p) => listProduct(p, withOptions)) });

@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 import { OPEN_DAYS, formatHour } from "@/lib/format";
 import type { Outlet } from "@/types/api";
 import { Logo } from "./logo";
+import { OjolLinks } from "./ojol-links";
 import { InstagramIcon, TikTokIcon } from "./social-icons";
 import { WhatsAppIcon } from "./whatsapp-float";
 
@@ -15,7 +16,8 @@ export function Footer({ outlets }: { outlets: Outlet[] }) {
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-4">
           <Logo />
-          <p className="max-w-xs text-sm text-muted">Based coffee, manual brew, dan non coffee di Perumahan Taman Cibodas, Tangerang.</p>
+          <p className="max-w-xs text-sm text-muted">Based coffee, manual brew, dan non coffee di Perumahan Taman Cibodas, Tangerang. Bisa dikirim via GoSend / GrabExpress.</p>
+          <OjolLinks />
           <div className="flex gap-2">
             {[
               { href: env.instagram, label: "Instagram Kamee Coffee", Icon: InstagramIcon },

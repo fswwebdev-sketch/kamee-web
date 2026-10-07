@@ -103,7 +103,6 @@ test.describe.serial("keuangan admin", () => {
 
     await expect(page.getByTestId("cash-income")).toContainText("Rp2.336.000");
     await expect(page.getByTestId("cash-expense")).toContainText("Rp3.421.845");
-    await expect(page.getByText("Dari belanja stok").first()).toBeVisible();
 
     await page.getByRole("button", { name: "Uang keluar" }).first().click();
     const dialog = page.getByRole("dialog", { name: /Catat uang masuk\/keluar/ });
@@ -116,5 +115,9 @@ test.describe.serial("keuangan admin", () => {
 
     await expect(page.getByRole("row", { name: /Gas elpiji e2e/ })).toContainText("Rp23.000");
     await expect(page.getByTestId("cash-expense")).toContainText("Rp3.444.845");
+
+    // Belanja stok 20/9 tercatat otomatis di buku kas (rentang satu hari agar tidak terpotong halaman)
+    await page.goto("/admin/keuangan/kas?periode=custom&dari=2026-09-20&sampai=2026-09-20");
+    await expect(page.getByText("Dari belanja stok").first()).toBeVisible();
   });
 });

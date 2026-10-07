@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/api";
-import { SORT_OPTIONS } from "./sort-select";
+import { DEFAULT_SORT, SORT_OPTIONS } from "./sort-select";
 
-export const DEFAULT_SORT = "-sold_count";
+export { DEFAULT_SORT };
 
 /**
  * Bottom sheet Filter & Urutkan (ponsel). Pilihan disimpan sebagai draf dan baru diterapkan

@@ -143,8 +143,13 @@ const catalog: Row[] = [
   { slug: "iced-espresso-matcha-latte", name: "Iced Espresso Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan shot espresso." },
 ];
 
-/** Menu yang sudah punya foto asli (`{slug}-foto*.avif`) — sama dengan CatalogSeeder::PHOTOS. */
-const PHOTOS = new Set(["americano", "mont-blanc", "aren-kame", "butterscotch-sea-salt-latte"]);
+/** Galeri menu dengan foto asli: [file, ukuran] — sama dengan CatalogSeeder::PHOTOS. */
+const PHOTOS: Record<string, [string, string | null][]> = {
+  americano: [["americano", null], ["americano-foto", "Bottle 1 L"], ["americano-foto-2", "Bottle 1 L"]],
+  "mont-blanc": [["mont-blanc-foto", null], ["mont-blanc-foto-2", null], ["mont-blanc-foto-3", null]],
+  "aren-kame": [["aren-kame-foto", null], ["aren-kame-foto-2", "Bottle 1 L"], ["aren-kame-foto-3", null]],
+  "butterscotch-sea-salt-latte": [["butterscotch-sea-salt-latte-foto", null], ["butterscotch-sea-salt-latte-foto-2", null], ["butterscotch-sea-salt-latte-foto-3", null]],
+};
 
 export function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -157,7 +162,7 @@ export const productGroups: Record<number, OptionGroup[]> = {};
 
 catalog.forEach((row, index) => {
   const pid = index + 1;
-  const file = PHOTOS.has(row.slug) ? `${row.slug}-foto` : row.slug;
+  const gallery = PHOTOS[row.slug] ?? [[row.slug, null], [`${row.slug}-2`, null], [`${row.slug}-3`, null]];
   const category = categories.find((c) => c.slug === row.category)!;
   const groups = row.groups.map((key) => optionGroups[key]!);
   const sizes = groups.find((g) => g.name === "Ukuran");
@@ -173,7 +178,7 @@ catalog.forEach((row, index) => {
     composition: null,
     calories: null,
     base_price: row.price,
-    image_url: `/images/products/${file}.avif`,
+    image_url: `/images/products/${gallery[0]![0]}.avif`,
     rating_avg: 0,
     review_count: 0,
     sold_count: 0,
@@ -181,10 +186,10 @@ catalog.forEach((row, index) => {
     is_best_seller: row.best ?? false,
     is_active: true,
     category,
-    images: [1, 2, 3].map((n, i) => ({
-      id: pid * 10 + n,
-      url: `/images/products/${file}${n === 1 ? "" : `-${n}`}.avif`,
-      alt: `${row.name} foto ${n}`,
+    images: gallery.map(([file, size], i) => ({
+      id: pid * 10 + i + 1,
+      url: `/images/products/${file}.avif`,
+      alt: size ? `${row.name} ${size}` : `${row.name} foto ${i + 1}`,
       sort_order: i,
     })),
     option_groups: groups,

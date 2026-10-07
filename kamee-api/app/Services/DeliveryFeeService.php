@@ -25,6 +25,11 @@ class DeliveryFeeService
 
     public function feeForDistance(float $distanceKm): int
     {
+        // Mode ojol: ongkir GoSend/GrabExpress dibayar pembeli langsung ke driver, tidak ditagih di web.
+        if ($this->settings->get('delivery_mode', 'ojol') === 'ojol') {
+            return 0;
+        }
+
         $base = $this->settings->int('delivery_base_fee');
         $baseKm = (float) $this->settings->get('delivery_base_km', 0);
         $perKm = $this->settings->int('delivery_per_km_fee');

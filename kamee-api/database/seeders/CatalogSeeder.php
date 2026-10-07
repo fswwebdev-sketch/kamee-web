@@ -76,8 +76,17 @@ class CatalogSeeder extends Seeder
         [27, 'iced-espresso-matcha-latte', 'Iced Espresso Matcha Latte', 'non-coffee', 25000, [], false, false, false, 'Matcha latte dengan shot espresso.'],
     ];
 
-    /** Menu yang sudah punya foto asli: file `{slug}-foto(-2|-3).avif` di public/images/products kamee-web. */
-    private const PHOTOS = ['americano', 'mont-blanc', 'aren-kame', 'butterscotch-sea-salt-latte'];
+    /**
+     * Galeri menu yang sudah punya foto asli (public/images/products kamee-web): slug => [[file, ukuran]].
+     * Foto pertama = foto utama. Ukuran (mis. "Bottle 1 L") ditulis di alt dan tampil sebagai label di galeri.
+     * Americano: foto asli hanya botol 1 L, jadi foto utama tetap ilustrasi cup.
+     */
+    private const PHOTOS = [
+        'americano' => [['americano', null], ['americano-foto', 'Bottle 1 L'], ['americano-foto-2', 'Bottle 1 L']],
+        'mont-blanc' => [['mont-blanc-foto', null], ['mont-blanc-foto-2', null], ['mont-blanc-foto-3', null]],
+        'aren-kame' => [['aren-kame-foto', null], ['aren-kame-foto-2', 'Bottle 1 L'], ['aren-kame-foto-3', null]],
+        'butterscotch-sea-salt-latte' => [['butterscotch-sea-salt-latte-foto', null], ['butterscotch-sea-salt-latte-foto-2', null], ['butterscotch-sea-salt-latte-foto-3', null]],
+    ];
 
     private const WEEKEND_NOTE = 'Hanya tersedia hari Sabtu.';
 
@@ -93,7 +102,7 @@ class CatalogSeeder extends Seeder
         $groups = $this->optionGroups();
 
         foreach (self::PRODUCTS as [$id, $slug, $name, $category, $price, $groupKeys, $bestSeller, $featured, $weekendOnly, $short]) {
-            $file = in_array($slug, self::PHOTOS, true) ? "{$slug}-foto" : $slug;
+            $gallery = self::PHOTOS[$slug] ?? [[$slug, null], ["{$slug}-2", null], ["{$slug}-3", null]];
             $description = $weekendOnly && ! str_contains($short, 'Sabtu') ? "{$short} ".self::WEEKEND_NOTE : $short;
 
             $product = Product::unguarded(fn () => Product::updateOrCreate(['id' => $id], [
@@ -106,7 +115,7 @@ class CatalogSeeder extends Seeder
                 'calories' => null,
                 'base_price' => $price,
                 // Ilustrasi bawaan situs web (public/images/products) — ganti dengan foto asli lewat admin.
-                'image' => "/images/products/{$file}.avif",
+                'image' => "/images/products/{$gallery[0][0]}.avif",
                 'rating_avg' => 0,
                 'review_count' => 0,
                 'sold_count' => 0,
@@ -120,10 +129,10 @@ class CatalogSeeder extends Seeder
             );
 
             if ($product->images()->doesntExist()) {
-                foreach (['', '-2', '-3'] as $i => $suffix) {
+                foreach ($gallery as $i => [$file, $size]) {
                     $product->images()->create([
-                        'path' => "/images/products/{$file}{$suffix}.avif",
-                        'alt' => "{$name} — Kamee Coffee",
+                        'path' => "/images/products/{$file}.avif",
+                        'alt' => ($size ? "{$name} {$size}" : $name).' — Kamee Coffee',
                         'sort_order' => $i + 1,
                     ]);
                 }

@@ -3,7 +3,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Category, Paginated, Product, Review } from "@/types/api";
-import { PRODUCTS_PER_PAGE, qk, type ProductFilters } from "./keys";
+import { DEFAULT_SORT, PRODUCTS_PER_PAGE, qk, type ProductFilters } from "./keys";
 
 
 export function productQuery(f: ProductFilters, page: number) {
@@ -12,7 +12,7 @@ export function productQuery(f: ProductFilters, page: number) {
     per_page: PRODUCTS_PER_PAGE,
     include: "options,category",
     search: f.search || undefined,
-    sort: f.sort || "-sold_count",
+    sort: f.sort || DEFAULT_SORT,
     "filter[category]": f.category || undefined,
     "filter[outlet]": f.outlet ?? undefined,
   };

@@ -1,4 +1,8 @@
-export const PRODUCTS_PER_PAGE = 12;
+/** Satu halaman cukup untuk seluruh menu (27 item) agar mudah dipindai. */
+export const PRODUCTS_PER_PAGE = 30;
+
+/** Urutan default menu: harga termurah dulu (nama sebagai penentu bila harga sama). */
+export const DEFAULT_SORT = "price,name";
 
 export interface ProductFilters {
   search?: string;

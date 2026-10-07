@@ -116,6 +116,14 @@ it('menghitung ongkir dari koordinat', function () {
         ->assertUnprocessable()->assertJsonValidationErrors('address');
 });
 
+it('mode ojol: ongkir tidak ditagih di web (dibayar ke driver GoSend/GrabExpress)', function () {
+    config(['kamee.settings.delivery_mode' => 'ojol']);
+    $outlet = outlet();
+
+    $this->postJson('/api/v1/delivery/quote', ['outlet_id' => $outlet->id, 'lat' => -6.2100, 'lng' => 106.6400])
+        ->assertOk()->assertJsonPath('data.fee', 0)->assertJsonPath('data.within_radius', true);
+});
+
 it('menampilkan outlet dengan status buka saat ini', function () {
     outlet(['name' => 'Kamee Cikokol']);
 
