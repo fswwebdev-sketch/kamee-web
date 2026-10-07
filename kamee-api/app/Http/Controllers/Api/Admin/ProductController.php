@@ -39,7 +39,7 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        $products = QueryBuilder::for(Product::query()->with('category', 'outlets:id'))
+        $products = QueryBuilder::for(Product::query()->with('category', 'outlets:id', 'optionGroups'))
             ->allowedFilters([
                 AllowedFilter::exact('category_id'),
                 AllowedFilter::exact('is_active'),
