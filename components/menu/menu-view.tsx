@@ -9,6 +9,7 @@ import { EmptyState, ErrorState } from "@/components/ui/misc";
 import { useCartStore } from "@/features/cart/store";
 import { useCartHydrated } from "@/features/cart/hooks";
 import { useInView } from "@/lib/hooks";
+import { groupVariants } from "@/lib/menu-order";
 import { useCategories, useProductsInfinite } from "@/lib/queries/catalog";
 import type { ProductFilters } from "@/lib/queries/keys";
 import type { Category, Paginated, Product } from "@/types/api";
@@ -41,7 +42,9 @@ export function MenuView({ categories, initialPage, initialFilters }: { categori
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage, isPlaceholderData } = useProductsInfinite(filters, sameAsInitial ? initialPage : undefined);
   const { data: cats = categories } = useCategories(categories);
 
-  const products = data?.pages.flatMap((p) => p.data) ?? [];
+  const list = data?.pages.flatMap((p) => p.data) ?? [];
+  // Varian reguler/premium satu menu ditampilkan berdekatan (abjad), kecuali saat diurutkan A–Z.
+  const products = filters.sort === "name" ? list : groupVariants(list);
   const total = data?.pages[0]?.meta.total ?? 0;
 
   const setParam = useCallback(
