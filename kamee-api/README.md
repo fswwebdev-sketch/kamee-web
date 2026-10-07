@@ -80,12 +80,12 @@ Di produksi, ganti `schedule:work` dengan cron `* * * * * php artisan schedule:r
 |---|---|
 | Outlet | Satu outlet: **Kamee Coffee Taman Cibodas** (`kamee-taman-cibodas`, id 1), Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Periuk, Kota Tangerang · buka 10:00–17:00 · radius antar 5 km · WA 6281280871630 |
 | Admin | **Super Admin** `superadmin@kamee.id` / `password` · **Admin Outlet** (Taman Cibodas) `admin.cibodas@kamee.id` / `password` |
-| Katalog | Menu asli: 3 kategori (Based Coffee, Manual Brew, Non Coffee), 19 produk, 8 grup opsi (beberapa grup "Ukuran" Cup / Bottle 250 ml / Bottle 1 L dengan selisih harga berbeda per menu, Penyajian, Proses Biji). ID kategori/grup/produk tetap sesuai spesifikasi bersama kamee-web. Rating, ulasan, dan terjual mulai dari 0; kalori & komposisi kosong. Mont Blanc & Cold Brew hanya akhir pekan (tertulis di deskripsi). |
+| Katalog | Menu asli: 3 kategori (Based Coffee, Manual Brew, Non Coffee), 27 produk, 11 grup opsi (beberapa grup "Ukuran" Cup / Bottle 250 ml / Bottle 1 L dengan selisih harga berbeda per menu, Penyajian, Proses Biji). ID kategori/grup/produk tetap sesuai spesifikasi bersama kamee-web. Rating, ulasan, dan terjual mulai dari 0; kalori & komposisi kosong. Mont Blanc & Cold Brew hanya akhir pekan (tertulis di deskripsi). |
 | Promo | `KAMEEHEMAT` (20% maks Rp15.000, min Rp40.000), `GRATISONGKIR`, `BELI1GRATIS1`, `NGOPI10K` |
 | Pelanggan | 20 pelanggan + alamat, tier Bronze/Silver/Gold |
 | Pesanan | 100 pesanan acak 60 hari terakhir, dibuat lewat service yang sama dengan API (harga, promo, poin, log status, pembayaran QRIS manual / tunai). Tidak ada ulasan produk palsu |
 | Konten | 3 banner, 6 artikel blog, 3 pesan kontak |
-| Keuangan | `BookkeepingSeeder`: data buku catatan pemilik 20–29 Sep 2026 — 11 bahan & kemasan, belanja stok 20/9 (Rp2.321.000) + es batu, pengeluaran lain, 13 pemasukan penjualan, dan resep 19 menu. Lihat [§12](#12-keuangan-pembukuan-admin) |
+| Keuangan | `BookkeepingSeeder`: data buku catatan pemilik + ekspor Kasir Kamee (20 Sep–2 Okt 2026) — 11 bahan & kemasan, belanja stok 20/9 (Rp2.321.000) + es batu, pengeluaran lain, 12 pengeluaran & 34 penjualan dari Kasir, dan resep 27 menu. Lihat [§12](#12-keuangan-pembukuan-admin) |
 
 Login pelanggan memakai OTP WhatsApp. Dengan `WHATSAPP_DRIVER=log`, kode OTP tertulis di `storage/logs/laravel.log`.
 
@@ -332,7 +332,7 @@ Catatan PostgreSQL: pencarian memakai `whereLike` (otomatis `ILIKE`, tidak membe
 
 **Hasil saat ini: 231 tes, semuanya lulus di SQLite, MySQL 8, dan PostgreSQL 17 (langsung maupun lewat PgBouncer mode transaksi). Coverage `app/Services` + `app/Actions`: 98,1%.**
 
-Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 19 produk, 3 kategori, total buku catatan & HPP Aren Kame), keuangan (bahan, stok opname, belanja stok, resep/HPP, kasir, pemotongan & pembalikan stok, buku kas, ringkasan, isolasi outlet), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
+Cakupan tes: pricing & opsi, ongkir Haversine, voucher (semua tipe, kuota, batas per pelanggan), loyalitas (earn, tier, redeem, refund, expire FIFO), seluruh transisi state machine, QRIS manual (tagihan statis, metode nonaktif ditolak, konfirmasi admin & otorisasinya, batal otomatis 60 menit), Midtrans (charge QRIS/e-wallet/VA, refund, status), seeder (1 outlet, 27 produk, 3 kategori, total buku catatan & HPP Aren Kame), keuangan (bahan, stok opname, belanja stok, resep/HPP, kasir, pemotongan & pembalikan stok, buku kas, ringkasan, isolasi outlet), webhook (signature, idempoten, nominal, status final), scheduler, idempotency & rate limit, serta otorisasi role (Super Admin vs Admin Outlet, pelanggan vs admin, channel broadcast).
 
 ## 10. Skema database
 
@@ -408,7 +408,7 @@ Es batu (±100 gr per cup) tidak dihitung di HPP karena belanjanya tidak tercata
 (pesanan demo tidak memotong stok). Idempoten; `created_by` = Super Admin.
 - 11 bahan & kemasan (harga nota 20/9/2026). Stok awal = satu belanja stok 2026-09-20 "Belanja 10 hari pertama" (9 item, **Rp2.321.000**) yang dibuat lewat `StockPurchaseService` (mutasi + entri kas), ditambah pengeluaran **Es batu Rp25.000**. Matcha & Botol 250 ml belum punya stok/harga.
 - Pengeluaran lain Rp388.150 (tanggal & metode tidak tertulis → 2026-09-20, tunai, diberi catatan) dan 13 pemasukan penjualan Rp1.111.000 (transfer BCA/BJB & tunai; baris yang bacaan tulisan tangannya ragu diberi catatan "mohon cek").
-- **Resep Aren Kame adalah resep asli pemilik (`is_sample = false`)** — Cup: aren 30, creamer 20, susu 120, kopi 20, cup 1 → HPP Rp12.580, margin Rp4.420 (26%), cukup 110 cup (dibatasi stok Cup 12 oz + tutup). Resep menu lain adalah **contoh perkiraan (`is_sample = true`)** yang akan diubah pemilik.
+- **Resep Aren Kame adalah resep asli pemilik (`is_sample = false`)** — Cup: aren 30, creamer 20, susu 120, kopi 20, cup 1 → HPP Rp12.580, margin Rp5.420 (30,1%), cukup 110 cup (dibatasi stok Cup 12 oz + tutup). Resep menu lain adalah **contoh perkiraan (`is_sample = true`)** yang akan diubah pemilik.
 - Pengeluaran pribadi pemilik (kaos kaki, pilates) sengaja tidak dicatat.
 
 ## 13. Deploy: GitHub + Vercel + Supabase
@@ -443,7 +443,7 @@ Panduan ini untuk pemilik usaha, tidak perlu menjadi developer. Hasil akhirnya: 
 3. Ulangi dengan `database/supabase/seed.sql`.
    (Bisa juga minta asisten/developer menjalankannya: `psql "<connection string>" -f database/supabase/schema.sql -f database/supabase/seed.sql`.)
 
-Isi `seed.sql`: outlet Taman Cibodas, 2 akun admin, 19 menu dan opsinya, promo, banner, blog, tier loyalitas, dan pembukuan awal. Data demo (pelanggan, pesanan, pesan contoh) tidak ikut. Seluruh tabel dikunci dengan RLS, dan akses role `anon`/`authenticated` dicabut, sehingga data tidak bisa dibaca lewat Supabase Data API. Laravel tetap bisa mengaksesnya karena memakai role `postgres`.
+Isi `seed.sql`: outlet Taman Cibodas, 2 akun admin, 27 menu dan opsinya, promo, banner, blog, tier loyalitas, dan pembukuan awal. Data demo (pelanggan, pesanan, pesan contoh) tidak ikut. Seluruh tabel dikunci dengan RLS, dan akses role `anon`/`authenticated` dicabut, sehingga data tidak bisa dibaca lewat Supabase Data API. Laravel tetap bisa mengaksesnya karena memakai role `postgres`.
 
 > Banner dan artikel contoh memakai gambar placeholder dan tanggal saat file dibuat. Ganti lewat dashboard admin.
 

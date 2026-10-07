@@ -24,8 +24,8 @@
   --color-whatsapp: #1A7F46;         /* hijau WA dengan kontras AA terhadap teks putih */
   --color-on-primary: #FFFFFF;
 
-  --font-heading: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: 1rem;
   --shadow-soft: 0 4px 20px rgb(4 25 70 / .08);

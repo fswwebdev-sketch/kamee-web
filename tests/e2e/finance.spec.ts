@@ -33,7 +33,7 @@ test.describe.serial("keuangan admin", () => {
     await sidebar(page).getByRole("link", { name: "Resep & HPP" }).click();
     await expect(page).toHaveURL(/\/admin\/resep$/);
 
-    const card = page.getByRole("article", { name: "Aren Kame", exact: true });
+    const card = page.getByRole("article", { name: "Aren Kame Reguler", exact: true });
     await expect(card).toBeVisible();
     const cup = card.getByRole("region", { name: "Cup", exact: true });
     await expect(cup).toContainText("Rp12.580");
@@ -44,31 +44,31 @@ test.describe.serial("keuangan admin", () => {
     await expect(card.getByText("Contoh — ubah sesuai resep")).toHaveCount(0);
   });
 
-  test("Kasir: Aren Kame (Cup) ×2 tunai Rp50.000 → kembalian Rp16.000, stok cup berkurang", async ({ page }) => {
+  test("Kasir: Aren Kame (Cup) ×2 tunai Rp50.000 → kembalian Rp14.000, stok cup berkurang", async ({ page }) => {
     await login(page, "admin.cibodas@kamee.id");
     // Stok cup sebelum transaksi (server mock dipakai bersama tes lain)
     await page.goto("/admin/bahan?tab=kemasan");
     const before = parseInt((await page.getByRole("row", { name: /Cup 12 oz \+ tutup/ }).getByTestId("stock-qty").innerText()).replace(/\D/g, ""), 10);
     await page.goto("/admin/kasir");
 
-    await page.getByRole("button", { name: /^Aren Kame/ }).click();
-    const opt = page.getByRole("dialog", { name: "Aren Kame" });
+    await page.getByRole("button", { name: /^Aren Kame Reguler/ }).click();
+    const opt = page.getByRole("dialog", { name: "Aren Kame Reguler" });
     await opt.getByText("Cup", { exact: true }).click();
     await expect(opt.getByRole("radio", { name: /^Cup/ })).toBeChecked();
-    await opt.getByRole("button", { name: "Tambah Aren Kame" }).click();
+    await opt.getByRole("button", { name: "Tambah Aren Kame Reguler" }).click();
     await opt.getByRole("button", { name: /Tambah ke keranjang/ }).click();
     await expect(opt).toBeHidden();
 
     const cart = page.getByRole("complementary", { name: "Keranjang kasir" });
-    await expect(cart.getByTestId("pos-total")).toHaveText("Rp34.000");
+    await expect(cart.getByTestId("pos-total")).toHaveText("Rp36.000");
     await cart.getByRole("radio", { name: "Tunai" }).click();
     await cart.getByLabel("Uang diterima").fill("50000");
-    await expect(cart.getByTestId("pos-change")).toHaveText("Rp16.000");
+    await expect(cart.getByTestId("pos-change")).toHaveText("Rp14.000");
     await cart.getByRole("button", { name: /^Bayar/ }).click();
 
     const done = page.getByRole("dialog", { name: /Pesanan tersimpan/ });
     await expect(done).toBeVisible();
-    await expect(done.getByTestId("pos-result-change")).toHaveText("Rp16.000");
+    await expect(done.getByTestId("pos-result-change")).toHaveText("Rp14.000");
     await expect(done.getByRole("button", { name: "Cetak struk" })).toBeVisible();
     await done.getByRole("button", { name: "Pesanan baru" }).click();
     await expect(done).toBeHidden();
@@ -86,7 +86,7 @@ test.describe.serial("keuangan admin", () => {
     const income = page.getByTestId("income-by-method");
     await expect(income).toContainText("Transfer");
     await expect(income).toContainText("Tunai");
-    await expect(page.getByTestId("stat-expense")).toContainText("Rp2.734.150");
+    await expect(page.getByTestId("stat-expense")).toContainText("Rp3.421.845");
     await expect(page.getByTestId("expense-by-category")).toContainText("Bahan baku");
     await expect(page.getByRole("heading", { name: "Menu terlaris" })).toBeVisible();
   });
@@ -101,8 +101,8 @@ test.describe.serial("keuangan admin", () => {
     await page.getByLabel("Sampai", { exact: true }).fill("2026-09-29");
     await expect(page).toHaveURL(/sampai=2026-09-29/);
 
-    await expect(page.getByTestId("cash-income")).toContainText("Rp1.111.000");
-    await expect(page.getByTestId("cash-expense")).toContainText("Rp2.734.150");
+    await expect(page.getByTestId("cash-income")).toContainText("Rp2.336.000");
+    await expect(page.getByTestId("cash-expense")).toContainText("Rp3.421.845");
     await expect(page.getByText("Dari belanja stok").first()).toBeVisible();
 
     await page.getByRole("button", { name: "Uang keluar" }).first().click();
@@ -115,6 +115,6 @@ test.describe.serial("keuangan admin", () => {
     await expect(dialog).toBeHidden();
 
     await expect(page.getByRole("row", { name: /Gas elpiji e2e/ })).toContainText("Rp23.000");
-    await expect(page.getByTestId("cash-expense")).toContainText("Rp2.757.150");
+    await expect(page.getByTestId("cash-expense")).toContainText("Rp3.444.845");
   });
 });

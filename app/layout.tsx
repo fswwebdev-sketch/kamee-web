@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import type { ReactNode } from "react";
 import { Providers } from "@/components/providers";
 import { env } from "@/lib/env";
 import { buildMetadata, site } from "@/lib/seo";
 import "./globals.css";
 
-const poppins = Poppins({ subsets: ["latin"], weight: ["600", "700"], display: "swap", variable: "--font-poppins" });
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", variable: "--font-inter" });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font-montserrat" });
 
 // [lebar, tinggi, device-width, device-height, rasio] — sama dengan scripts/generate-pwa-assets.py
 const SPLASH: [number, number, number, number, number][] = [
@@ -58,7 +57,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning className={`${poppins.variable} ${inter.variable}`}>
+    <html lang="id" suppressHydrationWarning className={montserrat.variable}>
       <body>
         <a href="#konten" className="sr-only z-[100] rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
           Lewati ke konten utama

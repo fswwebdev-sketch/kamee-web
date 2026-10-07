@@ -9,14 +9,14 @@ export const ogContentType = "image/png";
 async function fonts() {
   const dir = join(process.cwd(), "public/fonts");
   const [bold, semi, body] = await Promise.all([
-    readFile(join(dir, "poppins-700.woff")),
-    readFile(join(dir, "poppins-600.woff")),
-    readFile(join(dir, "inter-500.woff")),
+    readFile(join(dir, "montserrat-700.woff")),
+    readFile(join(dir, "montserrat-600.woff")),
+    readFile(join(dir, "montserrat-500.woff")),
   ]);
   return [
-    { name: "Poppins", data: bold, weight: 700 as const, style: "normal" as const },
-    { name: "Poppins", data: semi, weight: 600 as const, style: "normal" as const },
-    { name: "Inter", data: body, weight: 500 as const, style: "normal" as const },
+    { name: "Montserrat", data: bold, weight: 700 as const, style: "normal" as const },
+    { name: "Montserrat", data: semi, weight: 600 as const, style: "normal" as const },
+    { name: "Montserrat", data: body, weight: 500 as const, style: "normal" as const },
   ];
 }
 
@@ -46,7 +46,7 @@ export async function renderOg(children: ReactNode, background?: string) {
   }
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#0B1B3F", fontFamily: "Inter" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#0B1B3F", fontFamily: "Montserrat" }}>
         {bg && (
           // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
           <img src={bg} width={1200} height={630} style={{ position: "absolute", inset: 0, objectFit: "cover" }} />
@@ -65,7 +65,7 @@ export function Brand() {
       <div style={{ width: 52, height: 52, borderRadius: 16, background: "#04338B", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: 30, height: 30, borderRadius: 999, background: "#E3EAF7", display: "flex" }} />
       </div>
-      <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 30, color: "#FFFFFF", display: "flex" }}>
+      <div style={{ fontFamily: "Montserrat", fontWeight: 700, fontSize: 30, color: "#FFFFFF", display: "flex" }}>
         Kamee<span style={{ color: "#E3EAF7", marginLeft: 8 }}>Coffee</span>
       </div>
     </div>

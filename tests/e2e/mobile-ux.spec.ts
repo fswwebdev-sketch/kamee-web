@@ -41,7 +41,7 @@ async function expectNoHorizontalScroll(page: Page) {
 
 async function addArenKame(page: Page) {
   await page.goto("/menu?q=aren");
-  await page.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).first().click();
+  await page.getByRole("button", { name: /Tambah Aren Kame Reguler ke keranjang/ }).first().click();
   const sheet = page.getByRole("dialog");
   await sheet.getByRole("button", { name: /^Tambah ·/ }).click();
   await expect(sheet).toBeHidden();
@@ -96,7 +96,7 @@ test.describe("UX ponsel", () => {
 
   test("varian dalam bottom sheet dapat ditutup dengan swipe ke bawah", async ({ page }) => {
     await page.goto("/menu?q=aren");
-    await page.getByRole("button", { name: /Tambah Aren Kame ke keranjang/ }).first().click();
+    await page.getByRole("button", { name: /Tambah Aren Kame Reguler ke keranjang/ }).first().click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible();
     await page.waitForTimeout(500); // tunggu animasi masuk selesai sebelum mengukur pegangan
@@ -138,7 +138,7 @@ test.describe("UX ponsel", () => {
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await expect(page.locator("#ringkasan-pesanan").getByText("1× Aren Kame")).toBeVisible();
+    await expect(page.locator("#ringkasan-pesanan").getByText("1× Aren Kame Reguler")).toBeVisible();
 
     const pay = page.getByTestId("submit-order").filter({ visible: true });
     await expect(pay).toBeInViewport();

@@ -1,5 +1,5 @@
 /**
- * Data mock — mencerminkan seeder kamee-api (menu asli 19 produk, 1 outlet Taman Cibodas, promo, konten).
+ * Data mock — mencerminkan seeder kamee-api (menu asli 27 produk, 1 outlet Taman Cibodas, promo, konten).
  * Dipakai MSW agar seluruh UI dapat dijalankan tanpa backend.
  */
 import type {
@@ -28,7 +28,7 @@ export const optionGroups: Record<string, OptionGroup> = {
     options: [
       { id: 1, name: "Cup", price_delta: 0, sort_order: 0 },
       { id: 2, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
-      { id: 3, name: "Bottle 1 L", price_delta: 50000, sort_order: 2 },
+      { id: 3, name: "Bottle 1 L", price_delta: 59000, sort_order: 2 },
     ],
   },
   "size-orangecano": {
@@ -36,7 +36,7 @@ export const optionGroups: Record<string, OptionGroup> = {
     options: [
       { id: 4, name: "Cup", price_delta: 0, sort_order: 0 },
       { id: 5, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
-      { id: 6, name: "Bottle 1 L", price_delta: 59000, sort_order: 2 },
+      { id: 6, name: "Bottle 1 L", price_delta: 67000, sort_order: 2 },
     ],
   },
   "size-manucano": {
@@ -44,7 +44,7 @@ export const optionGroups: Record<string, OptionGroup> = {
     options: [
       { id: 7, name: "Cup", price_delta: 0, sort_order: 0 },
       { id: 8, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
-      { id: 9, name: "Bottle 1 L", price_delta: 67000, sort_order: 2 },
+      { id: 9, name: "Bottle 1 L", price_delta: 70000, sort_order: 2 },
     ],
   },
   "size-latte": {
@@ -52,7 +52,7 @@ export const optionGroups: Record<string, OptionGroup> = {
     options: [
       { id: 10, name: "Cup", price_delta: 0, sort_order: 0 },
       { id: 11, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
-      { id: 12, name: "Bottle 1 L", price_delta: 63000, sort_order: 2 },
+      { id: 12, name: "Bottle 1 L", price_delta: 67000, sort_order: 2 },
     ],
   },
   "size-choco-regular": {
@@ -84,31 +84,63 @@ export const optionGroups: Record<string, OptionGroup> = {
       { id: 21, name: "Honey", price_delta: 0, sort_order: 2 },
     ],
   },
+  "size-specialty": {
+    id: 9, name: "Ukuran", type: "single", is_required: true,
+    options: [
+      { id: 22, name: "Cup", price_delta: 0, sort_order: 0 },
+      { id: 23, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
+      { id: 24, name: "Bottle 1 L", price_delta: 99000, sort_order: 2 },
+    ],
+  },
+  "size-aren-premium": {
+    id: 10, name: "Ukuran", type: "single", is_required: true,
+    options: [
+      { id: 25, name: "Cup", price_delta: 0, sort_order: 0 },
+      { id: 26, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
+      { id: 27, name: "Bottle 1 L", price_delta: 78000, sort_order: 2 },
+    ],
+  },
+  "size-cup-250": {
+    id: 11, name: "Ukuran", type: "single", is_required: true,
+    options: [
+      { id: 28, name: "Cup", price_delta: 0, sort_order: 0 },
+      { id: 29, name: "Bottle 250 ml", price_delta: 0, sort_order: 1 },
+    ],
+  },
 };
 
 type Row = { slug: string; name: string; category: string; price: number; groups: string[]; short: string; best?: boolean; featured?: boolean; weekendOnly?: boolean };
 
 /** Menu asli Kamee Coffee (sumber: daftar menu outlet). 👍 di menu = best seller. */
 const catalog: Row[] = [
-  { slug: "americano", name: "Americano", category: "based-coffee", price: 15000, groups: ["size-americano"], short: "Espresso dan air — bersih, ringan, tanpa susu." },
-  { slug: "kame-orangecano", name: "Kame Orangecano", category: "based-coffee", price: 16000, groups: ["size-orangecano"], short: "Americano dengan sentuhan jeruk yang segar.", featured: true },
-  { slug: "kame-manucano", name: "Kame Manucano", category: "based-coffee", price: 18000, groups: ["size-manucano"], short: "Iced Americano with Manuka Honey.", best: true, featured: true },
-  { slug: "caramel-latte-kame", name: "Caramel Latte Kame", category: "based-coffee", price: 17000, groups: ["size-latte"], short: "Latte susu dengan karamel." },
-  { slug: "aren-kame", name: "Aren Kame", category: "based-coffee", price: 17000, groups: ["size-latte"], short: "Kopi susu dengan gula aren.", best: true, featured: true },
-  { slug: "pandan-latte-kame", name: "Pandan Latte Kame", category: "based-coffee", price: 17000, groups: ["size-latte"], short: "Latte dengan aroma pandan.", best: true, featured: true },
-  { slug: "spanish-latte-kame", name: "Spanish Latte Kame", category: "based-coffee", price: 17000, groups: ["size-latte"], short: "Latte manis dengan susu kental.", best: true, featured: true },
-  { slug: "butterscotch-sea-salt-latte", name: "Butterscotch Sea Salt Latte", category: "based-coffee", price: 23000, groups: [], short: "Latte butterscotch dengan sea salt." },
-  { slug: "mont-blanc", name: "Mont Blanc", category: "based-coffee", price: 35000, groups: [], short: "Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).", weekendOnly: true },
+  { slug: "americano", name: "Americano", category: "based-coffee", price: 16000, groups: ["size-americano"], short: "Espresso dan air — bersih, ringan, tanpa susu." },
+  { slug: "kame-orangecano", name: "Kame Orangecano", category: "based-coffee", price: 18000, groups: ["size-orangecano"], short: "Americano dengan sentuhan jeruk yang segar.", featured: true },
+  { slug: "kame-manucano", name: "Kame Manucano", category: "based-coffee", price: 20000, groups: ["size-manucano"], short: "Iced Americano with Manuka Honey.", best: true, featured: true },
+  { slug: "caramel-latte-kame", name: "Caramel Latte Kame", category: "based-coffee", price: 18000, groups: ["size-latte"], short: "Latte susu dengan karamel." },
+  { slug: "aren-kame", name: "Aren Kame Reguler", category: "based-coffee", price: 18000, groups: ["size-latte"], short: "Kopi susu gula aren — with 50% Arabica + 50% Robusta.", best: true, featured: true },
+  { slug: "pandan-latte-kame", name: "Pandan Latte Kame", category: "based-coffee", price: 18000, groups: ["size-latte"], short: "Latte dengan aroma pandan.", best: true, featured: true },
+  { slug: "spanish-latte-kame", name: "Spanish Latte Kame", category: "based-coffee", price: 18000, groups: ["size-latte"], short: "Latte manis dengan susu kental.", best: true, featured: true },
+  { slug: "butterscotch-sea-salt-latte", name: "Butterscotch Sea Salt Latte", category: "based-coffee", price: 26000, groups: [], short: "Latte butterscotch dengan sea salt." },
+  { slug: "mont-blanc", name: "Mont Blanc", category: "based-coffee", price: 35000, groups: [], short: "Menu spesial — hanya tersedia akhir pekan (Sabtu–Minggu).", best: true, weekendOnly: true },
   { slug: "local-beans", name: "Local Beans", category: "manual-brew", price: 26000, groups: ["brew-style", "bean-process"], short: "Manual brew biji kopi lokal — Hot atau Japanese, proses Natural, Washed, atau Honey." },
-  { slug: "cold-brew", name: "Cold Brew", category: "manual-brew", price: 28000, groups: [], short: "Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.", weekendOnly: true },
-  { slug: "iced-matcha-latte", name: "Iced Matcha Latte", category: "non-coffee", price: 23000, groups: [], short: "Matcha dengan susu dingin." },
-  { slug: "iced-strawberry-matcha-latte", name: "Iced Strawberry Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan stroberi." },
+  { slug: "cold-brew", name: "Cold Brew", category: "manual-brew", price: 30000, groups: [], short: "Slowly steeped in cold water to create a smooth, mellow cup with subtle sweetness and a clean finish. Hanya akhir pekan.", weekendOnly: true },
+  { slug: "iced-matcha-latte", name: "Iced Matcha Latte", category: "non-coffee", price: 23000, groups: [], short: "Matcha dengan susu dingin.", best: true },
+  { slug: "iced-strawberry-matcha-latte", name: "Iced Strawberry Matcha Latte", category: "non-coffee", price: 26000, groups: [], short: "Matcha latte dengan stroberi.", best: true },
   { slug: "iced-matcha-sea-salt-cloud", name: "Iced Matcha Sea Salt Cloud", category: "non-coffee", price: 25000, groups: [], short: "Matcha dengan lapisan sea salt cream." },
-  { slug: "regular-chocolate", name: "Regular Chocolate", category: "non-coffee", price: 18000, groups: ["size-choco-regular"], short: "Cokelat susu klasik. Tersedia juga ukuran 1 L." },
-  { slug: "premium-dark-chocolate", name: "Premium Dark Chocolate", category: "non-coffee", price: 25000, groups: ["size-choco-premium"], short: "Dark chocolate yang lebih pekat. Tersedia juga ukuran 1 L." },
+  { slug: "regular-chocolate", name: "Reguler Chocolate", category: "non-coffee", price: 18000, groups: ["size-choco-regular"], short: "Cokelat susu klasik. Tersedia juga ukuran 1 L." },
+  { slug: "premium-dark-chocolate", name: "Premium Dark Chocolate", category: "non-coffee", price: 25000, groups: ["size-choco-premium"], short: "Dark chocolate yang lebih pekat. Tersedia juga ukuran 1 L.", best: true },
   { slug: "iced-chocolate-sea-salt-cloud", name: "Iced Chocolate Sea Salt Cloud", category: "non-coffee", price: 25000, groups: [], short: "Cokelat dingin dengan lapisan sea salt cream." },
   { slug: "iced-strawberry-choco", name: "Iced Strawberry Choco", category: "non-coffee", price: 23000, groups: [], short: "Cokelat dingin dengan stroberi." },
   { slug: "iced-strawberry-choco-sea-salt-cloud", name: "Iced Strawberry Choco Sea Salt Cloud", category: "non-coffee", price: 26000, groups: [], short: "Strawberry choco dengan lapisan sea salt cream." },
+  // Menu baru (Okt 2026) — urutan = ID 20+ di CatalogSeeder.
+  { slug: "americano-specialty-blend", name: "Americano Specialty Blend", category: "based-coffee", price: 26000, groups: ["size-specialty"], short: "Blend Arabica Colombia & Arabica Brazil Santos.", best: true },
+  { slug: "aren-kame-premium", name: "Aren Kame Premium", category: "based-coffee", price: 22000, groups: ["size-aren-premium"], short: "Kopi susu gula aren — with 100% Arabica Mandhailing.", best: true },
+  { slug: "aren-sea-salt-kame", name: "Aren Sea Salt Kame", category: "based-coffee", price: 22000, groups: ["size-cup-250"], short: "Kopi susu gula aren dengan lapisan sea salt cream." },
+  { slug: "butterscotch-latte-kame", name: "Butterscotch Latte Kame", category: "based-coffee", price: 18000, groups: ["size-latte"], short: "Latte susu dengan butterscotch." },
+  { slug: "iced-matcha-oatmilk", name: "Iced Matcha Oatmilk", category: "non-coffee", price: 25000, groups: [], short: "Matcha dengan oat milk dingin." },
+  { slug: "iced-caramel-matcha-latte", name: "Iced Caramel Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan karamel." },
+  { slug: "iced-aren-matcha-latte", name: "Iced Aren Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan gula aren." },
+  { slug: "iced-espresso-matcha-latte", name: "Iced Espresso Matcha Latte", category: "non-coffee", price: 25000, groups: [], short: "Matcha latte dengan shot espresso." },
 ];
 
 export function slugify(s: string) {

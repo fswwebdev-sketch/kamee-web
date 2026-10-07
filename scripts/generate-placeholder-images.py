@@ -206,6 +206,14 @@ PRODUCTS = {
     "iced-chocolate-sea-salt-cloud": ("#04338B", "foam", "drink"),
     "iced-strawberry-choco": ("#0B3FA3", "iced", "drink"),
     "iced-strawberry-choco-sea-salt-cloud": ("#1E4A9E", "foam", "drink"),
+    "americano-specialty-blend": ("#03286D", "tea", "drink"),
+    "aren-kame-premium": ("#2A5BB8", "iced", "drink"),
+    "aren-sea-salt-kame": ("#3A6CC8", "foam", "drink"),
+    "butterscotch-latte-kame": ("#4A78C9", "latte", "drink"),
+    "iced-matcha-oatmilk": ("#16264A", "iced", "drink"),
+    "iced-caramel-matcha-latte": ("#0B3FA3", "iced", "drink"),
+    "iced-aren-matcha-latte": ("#1E4A9E", "iced", "drink"),
+    "iced-espresso-matcha-latte": ("#04338B", "foam", "drink"),
 }
 
 BG_TINTS = [(239, 240, 245), CREAM, (232, 237, 247)]  # #EFF0F5 = latar menu Kame
