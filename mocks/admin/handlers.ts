@@ -266,7 +266,8 @@ function serializeProduct(p: AdminProduct, detail = false) {
   const out = { ...p, category, unavailable_outlet_ids: unavailable, option_group_ids: p.option_group_ids ?? [] };
   if (detail) return { ...out, option_groups: groups, images: [...(p.images ?? [])].sort((a, b) => a.sort_order - b.sort_order) };
   const { images: _i, option_groups: _g, ...rest } = out;
-  return rest;
+  // Sama seperti API asli: daftar produk memuat grup opsi TANPA daftar opsinya (opsi diambil dari /option-groups).
+  return { ...rest, option_groups: groups.map((g) => ({ id: g!.id, name: g!.name, type: g!.type, is_required: g!.is_required })) };
 }
 
 function findProduct(id: unknown) {
