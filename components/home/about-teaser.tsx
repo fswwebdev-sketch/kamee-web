@@ -16,7 +16,7 @@ export function AboutTeaser() {
       <div className="container-page grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal className="relative">
           <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-lift">
-            <Image src="/images/about/barista.avif" alt="Barista Kamee Coffee meracik kopi" fill sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
+            <Image src="/images/about/aren-kame-bar.avif" alt="Deretan es kopi Aren Kame siap disajikan di bar Kamee" fill sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
           </div>
           <div className="glass absolute -bottom-6 left-6 rounded-2xl border px-5 py-4 shadow-soft">
             <p className="font-heading text-2xl font-bold text-ink">10.00–17.00</p>

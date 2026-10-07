@@ -51,7 +51,7 @@ export default async function AboutPage() {
             <Link href="/menu" className={buttonClasses("primary", "lg", "mt-8")}>Lihat Menu</Link>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-lift">
-            <Image src="/images/about/barista.avif" alt="Suasana bar kopi Kamee" fill priority sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
+            <Image src="/images/about/aren-kame-bar.avif" alt="Deretan es kopi Aren Kame di bar Kamee" fill priority sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
           </div>
         </div>
 
