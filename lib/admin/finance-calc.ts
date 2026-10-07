@@ -72,6 +72,28 @@ export function computeVariant(
   return { option_name: optionName, price, items, hpp, margin, margin_pct, cups_possible: cups, limiting_ingredient: limiting };
 }
 
+/** Pilihan target untung (% dari modal/HPP) untuk saran harga jual. */
+export const MARKUP_TARGETS = [100, 150, 200, 250] as const;
+export const DEFAULT_MARKUP = 200;
+
+/**
+ * Saran harga jual agar untung `markupPct`% dari HPP: HPP × (1 + markup/100), dibulatkan KE ATAS
+ * ke kelipatan `roundTo` (default Rp1.000) supaya harga enak dibaca. 0 bila HPP belum ada.
+ * Contoh: HPP 7.300, untung 200% → 21.900 → Rp22.000.
+ */
+export function suggestPrice(hpp: number, markupPct: number, roundTo = 1000): number {
+  if (!(hpp > 0)) return 0;
+  const raw = hpp * (1 + markupPct / 100);
+  const step = roundTo > 0 ? roundTo : 1;
+  return Math.ceil(raw / step - 1e-9) * step;
+}
+
+/** Untung sebagai % dari modal (markup) = (harga − HPP) / HPP × 100, 1 desimal. Null bila HPP 0. */
+export function markupOf(price: number, hpp: number): number | null {
+  if (!(hpp > 0)) return null;
+  return round1(((price - hpp) / hpp) * 100);
+}
+
 /**
  * Nama opsi Ukuran yang dipilih pada item pesanan: opsi item pertama yang namanya ada di daftar opsi
  * grup Ukuran produk (tanpa beda huruf besar/kecil & spasi tepi). Null bila tidak ada.
