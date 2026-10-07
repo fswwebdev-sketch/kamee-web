@@ -19,6 +19,6 @@ export default async function BlogOg({ params }: { params: Promise<{ slug: strin
       </div>
       <div style={{ display: "flex", fontSize: 24, color: "rgba(255,255,255,.85)" }}>{b?.published_at ? formatDate(b.published_at) : ""}</div>
     </div>,
-    "hero/latte-og.jpg",
+    "hero/aren-kame-og.jpg",
   );
 }

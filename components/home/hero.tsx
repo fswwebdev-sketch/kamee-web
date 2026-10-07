@@ -14,8 +14,8 @@ export function Hero({ open, close, days, address, mapsUrl }: { open: string; cl
   return (
     <section className="relative isolate min-h-[88svh] overflow-hidden" aria-labelledby="hero-title">
       <Image
-        src="/hero/latte.avif"
-        alt="Ilustrasi secangkir kopi Kamee Coffee"
+        src="/hero/aren-kame.avif"
+        alt="Es Aren Kame dalam cup Kame di atas meja kayu"
         fill
         priority
         fetchPriority="high"
