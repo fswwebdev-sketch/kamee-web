@@ -80,7 +80,7 @@ Di produksi, ganti `schedule:work` dengan cron `* * * * * php artisan schedule:r
 |---|---|
 | Outlet | Satu outlet: **Kamee Coffee Taman Cibodas** (`kamee-taman-cibodas`, id 1), Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Periuk, Kota Tangerang · buka 10:00–17:00 · radius antar 5 km · WA 6281280871630 |
 | Admin | **Super Admin** `superadmin@kamee.id` / `password` · **Admin Outlet** (Taman Cibodas) `admin.cibodas@kamee.id` / `password` |
-| Katalog | Menu asli: 3 kategori (Based Coffee, Manual Brew, Non Coffee), 27 produk, 11 grup opsi (beberapa grup "Ukuran" Cup / Bottle 250 ml / Bottle 1 L dengan selisih harga berbeda per menu, Penyajian, Proses Biji). ID kategori/grup/produk tetap sesuai spesifikasi bersama kamee-web. Rating, ulasan, dan terjual mulai dari 0; kalori & komposisi kosong. Mont Blanc & Cold Brew hanya akhir pekan (tertulis di deskripsi). |
+| Katalog | Menu asli: 3 kategori (Based Coffee, Manual Brew, Non Coffee), 27 produk, 11 grup opsi (beberapa grup "Ukuran" Cup / Bottle 250 ml / Bottle 1 L dengan selisih harga berbeda per menu, Penyajian, Proses Biji). ID kategori/grup/produk tetap sesuai spesifikasi bersama kamee-web. Rating, ulasan, dan terjual mulai dari 0; kalori & komposisi kosong. Mont Blanc & Cold Brew hanya hari Sabtu (tertulis di deskripsi); outlet tutup hari Minggu (`KAMEE_CLOSED_DAYS`). |
 | Promo | `KAMEEHEMAT` (20% maks Rp15.000, min Rp40.000), `GRATISONGKIR`, `BELI1GRATIS1`, `NGOPI10K` |
 | Pelanggan | 20 pelanggan + alamat, tier Bronze/Silver/Gold |
 | Pesanan | 100 pesanan acak 60 hari terakhir, dibuat lewat service yang sama dengan API (harga, promo, poin, log status, pembayaran QRIS manual / tunai). Tidak ada ulasan produk palsu |

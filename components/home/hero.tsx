@@ -10,7 +10,7 @@ const TITLE = "Nikmati Secangkir Kebahagiaan di Kamee Coffee";
  * Hero (bagian 6): foto full-bleed + gradien, judul muncul per kata (stagger 60 ms),
  * gambar zoom-out 1.1 → 1.0 dalam 1,2 detik. Murni CSS agar tidak menunda LCP.
  */
-export function Hero({ open, close, address, mapsUrl }: { open: string; close: string; address: string; mapsUrl: string }) {
+export function Hero({ open, close, days, address, mapsUrl }: { open: string; close: string; days: string; address: string; mapsUrl: string }) {
   return (
     <section className="relative isolate min-h-[88svh] overflow-hidden" aria-labelledby="hero-title">
       <Image
@@ -27,7 +27,7 @@ export function Hero({ open, close, address, mapsUrl }: { open: string; close: s
       <div className="mx-auto flex min-h-[88svh] max-w-6xl flex-col justify-end gap-8 px-4 pt-32 pb-16 md:px-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-xl text-white">
           <span className="inline-flex animate-fade-up items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm backdrop-blur">
-            ☕ Buka setiap hari {formatHour(open)}–{formatHour(close)}
+            ☕ Buka {days} {formatHour(open)}–{formatHour(close)}
           </span>
           <h1 id="hero-title" className="mt-4 font-heading text-4xl font-bold leading-tight md:text-6xl">
             {TITLE.split(" ").map((word, i) => (

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { InstallAppButton } from "./install-app";
 import { Clock, Mail, MapPin } from "lucide-react";
 import { env } from "@/lib/env";
-import { formatHour } from "@/lib/format";
+import { OPEN_DAYS, formatHour } from "@/lib/format";
 import type { Outlet } from "@/types/api";
 import { Logo } from "./logo";
 import { InstagramIcon, TikTokIcon } from "./social-icons";
@@ -41,7 +41,7 @@ export function Footer({ outlets }: { outlets: Outlet[] }) {
             <h2 className="font-heading text-base font-semibold text-ink">{o.name}</h2>
             <ul className="mt-4 flex flex-col gap-2.5 text-sm text-muted">
               <li className="flex gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />{o.address}</li>
-              <li className="flex gap-2"><Clock className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />Setiap hari {formatHour(o.open_time)}–{formatHour(o.close_time)} WIB</li>
+              <li className="flex gap-2"><Clock className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />{o.open_days ?? OPEN_DAYS} {formatHour(o.open_time)}–{formatHour(o.close_time)} WIB · Minggu tutup</li>
             </ul>
           </div>
         ))}

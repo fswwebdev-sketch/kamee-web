@@ -81,7 +81,7 @@ export function cafeJsonLd(outlets: Outlet[]) {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
         opens: o.open_time.slice(0, 5),
         closes: o.close_time.slice(0, 5),
       },

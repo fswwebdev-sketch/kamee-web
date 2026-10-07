@@ -13,10 +13,10 @@ Semua data diambil dari `kamee-api` (`/api/v1`). Mock MSW bawaan membuat UI bisa
 | | |
 |---|---|
 | Outlet (satu-satunya) | **Kamee Coffee Taman Cibodas** — Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Sangiang Jaya, Kec. Periuk, Kota Tangerang. Koordinat perkiraan −6.1819, 106.5972 (ubah di Admin → Outlet bila pin kurang tepat). |
-| Jam buka | Setiap hari 10.00–17.00 WIB |
+| Jam buka | Senin–Sabtu 10.00–17.00 WIB, Minggu tutup (`KAMEE_CLOSED_DAYS=0` di kamee-api) |
 | WhatsApp | 0812-8087-1630 (`NEXT_PUBLIC_WHATSAPP_NUMBER=6281280871630`) |
 | Warna brand | Biru navy Kame `#04338B` + putih (token di `app/globals.css`; ilustrasi & ikon hanya biru-putih) |
-| Menu | 27 menu sesuai daftar menu outlet (Okt 2026): Based Coffee (Cup / Bottle 250 ml / Bottle 1 L), Manual Brew, Non Coffee. 👍 di menu = *Best Seller*. Mont Blanc & Cold Brew hanya akhir pekan. Rating, ulasan, jumlah terjual, komposisi, dan kalori sengaja kosong (disembunyikan) sampai ada data asli. |
+| Menu | 27 menu sesuai daftar menu outlet (Okt 2026): Based Coffee (Cup / Bottle 250 ml / Bottle 1 L), Manual Brew, Non Coffee. 👍 di menu = *Best Seller*. Mont Blanc & Cold Brew hanya hari Sabtu. Rating, ulasan, jumlah terjual, komposisi, dan kalori sengaja kosong (disembunyikan) sampai ada data asli. |
 | Pembayaran | **QRIS statis GoPay Merchant** (`KAMEECOFFEE`, NMID `ID1026594722880`, gambar `public/payments/qris-kameecoffee.jpg`) + **Tunai** di kasir. Lihat [Alur QRIS statis](#alur-qris-statis). |
 
 | Kebutuhan | Pustaka |

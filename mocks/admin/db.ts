@@ -199,7 +199,7 @@ function seed(): MockAdminState {
         break;
       }
     }
-    // Mont Blanc & Cold Brew hanya dijual Sabtu–Minggu
+    // Mont Blanc & Cold Brew hanya dijual hari Sabtu
     return !weekend && WEEKEND_ONLY.has(chosen.slug) ? weightedProduct(weekend) : chosen;
   };
 
@@ -247,7 +247,7 @@ function seed(): MockAdminState {
   for (const { at, outlet, live } of slots) {
     const fulfillment: Fulfillment = live?.fulfillment ?? pick(["pickup", "pickup", "dine_in", "dine_in", "delivery"] as const);
     const method: PaymentMethod = live?.method ?? pick(["qris", "qris", "qris", "cash", "cash"] as const);
-    const weekend = [0, 6].includes(new Date(at.getTime() + TZ_OFFSET * 60_000).getUTCDay());
+    const weekend = [6].includes(new Date(at.getTime() + TZ_OFFSET * 60_000).getUTCDay());
     const channel = pick(["web", "web", "web", "web", "whatsapp", "whatsapp", "pos"] as const);
     const registered = r() < 0.72 ? customers[Math.floor(r() * customers.length)]! : null;
     const name = registered?.name ?? `${pick(FIRST)} ${pick(LAST)}`;

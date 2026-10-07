@@ -261,7 +261,7 @@ class OrderService
 
             throw BusinessException::field(
                 $data->scheduledAt ? 'scheduled_at' : 'outlet_id',
-                "{$outlet->name} buka pukul {$open}–{$close} WIB.",
+                $outlet->name.' buka '.config('kamee.open_days_label').", pukul {$open}–{$close} WIB.",
             );
         }
     }

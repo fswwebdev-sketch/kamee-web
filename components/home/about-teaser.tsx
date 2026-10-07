@@ -20,7 +20,7 @@ export function AboutTeaser() {
           </div>
           <div className="glass absolute -bottom-6 left-6 rounded-2xl border px-5 py-4 shadow-soft">
             <p className="font-heading text-2xl font-bold text-ink">10.00–17.00</p>
-            <p className="text-sm text-muted">buka setiap hari di Taman Cibodas</p>
+            <p className="text-sm text-muted">buka Senin–Sabtu di Taman Cibodas</p>
           </div>
         </Reveal>
         <Reveal delay={0.1}>

@@ -55,7 +55,12 @@ class Outlet extends Model
             return false;
         }
 
-        $time = ($at ?? now())->format('H:i:s');
+        $at ??= now();
+        if (in_array($at->copy()->setTimezone(config('app.timezone'))->dayOfWeek, config('kamee.closed_days', []), true)) {
+            return false; // hari libur mingguan (default: Minggu)
+        }
+
+        $time = $at->format('H:i:s');
         $open = Carbon::parse($this->open_time)->format('H:i:s');
         $close = Carbon::parse($this->close_time)->format('H:i:s');
 

@@ -1,3 +1,4 @@
+import { OPEN_DAYS } from "@/lib/format";
 import type { Metadata } from "next";
 import { AboutTeaser } from "@/components/home/about-teaser";
 import { CtaBanner } from "@/components/home/cta-banner";
@@ -32,6 +33,7 @@ export default async function HomePage() {
       <Hero
         open={first?.open_time ?? "10:00"}
         close={first?.close_time ?? "17:00"}
+        days={first?.open_days ?? OPEN_DAYS}
         address={first?.address ?? "Jl. Cempaka Raya Blok I6 No. 3, Perumahan Taman Cibodas, Tangerang"}
         mapsUrl={first ? `https://www.google.com/maps/search/?api=1&query=${first.lat},${first.lng}` : "https://www.google.com/maps/search/?api=1&query=Kamee+Coffee+Taman+Cibodas"}
       />

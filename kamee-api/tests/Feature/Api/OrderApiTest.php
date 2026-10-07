@@ -113,7 +113,7 @@ it('menolak pesanan saat outlet tutup atau di luar jam operasional', function ()
 
     $this->travelTo(now()->setTime(23, 30));
     $this->postJson('/api/v1/orders', orderPayload($this->outlet, items($this->drink)), idem())
-        ->assertUnprocessable()->assertJsonPath('errors.outlet_id.0', "{$this->outlet->name} buka pukul 07:00–22:00 WIB.");
+        ->assertUnprocessable()->assertJsonPath('errors.outlet_id.0', "{$this->outlet->name} buka Senin–Sabtu, pukul 07:00–22:00 WIB.");
 
     // Pesanan terjadwal untuk besok pagi diterima
     $this->postJson('/api/v1/orders', orderPayload($this->outlet, items($this->drink), ['scheduled_at' => now()->addDay()->setTime(9, 0)->toIso8601String()]), idem())

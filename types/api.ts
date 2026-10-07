@@ -135,6 +135,8 @@ export interface Outlet {
   phone_wa: string;
   open_time: string;
   close_time: string;
+  /** Hari buka, mis. "Senin–Sabtu" (Minggu tutup). */
+  open_days?: string;
   is_open: boolean;
   is_open_now: boolean;
   delivery_radius_km: number;

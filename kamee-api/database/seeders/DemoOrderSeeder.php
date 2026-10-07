@@ -66,6 +66,8 @@ class DemoOrderSeeder extends Seeder
             // Demo hanya mulai 1 Okt 2026: periode 20–29 Sep berisi data asli buku catatan (BookkeepingSeeder).
             ->map(fn () => now()->subDays(mt_rand(0, $this->demoDays()))->setTime(mt_rand(10, 15), mt_rand(0, 59)))
             ->map(fn (Carbon $t) => $t->greaterThan($this->realNow->copy()->subHour()) ? $t->subDay() : $t)
+            // Outlet tutup di hari libur mingguan (default Minggu) → geser ke hari sebelumnya.
+            ->map(fn (Carbon $t) => in_array($t->dayOfWeek, config('kamee.closed_days', []), true) ? $t->subDay() : $t)
             ->sort()->values();
 
         // Pelanggan setia (3 pertama) mendapat porsi pesanan lebih besar agar ada tier Silver.
