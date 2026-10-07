@@ -147,8 +147,8 @@ const catalog: Row[] = [
 const PHOTOS: Record<string, [string, string | null][]> = {
   americano: [["americano", null], ["americano-foto", "Bottle 1 L"], ["americano-foto-2", "Bottle 1 L"]],
   "mont-blanc": [["mont-blanc-foto", null], ["mont-blanc-foto-2", null], ["mont-blanc-foto-3", null]],
-  "aren-kame": [["aren-kame-cup", null], ["aren-kame-foto-2", "Bottle 1 L"], ["aren-kame-foto", null]],
-  "aren-kame-premium": [["aren-kame-cup", null], ["aren-kame-cup-dekat", null], ["aren-kame-foto-2", "Bottle 1 L"]],
+  "aren-kame": [["aren-kame-cup", "Cup"], ["aren-kame-foto-2", "Bottle 1 L"], ["aren-kame-foto", "Cup"]],
+  "aren-kame-premium": [["aren-kame-cup", "Cup"], ["aren-kame-cup-dekat", "Cup"], ["aren-kame-foto-2", "Bottle 1 L"]],
   "butterscotch-sea-salt-latte": [["butterscotch-sea-salt-latte-foto", null], ["butterscotch-sea-salt-latte-foto-2", null], ["butterscotch-sea-salt-latte-foto-3", null]],
 };
 
