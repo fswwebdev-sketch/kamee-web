@@ -29,6 +29,12 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             <p style={{ fontSize: 40, margin: 0 }} aria-hidden="true">☕</p>
             <h1 style={{ fontSize: 22, margin: "12px 0 8px" }}>Situs baru saja diperbarui</h1>
             <p style={{ margin: "0 0 20px", color: "#4A5B7A" }}>Muat ulang halaman untuk melihat versi terbaru Kamee Coffee.</p>
+            <details style={{ margin: "0 0 20px", fontSize: 12, color: "#6B7A99", textAlign: "left" }}>
+              <summary>Info teknis (kirim ke admin bila error berulang)</summary>
+              <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                {`${error?.name ?? "Error"}: ${error?.message ?? "-"}${error?.digest ? `\ndigest: ${error.digest}` : ""}\n${(error?.stack ?? "").split("\n").slice(0, 6).join("\n")}\n${typeof navigator !== "undefined" ? navigator.userAgent : ""}`}
+              </pre>
+            </details>
             <button
               type="button"
               onClick={() => (typeof window !== "undefined" ? window.location.reload() : reset())}
