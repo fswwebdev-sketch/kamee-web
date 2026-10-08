@@ -189,6 +189,11 @@ class PricingService
             return [0, null];
         }
 
+        // Mode ojol: pelanggan memesan GoSend/GrabExpress sendiri; ongkir dibayar ke driver, tidak ada batas radius.
+        if ($this->settings->get('delivery_mode', 'ojol') === 'ojol') {
+            return [0, null];
+        }
+
         if ($request->lat === null || $request->lng === null) {
             throw BusinessException::field('address', 'Titik lokasi pengantaran wajib diisi.');
         }

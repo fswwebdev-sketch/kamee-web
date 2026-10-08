@@ -67,6 +67,16 @@ it('memvalidasi payload dengan pesan berbahasa Indonesia', function () {
         ->assertJsonValidationErrors(['customer.phone' => 'Nomor WhatsApp tidak valid. Gunakan format 08xx atau 628xx.']);
 });
 
+it('mode ojol: pesanan kirim via ojol tanpa alamat, tanpa ongkir & tanpa batas radius', function () {
+    config(['kamee.settings.delivery_mode' => 'ojol']);
+
+    $this->postJson('/api/v1/orders', orderPayload($this->outlet, items($this->drink), ['fulfillment' => 'delivery']), idem())
+        ->assertCreated()
+        ->assertJsonPath('data.fulfillment', 'delivery')
+        ->assertJsonPath('data.delivery_fee', 0)
+        ->assertJsonPath('data.address', null);
+});
+
 it('membuat pesanan antar dengan ongkir, voucher, dan catatan alamat', function () {
     Promotion::factory()->percent(20, 15000)->create(['code' => 'KAMEEHEMAT', 'min_spend' => 40000]);
 

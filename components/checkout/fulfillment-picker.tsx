@@ -8,7 +8,7 @@ import type { Fulfillment } from "@/types/api";
 const OPTIONS: { value: Fulfillment; title: string; description: string; icon: typeof Store }[] = [
   { value: "pickup", title: "Ambil di outlet", description: "Tanpa antre, siap ±10 menit", icon: Store },
   env.deliveryMode === "ojol"
-    ? { value: "delivery", title: "Kirim via ojol", description: "GoSend / GrabExpress, ongkir bayar ke driver", icon: Bike }
+    ? { value: "delivery", title: "Kirim via ojol", description: "Pesan GoSend / GrabExpress sendiri", icon: Bike }
     : { value: "delivery", title: "Diantar", description: "Ongkir sesuai jarak", icon: Bike },
   { value: "dine_in", title: "Makan di tempat", description: "Disajikan di meja", icon: UtensilsCrossed },
 ];

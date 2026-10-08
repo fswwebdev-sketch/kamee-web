@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { env } from "@/lib/env";
 import { nameSchema, phoneSchema } from "./common";
 
 export const PAYMENT_CHANNELS = {
@@ -31,7 +32,8 @@ export const checkoutSchema = z
     note: z.string().trim().max(500, "Catatan maksimal 500 karakter.").optional(),
   })
   .superRefine((v, ctx) => {
-    if (v.fulfillment === "delivery") {
+    // Mode ojol: pelanggan memesan GoSend/GrabExpress sendiri → alamat tidak diminta di web.
+    if (v.fulfillment === "delivery" && env.deliveryMode !== "ojol") {
       if (!v.address || v.address.length < 8) ctx.addIssue({ code: "custom", path: ["address"], message: "Alamat pengantaran wajib diisi (min. 8 karakter)." });
       if (v.lat == null || v.lng == null) ctx.addIssue({ code: "custom", path: ["lat"], message: "Tandai titik lokasi pengantaran di peta." });
     }
