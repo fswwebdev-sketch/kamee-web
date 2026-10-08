@@ -4,11 +4,11 @@ dan splash screen iOS (apple-touch-startup-image) untuk ukuran iPhone umum.
 
     python3 scripts/generate-pwa-assets.py
 
-Butuh Pillow. Logo digambar ulang di sini (sama dengan LogoMark di components/layout/logo.tsx).
+Butuh Pillow. Logo dari scripts/assets/kame-symbol.png & kame-logo.png (logo resmi Kame, putih di transparan).
 """
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent / "public"
 PRIMARY = (4, 51, 139)
@@ -19,31 +19,30 @@ SPLASH_BG = (244, 246, 251)  # --color-surface
 SS = 4  # supersampling
 
 
+ASSETS = Path(__file__).resolve().parent / "assets"
+
+
+def _symbol(px, color=(255, 255, 255)):
+    """Simbol Kame (">k") sebagai gambar RGBA berwarna `color`, sisi terpanjang = px."""
+    m = Image.open(ASSETS / "kame-symbol.png").getchannel("A")
+    k = px / max(m.size)
+    m = m.resize((max(1, round(m.width * k)), max(1, round(m.height * k))), Image.LANCZOS)
+    out = Image.new("RGBA", m.size, color + (0,))
+    out.putalpha(m)
+    return out
+
+
 def mark(size, rounded=True, pad=0.0):
-    """Logo Kamee: kotak primary, cangkir cream, latte art. pad = ruang aman (maskable)."""
+    """Ikon Kame: kotak biru navy + simbol Kame putih. pad = ruang aman tambahan (maskable)."""
     W = size * SS
     img = Image.new("RGBA", (W, W), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     if rounded:
-        d.rounded_rectangle((0, 0, W - 1, W - 1), radius=int(W * 0.3), fill=PRIMARY)
+        d.rounded_rectangle((0, 0, W - 1, W - 1), radius=int(W * 0.22), fill=PRIMARY)
     else:
         d.rectangle((0, 0, W, W), fill=PRIMARY)
-    c = W / 2
-    scale = 1 - pad
-    r1, r2 = W * 0.275 * scale, W * 0.2 * scale
-    d.ellipse((c - r1, c - r1, c + r1, c + r1), fill=CREAM)
-    d.ellipse((c - r2, c - r2, c + r2, c + r2), fill=CREMA)
-    # latte art: kurva hati parametrik + garis tengah
-    import math
-    k = r2 * 0.62 / 16
-    pts = []
-    for i in range(240):
-        t = 2 * math.pi * i / 240
-        x = 16 * math.sin(t) ** 3
-        y = 13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)
-        pts.append((c + x * k, c - y * k + r2 * 0.08))
-    d.polygon(pts, fill=CREAM)
-    d.line((c, c - r2 * 0.36, c, c + r2 * 0.5), fill=CREMA, width=max(2, int(W * 0.012)))
+    sym = _symbol(int(W * 0.62 * (1 - pad)))
+    img.paste(sym, ((W - sym.width) // 2, (W - sym.height) // 2), sym)
     return img.resize((size, size), Image.LANCZOS)
 
 
@@ -80,21 +79,22 @@ SPLASH = [  # (lebar, tinggi, device-width, device-height, ratio)
 
 
 def splash(w, h):
+    """Splash iOS: logo Kame lengkap (simbol + tulisan) biru navy di latar terang."""
     img = Image.new("RGB", (w, h), SPLASH_BG)
-    s = int(w * 0.26)
-    logo = mark(s)
-    img.paste(logo, ((w - s) // 2, int(h * 0.42 - s / 2)), logo)
-    d = ImageDraw.Draw(img)
-    font = ImageFont.truetype(str(ROOT / "fonts/poppins-700.woff"), int(w * 0.075))
-    text = "Kamee Coffee"
-    tw = d.textlength(text, font=font)
-    y = int(h * 0.42 + s / 2 + w * 0.06)
-    d.text(((w - tw) / 2, y), "Kamee ", font=font, fill=INK)
-    d.text(((w - tw) / 2 + d.textlength("Kamee ", font=font), y), "Coffee", font=font, fill=PRIMARY)
-    small = ImageFont.truetype(str(ROOT / "fonts/inter-500.woff"), int(w * 0.034))
-    tag = "Setiap cangkir, cerita baru"
-    d.text(((w - d.textlength(tag, font=small)) / 2, y + int(w * 0.11)), tag, font=small, fill=(122, 101, 88))
+    m = Image.open(ASSETS / "kame-logo.png").getchannel("A")
+    lw = int(w * 0.34)
+    m = m.resize((lw, round(m.height * lw / m.width)), Image.LANCZOS)
+    logo = Image.new("RGBA", m.size, PRIMARY + (0,))
+    logo.putalpha(m)
+    img.paste(logo, ((w - logo.width) // 2, int(h * 0.45 - logo.height / 2)), logo)
     return img
+
+
+def favicon():
+    """favicon.ico (16/32/48) + ikon 32 px."""
+    big = mark(256)
+    big.save(ROOT / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
+    mark(32).save(ROOT / "icons" / "icon-32.png", optimize=True)
 
 
 def main():
@@ -112,7 +112,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     for w, h, *_ in SPLASH:
         splash(w, h).save(out / f"splash-{w}x{h}.png", optimize=True)
-    print("ikon & splash selesai")
+    favicon()
+    print("ikon, favicon & splash selesai")
 
 
 if __name__ == "__main__":

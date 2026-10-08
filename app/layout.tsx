@@ -27,7 +27,12 @@ export const metadata: Metadata = {
   ...buildMetadata({}),
   title: { default: `${site.name} — ${site.tagline}`, template: `%s | ${site.name}` },
   icons: {
-    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
     apple: "/icons/apple-touch-icon.png",
   },
   formatDetection: { telephone: false },
