@@ -69,7 +69,7 @@ class OrderService
                 'customer_name' => $data->customerName,
                 'customer_phone' => $data->customerPhone,
                 'fulfillment' => $data->fulfillment,
-                'address' => $data->fulfillment === FulfillmentType::Delivery
+                'address' => $data->fulfillment === FulfillmentType::Delivery && $data->address
                     ? trim($data->address.($data->addressNote ? " ({$data->addressNote})" : ''))
                     : null,
                 'lat' => $data->fulfillment === FulfillmentType::Delivery ? $data->lat : null,

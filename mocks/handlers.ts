@@ -150,7 +150,8 @@ function quote(payload: OrderPayload, customer: Customer | null): QuoteResult {
 
   let deliveryFee = 0;
   let distance: number | null = null;
-  if (payload.fulfillment === "delivery") {
+  // Mode ojol: pelanggan memesan GoSend/GrabExpress sendiri → tanpa alamat/ongkir/radius.
+  if (payload.fulfillment === "delivery" && env.deliveryMode !== "ojol") {
     if (payload.address?.lat == null || payload.address?.lng == null) reject("address", "Titik lokasi pengantaran wajib diisi.");
     const q = deliveryQuote(outlet.id, payload.address!.lat, payload.address!.lng);
     if (!q.within) reject("address", `Alamat berjarak ${q.distance} km, di luar jangkauan pengantaran ${outlet.name} (maks ${outlet.delivery_radius_km} km).`);
@@ -241,9 +242,9 @@ function createOrder(payload: OrderPayload, customer: Customer | null, channel: 
     outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa },
     customer_name: payload.customer.name.trim(),
     customer_phone: phone,
-    address: payload.fulfillment === "delivery" ? `${payload.address!.text}${payload.address!.note ? ` (${payload.address!.note})` : ""}` : null,
-    lat: payload.fulfillment === "delivery" ? payload.address!.lat : null,
-    lng: payload.fulfillment === "delivery" ? payload.address!.lng : null,
+    address: payload.fulfillment === "delivery" && payload.address?.text ? `${payload.address.text}${payload.address.note ? ` (${payload.address.note})` : ""}` : null,
+    lat: payload.fulfillment === "delivery" ? (payload.address?.lat ?? null) : null,
+    lng: payload.fulfillment === "delivery" ? (payload.address?.lng ?? null) : null,
     scheduled_at: payload.scheduled_at ?? null,
     subtotal: q.subtotal,
     discount: q.discount,
@@ -407,7 +408,7 @@ function validateOrderPayload(body: OrderPayload) {
   if (!body.customer?.name?.trim()) errors["customer.name"] = ["Nama pelanggan wajib diisi."];
   if (!/^628\d{7,12}$/.test(normalizePhone(body.customer?.phone ?? ""))) errors["customer.phone"] = ["Nomor WhatsApp tidak valid. Gunakan format 08xx atau 628xx."];
   if (!["pickup", "delivery", "dine_in"].includes(body.fulfillment)) errors.fulfillment = ["Jenis layanan yang dipilih tidak valid."];
-  if (body.fulfillment === "delivery" && !body.address?.text) errors["address.text"] = ["Alamat wajib diisi."];
+  if (body.fulfillment === "delivery" && env.deliveryMode !== "ojol" && !body.address?.text) errors["address.text"] = ["Alamat wajib diisi."];
   if (!body.items?.length) errors.items = ["Item pesanan wajib diisi."];
   if (Object.keys(errors).length) throw new MockError(422, Object.values(errors)[0]![0]!, errors);
 }

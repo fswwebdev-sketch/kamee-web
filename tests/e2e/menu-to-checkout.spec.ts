@@ -72,6 +72,26 @@ test.describe("menu → checkout", () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test("kirim via ojol: tanpa alamat, pelanggan memesan GoSend/GrabExpress sendiri", async ({ page }) => {
+    await addArenKame(page);
+    await page.goto("/checkout");
+    await page.getByLabel("Nama").fill("Dinda Putri");
+    await page.getByLabel("Nomor WhatsApp").fill("081234567890");
+    await page.getByLabel("Nomor WhatsApp").blur();
+    await page.getByText("Kirim via ojol", { exact: true }).click();
+    await expect(page.getByText("Kamu pesan GoSend / GrabExpress sendiri")).toBeVisible();
+    await expect(page.getByLabel("Alamat lengkap")).toHaveCount(0);
+    await page.getByTestId("submit-order").filter({ visible: true }).click();
+
+    await expect(page).toHaveURL(/\/pesanan\/[A-Z0-9]+\/bayar/, { timeout: 20_000 });
+    await page.getByTestId("mock-confirm").click();
+    await expect(page).toHaveURL(/\/pesanan\/[A-Z0-9]+\?phone=/, { timeout: 30_000 });
+    await expect(page.getByRole("heading", { name: /Kirim via GoSend \/ GrabExpress/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Pesan GoSend" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Pesan GrabExpress" })).toBeVisible();
+    await expect(page.getByText(/Ambil pesanan KM/).first()).toBeVisible();
+  });
+
   test("validasi checkout menolak nomor WhatsApp tidak valid", async ({ page }) => {
     await addArenKame(page);
     await page.goto("/checkout");

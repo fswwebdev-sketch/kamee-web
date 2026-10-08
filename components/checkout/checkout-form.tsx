@@ -113,6 +113,7 @@ export function CheckoutForm() {
     }
   }, [v.fulfillment, defaultAddress, v.address, v.lat, setValue]);
 
+  const ojol = env.deliveryMode === "ojol";
   const outlet = outlets.find((o) => o.id === outletId);
   const phoneOk = /^628\d{7,12}$/.test(normalizePhone(v.phone ?? ""));
 
@@ -141,7 +142,7 @@ export function CheckoutForm() {
   const quoteInput = useDebounce(
     useMemo(() => {
       if (!hydrated) return null;
-      if (v.fulfillment === "delivery" && (v.lat == null || v.lng == null)) return null;
+      if (v.fulfillment === "delivery" && env.deliveryMode !== "ojol" && (v.lat == null || v.lng == null)) return null;
       const p = buildPayload(v, true);
       return p ? { ...p, scheduled_at: null, note: null } : null;
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -254,7 +255,6 @@ export function CheckoutForm() {
 
   const minSchedule = toLocalInput(new Date(Date.now() + 30 * 60_000));
   const busy = isSubmitting || createOrder.isPending || payOrder.isPending;
-  const ojol = env.deliveryMode === "ojol";
   const deliveryLabel = v.fulfillment === "delivery" ? (ojol ? "Bayar ke driver" : q ? formatRupiah(q.delivery_fee) : "Tandai lokasi di peta") : "Gratis";
   const payLabel = v.paymentMethod === "cash" ? "Buat Pesanan" : `Bayar ${formatRupiah(totals.total)}`;
 
@@ -286,7 +286,17 @@ export function CheckoutForm() {
           <div className="flex flex-col gap-4">
             <OutletPicker id="checkout-outlet" />
             <FulfillmentPicker value={v.fulfillment} onChange={(f) => setValue("fulfillment", f, { shouldValidate: true })} />
-            {v.fulfillment === "delivery" && (
+            {v.fulfillment === "delivery" && ojol && (
+              <div className="rounded-2xl bg-cream/40 p-4 text-sm text-ink" role="status">
+                <p className="font-semibold">🛵 Kamu pesan GoSend / GrabExpress sendiri</p>
+                <ol className="mt-2 flex list-decimal flex-col gap-1 pl-5 text-muted">
+                  <li>Selesaikan pesanan &amp; pembayaran di sini.</li>
+                  <li>Di halaman pesanan, ketuk <b>Pesan GoSend</b> atau <b>Pesan GrabExpress</b> — alamat jemput &amp; catatan driver bisa disalin.</li>
+                  <li>Driver mengambil pesanan di kasir Kamee. Ongkir dibayar langsung ke driver.</li>
+                </ol>
+              </div>
+            )}
+            {v.fulfillment === "delivery" && !ojol && (
               <div className="flex flex-col gap-4 rounded-2xl bg-cream/40 p-4">
                 {addresses.length > 0 && (
                   <div className="flex flex-col gap-2">
@@ -324,12 +334,7 @@ export function CheckoutForm() {
                 />
                 <Textarea label="Alamat lengkap" rows={2} autoComplete="street-address" placeholder="Nama jalan, nomor rumah, RT/RW, patokan" required error={errors.address?.message} {...register("address")} />
                 <Input label="Catatan untuk kurir" placeholder="Pagar hitam, titip satpam" {...register("addressNote")} />
-                {ojol ? (
-                  <p className="rounded-xl bg-cream px-3 py-2.5 text-sm text-ink" role="status">
-                    🛵 Dikirim via <b>GoSend / GrabExpress</b>. Ongkir dibayar langsung ke driver sesuai tarif aplikasi
-                    {q && q.delivery_distance_km != null ? <> (jarak ±{q.delivery_distance_km} km)</> : null}. Admin akan menghubungi lewat WhatsApp saat pesanan dikirim.
-                  </p>
-                ) : q && q.delivery_distance_km != null && (
+                {q && q.delivery_distance_km != null && (
                   <p className="text-sm text-ink" role="status">Jarak {q.delivery_distance_km} km · ongkir <b>{formatRupiah(q.delivery_fee)}</b></p>
                 )}
               </div>

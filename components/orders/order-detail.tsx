@@ -12,6 +12,7 @@ import { env } from "@/lib/env";
 import { formatDateTime, formatRupiah } from "@/lib/format";
 import { useTrackOrder } from "@/lib/queries/orders";
 import { waLink } from "@/lib/whatsapp";
+import { OjolSelfBooking } from "./ojol-self-booking";
 import { OrderTracker } from "./order-tracker";
 
 export function OrderDetail({ code, phone }: { code: string; phone: string }) {
@@ -40,6 +41,9 @@ export function OrderDetail({ code, phone }: { code: string; phone: string }) {
         </div>
         <StatusBadge status={order.status} label={order.status_label} />
       </div>
+
+      {/* Paling atas: pelanggan perlu memesan driver sendiri */}
+      {order.fulfillment === "delivery" && env.deliveryMode === "ojol" && <OjolSelfBooking order={order} />}
 
       <section className="rounded-3xl border border-line bg-surface p-5 md:p-6" aria-label="Status pesanan">
         <OrderTracker order={order} />
@@ -79,14 +83,11 @@ export function OrderDetail({ code, phone }: { code: string; phone: string }) {
           {order.outlet && <p className="flex gap-2 text-sm"><Store className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /> {order.outlet.name}</p>}
           {order.address && <p className="flex gap-2 text-sm"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /> {order.address}</p>}
           {order.note && <p className="text-sm text-muted">Catatan: {order.note}</p>}
-          {order.fulfillment === "delivery" && env.deliveryMode === "ojol" && (
-            <p className="rounded-xl bg-cream px-3 py-2.5 text-sm text-ink">🛵 Dikirim via GoSend / GrabExpress. Ongkir dibayar langsung ke driver. Kirim lokasi (share location) ke admin lewat tombol di bawah agar driver mudah menemukan alamat.</p>
-          )}
           {order.outlet && (
             <a
               href={waLink(
                 order.fulfillment === "delivery" && env.deliveryMode === "ojol"
-                  ? `Halo ${order.outlet.name}, pesanan ${order.code} mohon dikirim via GoSend/GrabExpress ke: ${order.address ?? "-"}. Saya kirim share location setelah pesan ini.`
+                  ? `Halo ${order.outlet.name}, pesanan ${order.code} akan diambil driver GoSend/GrabExpress yang saya pesan.`
                   : `Halo ${order.outlet.name}, saya mau tanya pesanan ${order.code}.`,
                 order.outlet.phone_wa,
               )} target="_blank" rel="noopener noreferrer" className={buttonClasses("whatsapp", "md", "mt-auto")}>

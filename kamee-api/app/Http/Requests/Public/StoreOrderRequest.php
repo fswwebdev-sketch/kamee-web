@@ -13,7 +13,9 @@ class StoreOrderRequest extends FormRequest
 {
     public function rules(): array
     {
-        $delivery = $this->input('fulfillment') === FulfillmentType::Delivery->value;
+        // Mode ojol: pelanggan memesan GoSend/GrabExpress sendiri → alamat tidak wajib.
+        $delivery = $this->input('fulfillment') === FulfillmentType::Delivery->value
+            && app(\App\Services\SettingService::class)->get('delivery_mode', 'ojol') !== 'ojol';
 
         return [
             'outlet_id' => ['required', 'integer', 'exists:outlets,id'],
