@@ -326,7 +326,7 @@ function seed(): MockAdminState {
       channel,
       fulfillment,
       fulfillment_label: "",
-      outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa },
+      outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa, address: outlet.address },
       outlet_id: outlet.id,
       customer_id: registered?.id ?? null,
       customer_name: name,

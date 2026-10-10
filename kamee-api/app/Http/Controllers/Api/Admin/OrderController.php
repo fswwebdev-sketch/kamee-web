@@ -50,7 +50,7 @@ class OrderController extends Controller
     {
         $this->authorize('viewAny', Order::class);
 
-        $orders = QueryBuilder::for(Order::query()->with('outlet:id,name,phone_wa', 'latestPayment'))
+        $orders = QueryBuilder::for(Order::query()->with('outlet:id,name,phone_wa,address', 'latestPayment'))
             ->allowedFilters([
                 AllowedFilter::exact('status'),
                 AllowedFilter::exact('outlet_id'),
@@ -131,6 +131,7 @@ class OrderController extends Controller
             $request->input('customer_phone'),
             FulfillmentType::tryFrom((string) $request->input('fulfillment')) ?? FulfillmentType::DineIn,
             $request->input('note'),
+            $request->soldAt(),
         );
 
         return (new AdminOrderResource($order->fresh()->load('items.options', 'outlet', 'payments', 'latestPayment', 'statusLogs.user', 'handler')))

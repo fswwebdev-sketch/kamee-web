@@ -34,7 +34,14 @@ class PosOrderRequest extends FormRequest
             'bank' => ['nullable', 'string', 'max:50'],
             'cash_received' => ['nullable', 'integer', 'min:0', 'max:100000000'],
             'note' => ['nullable', 'string', 'max:500'],
+            'sold_at' => ['nullable', 'date', 'after:2025-01-01', 'before_or_equal:'.now()->addMinutes(5)->toDateTimeString()],
         ];
+    }
+
+    /** Waktu transaksi susulan (null = sekarang). */
+    public function soldAt(): ?\Carbon\CarbonImmutable
+    {
+        return $this->filled('sold_at') ? \Carbon\CarbonImmutable::parse($this->validated('sold_at'), config('app.timezone'))->startOfMinute() : null;
     }
 
     /** @return list<CartItem> */
@@ -47,7 +54,7 @@ class PosOrderRequest extends FormRequest
     {
         return [
             'items' => 'item', 'customer_name' => 'nama pembeli', 'customer_phone' => 'nomor WA',
-            'payment_method' => 'metode bayar', 'cash_received' => 'uang diterima',
+            'payment_method' => 'metode bayar', 'cash_received' => 'uang diterima', 'sold_at' => 'tanggal transaksi',
         ];
     }
 
@@ -62,6 +69,7 @@ class PosOrderRequest extends FormRequest
             'fulfillment' => ['description' => 'dine_in | pickup (default dine_in)', 'example' => 'dine_in'],
             'payment_method' => ['description' => 'cash | qris | bank_transfer', 'example' => 'cash'],
             'cash_received' => ['description' => 'Uang diterima (tunai). Kurang dari total → 422.', 'example' => 50000],
+            'sold_at' => ['description' => 'Waktu transaksi untuk pencatatan susulan (Y-m-d H:i). Kosong = sekarang. Tidak boleh di masa depan.', 'example' => '2026-10-09 14:30'],
         ];
     }
 }

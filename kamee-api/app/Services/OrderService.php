@@ -14,6 +14,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderStatusLog;
 use App\Models\Outlet;
+use App\Models\StockMovement;
 use App\Models\User;
 use App\Services\Pricing\CartItem;
 use App\Services\Pricing\PricedLine;
@@ -23,6 +24,7 @@ use App\Services\WhatsApp\OrderMessages;
 use App\Support\OrderCode;
 use App\Support\Phone;
 use App\Support\Rupiah;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
@@ -134,6 +136,7 @@ class OrderService
         ?string $customerPhone = null,
         FulfillmentType $fulfillment = FulfillmentType::DineIn,
         ?string $note = null,
+        ?CarbonInterface $soldAt = null,
     ): array {
         if ($items === []) {
             throw BusinessException::field('items', 'Keranjang masih kosong.');
@@ -152,9 +155,12 @@ class OrderService
         }
         $bank = $method === PaymentMethod::BankTransfer && filled($bank) ? trim($bank) : null;
 
-        $order = DB::transaction(function () use ($outlet, $lines, $total, $actor, $method, $bank, $cashReceived, $change, $customerName, $customerPhone, $fulfillment, $note) {
+        // Pencatatan susulan hanya bila waktunya benar-benar lampau (lebih dari 1 menit).
+        $soldAt = $soldAt !== null && $soldAt->lt(now()->subMinute()) ? $soldAt : null;
+
+        $order = DB::transaction(function () use ($outlet, $lines, $total, $actor, $method, $bank, $cashReceived, $change, $customerName, $customerPhone, $fulfillment, $note, $soldAt) {
             $order = Order::create([
-                'code' => OrderCode::generate(),
+                'code' => OrderCode::generate($soldAt),
                 'customer_id' => null,
                 'outlet_id' => $outlet->id,
                 'customer_name' => filled($customerName) ? trim($customerName) : 'Pembeli langsung',
@@ -178,7 +184,7 @@ class OrderService
                 'from_status' => null,
                 'to_status' => OrderStatus::Pending->value,
                 'changed_by' => $actor->id,
-                'note' => 'Pesanan dibuat via '.OrderChannel::Pos->label(),
+                'note' => 'Pesanan dibuat via '.OrderChannel::Pos->label().($soldAt ? ' (dicatat susulan '.now()->format('d/m/Y H:i').')' : ''),
             ]);
 
             $order->payments()->create([
@@ -202,10 +208,25 @@ class OrderService
             $this->stateMachine()->transition($order, OrderStatus::Paid, $actor, 'Dibayar di kasir ('.$method->bookLabelWithBank($bank).')');
             $this->stateMachine()->completeAtCounter($order, $actor, 'Pesanan kasir selesai');
 
+            if ($soldAt !== null) {
+                $this->backdate($order, $soldAt);
+            }
+
             return $order;
         });
 
         return [$order, $change];
+    }
+
+    /** Geser semua cap waktu pesanan kasir ke waktu transaksi sebenarnya (pencatatan susulan). */
+    private function backdate(Order $order, CarbonInterface $at): void
+    {
+        Order::query()->withoutGlobalScopes()->whereKey($order->id)->update([
+            'created_at' => $at, 'updated_at' => $at, 'paid_at' => $at, 'completed_at' => $at,
+        ]);
+        $order->payments()->update(['created_at' => $at, 'updated_at' => $at, 'paid_at' => $at]);
+        OrderStatusLog::query()->where('order_id', $order->id)->update(['created_at' => $at]);
+        StockMovement::query()->where('order_id', $order->id)->update(['created_at' => $at, 'updated_at' => $at]);
     }
 
     private function stateMachine(): OrderStateMachine

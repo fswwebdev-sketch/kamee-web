@@ -239,7 +239,7 @@ function createOrder(payload: OrderPayload, customer: Customer | null, channel: 
     channel,
     fulfillment: payload.fulfillment,
     fulfillment_label: FULFILLMENT_LABEL[payload.fulfillment],
-    outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa },
+    outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa, address: outlet.address },
     customer_name: payload.customer.name.trim(),
     customer_phone: phone,
     address: payload.fulfillment === "delivery" && payload.address?.text ? `${payload.address.text}${payload.address.note ? ` (${payload.address.note})` : ""}` : null,

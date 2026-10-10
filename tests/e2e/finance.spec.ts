@@ -78,6 +78,41 @@ test.describe.serial("keuangan admin", () => {
     await expect(row.getByTestId("stock-qty")).toHaveText(`${before - 2} pcs`);
   });
 
+  test("Kasir: catat susulan dengan tanggal kemarin, struk bisa 58/80 mm", async ({ page }) => {
+    await login(page, "admin.cibodas@kamee.id");
+    await page.goto("/admin/kasir");
+
+    await page.getByTestId("pos-backdate").click();
+    const ymd = (d: Date) => new Date(d.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
+    const yesterday = ymd(new Date(Date.now() - 86_400_000));
+    await expect(page.getByTestId("pos-sale-date")).toHaveValue(yesterday);
+    await page.getByTestId("pos-sale-time").fill("14:30");
+
+    await page.getByRole("button", { name: /^Aren Kame Reguler/ }).click();
+    const opt = page.getByRole("dialog", { name: "Aren Kame Reguler" });
+    await opt.getByText("Cup", { exact: true }).click();
+    await opt.getByRole("button", { name: /Tambah ke keranjang/ }).click();
+
+    const cart = page.getByRole("complementary", { name: "Keranjang kasir" });
+    await cart.getByRole("radio", { name: "QRIS" }).click();
+    await cart.getByRole("button", { name: /^Simpan Rp18\.000/ }).click();
+
+    const done = page.getByRole("dialog", { name: /Pesanan tersimpan/ });
+    const [y, m, d] = yesterday.split("-").map(Number);
+    const label = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
+    await expect(done).toContainText(label);
+    await expect(done).toContainText("14.30");
+
+    // Jangan buka dialog cetak (dan menutup jendela) di tes
+    await page.context().addInitScript(() => (window.print = () => {}));
+    const [popup] = await Promise.all([page.waitForEvent("popup"), done.getByRole("button", { name: "Cetak struk" }).click()]);
+    const receipt = popup.getByRole("article", { name: /Struk pesanan/ });
+    await expect(receipt).toContainText("TOTAL");
+    await popup.getByRole("radio", { name: "80 mm" }).click();
+    await expect(popup.getByRole("radio", { name: "80 mm" })).toHaveAttribute("aria-checked", "true");
+    expect(Math.round((await receipt.boundingBox())!.width)).toBe(302);
+  });
+
   test("Ringkasan Keuangan 20–29 Sep 2026: pemasukan per metode & pengeluaran", async ({ page }) => {
     await login(page, "admin.cibodas@kamee.id");
     await page.goto(`/admin/keuangan?${SEPT}`);

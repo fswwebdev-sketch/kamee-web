@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/ui/misc";
@@ -9,11 +9,29 @@ import { useAdminItem } from "@/lib/admin/queries";
 import type { AdminOrder } from "@/lib/admin/types";
 import { CHANNEL_LABEL, FULFILLMENT_LABEL } from "@/lib/admin/types";
 import { formatPhone } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 /*
- * Struk thermal 58 mm. Area cetak efektif ±48 mm (≈ 32 karakter monospace 11px).
- * Selalu hitam-putih (tidak mengikuti mode gelap) karena ditujukan ke printer.
+ * Struk printer thermal 58 mm atau 80 mm (pilihan disimpan per perangkat).
+ * - 58 mm: area cetak efektif ±48 mm (≈ 32 karakter), huruf 11px.
+ * - 80 mm: area cetak efektif ±72 mm (≈ 48 karakter), huruf 12.5px.
+ * Selalu hitam-putih tebal (tidak mengikuti mode gelap) agar jelas di kertas thermal.
  */
+
+type Paper = "58" | "80";
+const PAPER_KEY = "kamee-receipt-paper";
+const PAPER: Record<Paper, { width: string; pad: string; text: string; title: string; total: string }> = {
+  "58": { width: "58mm", pad: "px-[4.5mm] py-[3mm]", text: "text-[11px] leading-[1.35]", title: "text-[15px]", total: "text-[14px]" },
+  "80": { width: "80mm", pad: "px-[4mm] py-[4mm]", text: "text-[12.5px] leading-[1.4]", title: "text-[18px]", total: "text-[16px]" },
+};
+
+function readPaper(): Paper {
+  try {
+    return localStorage.getItem(PAPER_KEY) === "80" ? "80" : "58";
+  } catch {
+    return "58";
+  }
+}
 
 const rp = (n: number) => n.toLocaleString("id-ID");
 const dt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" });
@@ -32,9 +50,20 @@ const Rule = ({ double }: { double?: boolean }) => <div className={double ? "my-
 export function Receipt({ id, autoPrint }: { id: string; autoPrint: boolean }) {
   const q = useAdminItem<AdminOrder>("orders", id);
   const printed = useRef(false);
+  const [paper, setPaperState] = useState<Paper | null>(null);
+  const setPaper = (p: Paper) => {
+    setPaperState(p);
+    try {
+      localStorage.setItem(PAPER_KEY, p);
+    } catch {
+      /* penyimpanan diblokir — pilihan berlaku untuk sesi ini saja */
+    }
+  };
+
+  useEffect(() => setPaperState(readPaper()), []);
 
   useEffect(() => {
-    if (!autoPrint || !q.data || printed.current) return;
+    if (!autoPrint || !q.data || !paper || printed.current) return;
     printed.current = true;
     // Tunggu font & layout siap sebelum dialog cetak
     const t = setTimeout(() => window.print(), 350);
@@ -44,37 +73,55 @@ export function Receipt({ id, autoPrint }: { id: string; autoPrint: boolean }) {
       clearTimeout(t);
       window.removeEventListener("afterprint", close);
     };
-  }, [autoPrint, q.data]);
+  }, [autoPrint, q.data, paper]);
 
-  if (q.isPending) return <div className="grid min-h-svh place-items-center bg-white"><Spinner label="Menyiapkan struk…" /></div>;
+  if (q.isPending || !paper) return <div className="grid min-h-svh place-items-center bg-white"><Spinner label="Menyiapkan struk…" /></div>;
   if (q.isError) return <div className="grid min-h-svh place-items-center p-6"><ErrorState title="Struk tidak dapat dimuat" description={q.error.message} onRetry={() => q.refetch()} /></div>;
 
   const o = q.data;
   const paid = o.payments?.find((p) => p.status === "paid") ?? o.payment ?? null;
   const itemCount = o.items?.reduce((s, i) => s + i.qty, 0) ?? 0;
+  const P = PAPER[paper];
 
   return (
     <div className="min-h-svh bg-neutral-200 py-6 print:bg-white print:p-0">
       <style>{`
-        @page { size: 58mm auto; margin: 0; }
+        @page { size: ${P.width} auto; margin: 0; }
         @media print {
-          html, body { background: #fff !important; width: 58mm; }
+          html, body { background: #fff !important; width: ${P.width}; margin: 0; }
           .no-print { display: none !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
 
-      <div className="no-print mx-auto mb-4 flex w-[58mm] min-w-[260px] justify-center gap-2">
+      <div className="no-print mx-auto mb-4 flex w-full max-w-[340px] flex-wrap items-center justify-center gap-2 px-3">
+        <div role="radiogroup" aria-label="Ukuran kertas" className="flex rounded-lg bg-white p-0.5 shadow-sm">
+          {(["58", "80"] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              role="radio"
+              aria-checked={paper === p}
+              onClick={() => setPaper(p)}
+              className={cn("h-9 rounded-md px-3 text-sm font-semibold", paper === p ? "bg-neutral-900 text-white" : "text-neutral-700 hover:bg-neutral-100")}
+            >
+              {p} mm
+            </button>
+          ))}
+        </div>
         <Button size="sm" onClick={() => window.print()}><Printer className="size-4" aria-hidden="true" /> Cetak</Button>
         <Button size="sm" variant="outline" onClick={() => (window.opener ? window.close() : history.back())}><X className="size-4" aria-hidden="true" /> Tutup</Button>
       </div>
 
       <article
         aria-label={`Struk pesanan ${o.code}`}
-        className="mx-auto w-[58mm] bg-white px-[3mm] py-[4mm] font-mono text-[11px] leading-[1.35] text-black shadow-lg print:shadow-none"
+        style={{ width: P.width }}
+        className={cn("mx-auto bg-white font-mono font-medium text-black shadow-lg print:shadow-none", P.pad, P.text)}
       >
         <header className="text-center">
-          <p className="text-[14px] font-bold tracking-wide">KAMEE COFFEE</p>
-          {o.outlet && <p>{o.outlet.name.replace(/^Kamee Coffee\s*/i, "") || o.outlet.name}</p>}
+          <p className={cn("font-bold tracking-wide", P.title)}>KAMEE COFFEE</p>
+          {o.outlet && (o.outlet.name.replace(/^Kamee Coffee\s*/i, "") || null) && <p>{o.outlet.name.replace(/^Kamee Coffee\s*/i, "")}</p>}
+          {o.outlet?.address && <p className="break-words">{o.outlet.address}</p>}
           {o.outlet?.phone_wa && <p>WA {formatPhone(o.outlet.phone_wa)}</p>}
         </header>
 
@@ -109,12 +156,18 @@ export function Receipt({ id, autoPrint }: { id: string; autoPrint: boolean }) {
         {o.delivery_fee > 0 && <Line left="Ongkir" right={rp(o.delivery_fee)} />}
         {o.service_fee > 0 && <Line left="Biaya layanan" right={rp(o.service_fee)} />}
         <Rule double />
-        <div className="flex justify-between text-[13px] font-bold"><span>TOTAL</span><span className="tabular-nums">Rp{rp(o.total)}</span></div>
+        <div className={cn("flex justify-between font-bold", P.total)}><span>TOTAL</span><span className="tabular-nums">Rp{rp(o.total)}</span></div>
         <Rule double />
 
         {paid ? (
           <>
             <Line left="Bayar" right={paid.method_label} />
+            {paid.method === "cash" && paid.cash_received != null && paid.cash_received > o.total && (
+              <>
+                <Line left="Diterima" right={rp(paid.cash_received)} />
+                <Line left="Kembali" right={rp(paid.change ?? paid.cash_received - o.total)} bold />
+              </>
+            )}
             <Line left="Status" right={paid.status === "paid" ? "LUNAS" : paid.status_label} bold={paid.status === "paid"} />
           </>
         ) : (
@@ -133,7 +186,8 @@ export function Receipt({ id, autoPrint }: { id: string; autoPrint: boolean }) {
         <footer className="text-center">
           <p>Terima kasih sudah ngopi</p>
           <p>di Kamee Coffee!</p>
-          <p className="mt-1">kamee.id</p>
+          <p className="mt-1">IG @kameecoffee.id</p>
+          <p>kameecoffee.com</p>
         </footer>
       </article>
     </div>

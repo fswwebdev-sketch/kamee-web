@@ -273,6 +273,37 @@ it('kasir (POS) membuat pesanan selesai, menghitung kembalian, dan memotong stok
     ])->assertUnprocessable();
 });
 
+it('kasir bisa mencatat penjualan susulan dengan tanggal lampau', function () {
+    saveDrinkRecipe($this->product, $this->susu, $this->kopi, $this->cup, $this->outlet->id);
+    $this->travelTo(now()->setDate(2026, 10, 10)->setTime(22, 0));
+
+    $res = $this->postJson('/api/v1/admin/orders/pos', [
+        'items' => [['product_id' => $this->product->id, 'qty' => 1, 'option_ids' => [$this->drink['regular']]]],
+        'payment_method' => 'qris', 'customer_name' => 'Bu Ani', 'sold_at' => '2026-10-09 14:30',
+    ])->assertCreated()->assertJsonPath('data.status', 'completed');
+
+    $order = Order::find($res->json('data.id'));
+    expect($order->created_at->format('Y-m-d H:i'))->toBe('2026-10-09 14:30')
+        ->and($order->paid_at->format('Y-m-d H:i'))->toBe('2026-10-09 14:30')
+        ->and($order->completed_at->format('Y-m-d H:i'))->toBe('2026-10-09 14:30')
+        ->and($order->code)->toStartWith('KM261009')
+        ->and($order->payments()->first()->paid_at->format('Y-m-d H:i'))->toBe('2026-10-09 14:30')
+        ->and(StockMovement::where('order_id', $order->id)->get()->every(fn ($m) => $m->created_at->format('Y-m-d') === '2026-10-09'))->toBeTrue()
+        ->and(stockOf($this->cup))->toEqual(29.0)
+        ->and($res->json('data.status_logs.0.note'))->toBe('Pesanan dibuat via Kasir (POS) (dicatat susulan 10/10/2026 22:00)');
+
+    // Tanpa sold_at → waktu sekarang; tanggal masa depan ditolak.
+    $now = $this->postJson('/api/v1/admin/orders/pos', [
+        'items' => [['product_id' => $this->product->id, 'qty' => 1, 'option_ids' => [$this->drink['regular']]]], 'payment_method' => 'cash',
+    ])->assertCreated();
+    expect(Order::find($now->json('data.id'))->created_at->format('Y-m-d H:i'))->toBe('2026-10-10 22:00');
+
+    $this->postJson('/api/v1/admin/orders/pos', [
+        'items' => [['product_id' => $this->product->id, 'qty' => 1, 'option_ids' => [$this->drink['regular']]]],
+        'payment_method' => 'cash', 'sold_at' => '2026-10-11 09:00',
+    ])->assertUnprocessable()->assertJsonValidationErrors('sold_at');
+});
+
 it('stok boleh minus dan pemotongan idempoten; dibalik sekali saat batal', function () {
     saveDrinkRecipe($this->product, $this->susu, $this->kopi, $this->cup, $this->outlet->id);
     $this->cup->forceFill(['stock_qty' => 1])->save();

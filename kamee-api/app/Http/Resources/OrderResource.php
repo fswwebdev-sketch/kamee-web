@@ -20,7 +20,7 @@ class OrderResource extends JsonResource
             'fulfillment' => $this->fulfillment->value,
             'fulfillment_label' => $this->fulfillment->label(),
             'outlet' => $this->whenLoaded('outlet', fn () => [
-                'id' => $this->outlet->id, 'name' => $this->outlet->name, 'phone_wa' => $this->outlet->phone_wa,
+                'id' => $this->outlet->id, 'name' => $this->outlet->name, 'phone_wa' => $this->outlet->phone_wa, 'address' => $this->outlet->address,
             ]),
             'customer_name' => $this->customer_name,
             'customer_phone' => $this->customer_phone,

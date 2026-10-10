@@ -654,7 +654,15 @@ export function createPosOrder(db: MockAdminState, user: AdminUser, b: Body, url
   }
 
   const now = new Date();
-  const at = wib(now);
+  // Pencatatan susulan: sold_at "YYYY-MM-DD HH:mm" (WIB), tidak boleh di masa depan.
+  const soldAt = str(b.sold_at);
+  let at = wib(now);
+  if (soldAt) {
+    const when = new Date(`${soldAt.replace(" ", "T")}:00+07:00`);
+    if (Number.isNaN(when.getTime())) throw invalid("sold_at", "Tanggal transaksi tidak valid.");
+    if (when.getTime() > now.getTime() + 5 * 60_000) throw invalid("sold_at", "Tanggal transaksi tidak boleh di masa depan.");
+    at = wib(when);
+  }
   const label = paymentLabel(method, bank);
   const payment: Payment = {
     id: nextId(db),
@@ -675,6 +683,8 @@ export function createPosOrder(db: MockAdminState, user: AdminUser, b: Body, url
     merchant_name: null,
     nmid: null,
     requires_manual_confirmation: false,
+    cash_received: method === "cash" ? (num(b.cash_received) ?? total) : null,
+    change: method === "cash" ? change : null,
   };
   const phone = str(b.customer_phone)?.replace(/\D/g, "").replace(/^0/, "62") ?? "";
   const customer = phone ? db.customers.find((c) => c.phone_wa === phone) : undefined;
@@ -687,7 +697,7 @@ export function createPosOrder(db: MockAdminState, user: AdminUser, b: Body, url
     channel: "pos",
     fulfillment,
     fulfillment_label: "",
-    outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa },
+    outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa, address: outlet.address },
     outlet_id: outlet.id,
     customer_id: customer?.id ?? null,
     customer_name: str(b.customer_name) ?? "Pembeli langsung",

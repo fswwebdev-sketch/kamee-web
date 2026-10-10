@@ -198,6 +198,9 @@ export interface Payment {
   merchant_name?: string | null;
   nmid?: string | null;
   requires_manual_confirmation?: boolean;
+  /** Kasir tunai: uang diterima & kembalian. */
+  cash_received?: number | null;
+  change?: number | null;
 }
 
 export interface OrderItem {
@@ -219,7 +222,7 @@ export interface Order {
   channel: "web" | "whatsapp" | "pos";
   fulfillment: Fulfillment;
   fulfillment_label: string;
-  outlet?: { id: number; name: string; phone_wa: string };
+  outlet?: { id: number; name: string; phone_wa: string; address?: string | null };
   customer_name: string;
   customer_phone: string;
   address: string | null;
