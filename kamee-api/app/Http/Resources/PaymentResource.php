@@ -29,6 +29,9 @@ class PaymentResource extends JsonResource
             'qr_string' => $this->qr_string,
             'va_number' => $this->va_number,
             'bank' => $this->raw_payload['bank'] ?? null,
+            // Kasir tunai: uang diterima & kembalian (untuk struk).
+            'cash_received' => $this->provider === 'pos' ? ($this->raw_payload['cash_received'] ?? null) : null,
+            'change' => $this->provider === 'pos' ? ($this->raw_payload['change'] ?? null) : null,
             'deeplink' => $this->deeplink(),
             'expires_at' => $this->expires_at?->toIso8601String(),
             'paid_at' => $this->paid_at?->toIso8601String(),

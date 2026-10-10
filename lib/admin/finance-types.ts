@@ -203,6 +203,8 @@ export interface PosInput {
   bank?: string | null;
   cash_received?: number | null;
   note?: string | null;
+  /** Catat susulan: "YYYY-MM-DD HH:mm" WIB; null = sekarang. */
+  sold_at?: string | null;
 }
 
 export interface PosResult {

@@ -525,7 +525,7 @@ export const adminHandlers = [
       status,
       fulfillment: Math.random() < 0.3 ? "delivery" : "pickup",
       outlet_id: outlet.id,
-      outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa },
+      outlet: { id: outlet.id, name: outlet.name, phone_wa: outlet.phone_wa, address: outlet.address },
       customer_id: customer.id,
       customer_name: customer.name,
       customer_phone: customer.phone_wa,

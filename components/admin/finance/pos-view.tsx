@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Coffee, Plus, Printer, ShoppingBag, Trash2 } from "lucide-react";
+import { AlertCircle, CalendarClock, CheckCircle2, Coffee, Plus, Printer, ShoppingBag, Trash2 } from "lucide-react";
 import { ProductThumb } from "@/components/admin/catalog/product-thumb";
 import { SearchInput } from "@/components/admin/ui/filters";
 import { PageHeader } from "@/components/admin/ui/page-header";
@@ -25,6 +25,89 @@ import { cn } from "@/lib/utils";
 import { MethodPicker, RupiahInput, Segmented, methodText } from "./shared";
 
 const MAX_QTY = 50;
+
+/* ------------------------------------------------------------------ Tanggal transaksi (catat susulan) */
+
+/** Tanggal & jam sekarang di WIB. */
+function nowWib() {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date());
+  const v = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return { date: `${v("year")}-${v("month")}-${v("day")}`, time: `${v("hour")}:${v("minute")}` };
+}
+
+function yesterdayWib() {
+  const d = new Date(`${nowWib().date}T12:00:00+07:00`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+const longDate = (ymd: string) =>
+  new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${ymd}T00:00:00Z`));
+
+export interface SaleTime {
+  mode: "now" | "past";
+  date: string; // YYYY-MM-DD (WIB)
+  time: string; // HH:mm
+}
+
+/** Nilai `sold_at` untuk API, atau pesan galat bila waktunya di masa depan. */
+function soldAtOf(t: SaleTime): { value: string | null; error?: string } {
+  if (t.mode === "now") return { value: null };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t.date) || !/^\d{2}:\d{2}$/.test(t.time)) return { value: null, error: "Isi tanggal dan jam transaksi." };
+  const now = nowWib();
+  if (`${t.date} ${t.time}` > `${now.date} ${now.time}`) return { value: null, error: "Tanggal transaksi tidak boleh di masa depan." };
+  return { value: `${t.date} ${t.time}` };
+}
+
+function SaleTimeBar({ value, onChange }: { value: SaleTime; onChange: (v: SaleTime) => void }) {
+  const today = nowWib().date;
+  const past = value.mode === "past";
+  return (
+    <section
+      aria-label="Waktu transaksi"
+      className={cn("mb-4 flex flex-col gap-3 rounded-2xl border p-3 sm:flex-row sm:flex-wrap sm:items-end", past ? "border-warning/50 bg-warning/10" : "border-line bg-surface")}
+    >
+      <div className="flex flex-col gap-1.5">
+        <span className="flex items-center gap-1.5 text-sm font-medium text-ink">
+          <CalendarClock className="size-4" aria-hidden="true" /> Waktu transaksi
+        </span>
+        <div role="group" aria-label="Pilih waktu transaksi" className="flex gap-2">
+          <Chip selected={!past} onClick={() => onChange({ ...value, mode: "now" })}>Sekarang</Chip>
+          <Chip selected={past} onClick={() => onChange({ mode: "past", date: value.date || yesterdayWib(), time: value.time || "12:00" })} data-testid="pos-backdate">Catat susulan</Chip>
+        </div>
+      </div>
+      {past && (
+        <>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+            Tanggal
+            <input
+              type="date"
+              value={value.date}
+              max={today}
+              min="2025-01-02"
+              onChange={(e) => e.target.value && onChange({ ...value, date: e.target.value })}
+              className="h-11 rounded-lg border border-line bg-bg px-3 text-base font-normal text-ink md:h-10 md:text-sm"
+              data-testid="pos-sale-date"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+            Jam
+            <input
+              type="time"
+              value={value.time}
+              onChange={(e) => e.target.value && onChange({ ...value, time: e.target.value })}
+              className="h-11 rounded-lg border border-line bg-bg px-3 text-base font-normal text-ink md:h-10 md:text-sm"
+              data-testid="pos-sale-time"
+            />
+          </label>
+          <p className="text-sm text-ink sm:basis-full" role="status">
+            Pesanan berikutnya dicatat pada <strong>{longDate(value.date)}</strong>, jam {value.time} WIB. Pilih <em>Sekarang</em> lagi setelah selesai.
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
 
 interface PosProduct {
   id: number;
@@ -94,6 +177,8 @@ export function PosView() {
   // Isian pembayaran disimpan di sini agar tidak hilang saat sheet keranjang (ponsel) ditutup-buka
   const [pay, setPayState] = useState<PayState>(INITIAL_PAY);
   const setPay = (patch: Partial<PayState>) => setPayState((p) => ({ ...p, ...patch }));
+  // Waktu transaksi tetap dipakai untuk pesanan berikutnya (memudahkan mencatat banyak transaksi susulan sekaligus)
+  const [sale, setSale] = useState<SaleTime>({ mode: "now", date: "", time: "" });
 
   const shown = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -126,6 +211,7 @@ export function PosView() {
       total={total}
       pay={pay}
       setPay={setPay}
+      sale={sale}
       onQty={(key, qty) => setCart((c) => (qty <= 0 ? c.filter((l) => l.key !== key) : c.map((l) => (l.key === key ? { ...l, qty: Math.min(MAX_QTY, qty) } : l))))}
       onClear={() => setCart([])}
       onSuccess={(res) => {
@@ -139,6 +225,7 @@ export function PosView() {
   return (
     <>
       <PageHeader title="Kasir" description="Catat pesanan yang dibayar langsung di outlet. Stok bahan terpotong otomatis sesuai resep." />
+      <SaleTimeBar value={sale} onChange={setSale} />
 
       <div className={cn("grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start", !isDesktop && cart.length > 0 && "pb-24")}>
         <section aria-label="Menu" className="min-w-0">
@@ -325,6 +412,7 @@ function CartPanel({
   total,
   pay,
   setPay,
+  sale,
   onQty,
   onClear,
   onSuccess,
@@ -333,6 +421,7 @@ function CartPanel({
   total: number;
   pay: PayState;
   setPay: (patch: Partial<PayState>) => void;
+  sale: SaleTime;
   onQty: (key: string, qty: number) => void;
   onClear: () => void;
   onSuccess: (res: PosResult) => void;
@@ -376,6 +465,11 @@ function CartPanel({
       setError("Isi nama bank untuk pembayaran transfer.");
       return;
     }
+    const soldAt = soldAtOf(sale);
+    if (soldAt.error) {
+      setError(soldAt.error);
+      return;
+    }
     create.mutate(
       {
         items: cart.map((l) => ({ product_id: l.product.id, qty: l.qty, option_ids: l.optionIds, note: l.note || null })),
@@ -385,6 +479,7 @@ function CartPanel({
         bank: method === "bank_transfer" ? bank.trim() : null,
         cash_received: method === "cash" ? (received ?? total) : null,
         note: note.trim() || null,
+        sold_at: soldAt.value,
       },
       {
         onSuccess: (res) => {
@@ -480,7 +575,7 @@ function CartPanel({
       )}
 
       <Button type="submit" size="lg" className="w-full" loading={create.isPending} disabled={short}>
-        Bayar {formatRupiah(total)}
+        {sale.mode === "past" ? `Simpan ${formatRupiah(total)} · ${sale.date.split("-").reverse().slice(0, 2).join("/")}` : `Bayar ${formatRupiah(total)}`}
       </Button>
     </form>
   );
@@ -538,6 +633,8 @@ function SuccessDialog({ result, onClose }: { result: PosResult | null; onClose:
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
           <dt className="text-muted">Kode pesanan</dt>
           <dd className="text-right font-mono font-semibold text-ink">{order.code}</dd>
+          <dt className="text-muted">Waktu</dt>
+          <dd className="text-right text-ink">{new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }).format(new Date(order.created_at))}</dd>
           <dt className="text-muted">Pembeli</dt>
           <dd className="text-right text-ink">{order.customer_name}</dd>
           <dt className="text-muted">Metode</dt>
