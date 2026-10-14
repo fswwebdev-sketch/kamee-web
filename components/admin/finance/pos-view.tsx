@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, CalendarClock, CheckCircle2, Coffee, Plus, Printer, ShoppingBag, Trash2 } from "lucide-react";
+import { AlertCircle, Bike, CalendarClock, CheckCircle2, Coffee, Plus, Printer, ShoppingBag, Trash2 } from "lucide-react";
 import { ProductThumb } from "@/components/admin/catalog/product-thumb";
 import { SearchInput } from "@/components/admin/ui/filters";
 import { PageHeader } from "@/components/admin/ui/page-header";
@@ -399,7 +399,7 @@ function OptionForm({ product, onClose, onAdd }: { product: PosProduct; onClose:
 
 interface PayState {
   customer: string;
-  fulfillment: "dine_in" | "pickup";
+  fulfillment: "dine_in" | "pickup" | "delivery";
   method: BookMethod;
   bank: string;
   received: number | null;
@@ -540,10 +540,17 @@ function CartPanel({
         value={fulfillment}
         onChange={setFulfillment}
         options={[
-          { value: "dine_in", label: "Makan di tempat" },
+          { value: "dine_in", label: "Makan di sini" },
           { value: "pickup", label: "Bawa pulang" },
+          { value: "delivery", label: "Gojek / Grab" },
         ]}
       />
+      {fulfillment === "delivery" && (
+        <p className="-mt-2 flex items-start gap-2 rounded-xl bg-cream/70 p-3 text-sm text-ink" data-testid="pos-ojol-hint">
+          <Bike className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <span>Pesanan diambil driver ojol (GoSend, GrabExpress, GoFood, dll.). Ongkir dibayar pelanggan langsung ke driver. Tulis nama driver atau no. booking di catatan bila perlu.</span>
+        </p>
+      )}
       <Input label="Nama pembeli (opsional)" placeholder="Pembeli langsung" value={customer} onChange={(e) => setCustomer(e.target.value)} maxLength={100} autoComplete="off" />
 
       <MethodPicker method={method} bank={bank} onMethod={setMethod} onBank={setBank} />

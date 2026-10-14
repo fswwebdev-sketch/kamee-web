@@ -259,6 +259,16 @@ it('kasir (POS) membuat pesanan selesai, menghitung kembalian, dan memotong stok
         ->assertJsonPath('data.payment.method_label', 'Transfer BJB')
         ->assertJsonPath('data.status_logs.1.note', 'Dibayar di kasir (Transfer BJB)');
 
+    // Diambil driver ojol (Gojek/Grab) → fulfillment delivery tanpa alamat & ongkir.
+    $this->postJson('/api/v1/admin/orders/pos', [
+        'items' => [['product_id' => $this->product->id, 'qty' => 1, 'option_ids' => [$this->drink['regular']]]],
+        'payment_method' => 'qris', 'customer_name' => 'Driver GoSend', 'fulfillment' => 'delivery',
+    ])->assertCreated()
+        ->assertJsonPath('data.fulfillment', 'delivery')
+        ->assertJsonPath('data.status', 'completed')
+        ->assertJsonPath('data.delivery_fee', 0)
+        ->assertJsonPath('data.address', null);
+
     // Uang kurang → 422, tidak ada pesanan baru.
     $count = Order::count();
     $this->postJson('/api/v1/admin/orders/pos', [

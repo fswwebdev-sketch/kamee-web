@@ -128,7 +128,7 @@ export function Receipt({ id, autoPrint }: { id: string; autoPrint: boolean }) {
         <Rule double />
         <Line left="No" right={o.code} bold />
         <Line left="Waktu" right={dt.format(new Date(o.created_at))} />
-        <Line left="Layanan" right={FULFILLMENT_LABEL[o.fulfillment]} />
+        <Line left="Layanan" right={o.channel === "pos" && o.fulfillment === "delivery" ? "Diambil ojol" : FULFILLMENT_LABEL[o.fulfillment]} />
         <Line left="Kanal" right={CHANNEL_LABEL[o.channel]} />
         <Line left="Pelanggan" right={o.customer_name} />
         {o.scheduled_at && <Line left="Jadwal" right={dt.format(new Date(o.scheduled_at))} />}

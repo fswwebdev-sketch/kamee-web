@@ -198,7 +198,7 @@ export interface PosInput {
   items: { product_id: number; qty: number; option_ids: number[]; note?: string | null }[];
   customer_name?: string | null;
   customer_phone?: string | null;
-  fulfillment: "dine_in" | "pickup";
+  fulfillment: "dine_in" | "pickup" | "delivery";
   payment_method: BookMethod;
   bank?: string | null;
   cash_received?: number | null;
