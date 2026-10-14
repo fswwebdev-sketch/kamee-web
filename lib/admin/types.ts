@@ -203,4 +203,4 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
 };
 
 export const CHANNEL_LABEL: Record<Order["channel"], string> = { web: "Website", whatsapp: "WhatsApp", pos: "Kasir" };
-export const FULFILLMENT_LABEL: Record<Fulfillment, string> = { pickup: "Ambil di outlet", delivery: "Delivery", dine_in: "Makan di tempat" };
+export const FULFILLMENT_LABEL: Record<Fulfillment, string> = { pickup: "Ambil di outlet", delivery: "Kirim via ojol", dine_in: "Makan di tempat" };

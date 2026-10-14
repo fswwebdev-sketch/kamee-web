@@ -617,7 +617,7 @@ export function createPosOrder(db: MockAdminState, user: AdminUser, b: Body, url
   const raw = Array.isArray(b.items) ? (b.items as Body[]) : [];
   if (!raw.length) throw invalid("items", "Keranjang kasir masih kosong.");
   const fulfillment = b.fulfillment ?? "dine_in";
-  if (fulfillment !== "dine_in" && fulfillment !== "pickup") throw invalid("fulfillment", "Layanan harus makan di tempat atau ambil.");
+  if (fulfillment !== "dine_in" && fulfillment !== "pickup" && fulfillment !== "delivery") throw invalid("fulfillment", "Layanan harus makan di tempat, bawa pulang, atau diambil ojol.");
   if (!isBookMethod(b.payment_method)) throw invalid("payment_method", "Metode bayar harus Tunai, QRIS, atau Transfer.");
   const method = b.payment_method;
   const bank = method === "bank_transfer" ? str(b.bank) : null;
