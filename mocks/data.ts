@@ -146,6 +146,8 @@ const catalog: Row[] = [
 /** Galeri menu dengan foto asli: [file, ukuran] — sama dengan CatalogSeeder::PHOTOS. */
 const PHOTOS: Record<string, [string, string | null][]> = {
   americano: [["americano", null], ["americano-foto", "Bottle 1 L"], ["americano-foto-2", "Bottle 1 L"]],
+  "kame-orangecano": [["kame-orangecano-foto", "Cup"], ["kame-orangecano-foto-2", "Cup"], ["kame-orangecano-foto-3", "Cup"]],
+  "spanish-latte-kame": [["spanish-latte-kame-foto", "Cup"], ["spanish-latte-kame-foto-2", "Cup"], ["spanish-latte-kame-foto-3", "Cup"]],
   "pandan-latte-kame": [["pandan-latte-kame-foto", "Cup"], ["pandan-latte-kame-foto-2", "Cup"], ["pandan-latte-kame-foto-3", "Cup"]],
   "regular-chocolate": [["regular-chocolate-foto", "Cup"], ["regular-chocolate-foto-2", "Cup"], ["regular-chocolate-foto-3", "Cup"]],
   "mont-blanc": [["mont-blanc-foto", null], ["mont-blanc-foto-2", null], ["mont-blanc-foto-3", null]],
